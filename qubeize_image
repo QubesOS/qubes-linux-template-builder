@@ -1,0 +1,68 @@
+#!/bin/sh
+
+CLEANIMG=$1
+NAME=$2
+IS_NETVM=$3
+
+if [ $# -eq 0 ]; then
+echo "usage $0 <clean_image_file> <template_name>"
+echo "usage $0 <clean_image_file> <template_name> netvm"
+exit
+fi
+
+if [ x$CLEANIMG = x ]; then
+echo "Image file not specified!"
+fi
+
+if [ x$NAME = x ]; then
+echo "Name not given!"
+fi
+
+ID=$(id -ur)
+
+if [ $ID != 0 ] ; then
+    echo "This script should be run as root user."
+    exit 1
+fi
+
+
+IMG=qubeized_images/$NAME-root.img
+echo "--> Copying $CLEANIMG to $IMG..."
+cp $CLEANIMG $IMG || exit 1
+
+echo "--> Mouting $IMG"
+
+mkdir -p mnt
+mount -o loop,offset=$((63*512)) qubeized_images/$NAME-root.img mnt || exit 1
+
+echo "--> Installing RPMs..."
+rpm --force --root=$(pwd)/mnt -ihv rpms_to_install/*
+
+
+echo "--> Copying the Apps Menu shortcuts..."
+APPSORIG=qubeized_images/$NAME-apps.orig
+APPSTEMPL=qubeized_images/$NAME-apps.templates
+mkdir -p $APPSORIG
+cp -r $(pwd)/mnt/usr/share/applications/* $APPSORIG
+
+if [ x$IS_NETVM != x ]; then
+    if ! [ -d netvm/apps.templates ] ; then
+        echo "--> ERROR: Missing netvm/apps.templates directory."
+        exit 1
+    fi
+else
+    echo "--> Createing the Apps Menu templates..."
+    ./create_apps_templates.sh $APPSORIG $APPSTEMPL
+fi
+
+if [ x$IS_NETVM == x ]; then
+    echo "--> Installing 3rd party apps"
+    ./add_3rd_party_software.sh
+fi
+
+
+echo "--> Unmounting $IMG"
+umount mnt
+
+echo "Qubeized image stored at: $IMG"
+

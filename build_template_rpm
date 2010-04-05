@@ -1,0 +1,9 @@
+#!/bin/sh
+NAME=$1
+
+if [ x$NAME = x ] ; then
+echo "usage $0 <template_name>"
+exit 
+fi
+
+rpmbuild --sign --target noarch --define "template_name $NAME" -bb templates.spec
