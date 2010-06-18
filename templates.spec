@@ -44,8 +44,8 @@ sed -e s/%TEMPLATENAME%/%{template_name}/ < vm_conf_files/templatevm.conf >\
      $RPM_BUILD_ROOT/%{dest_dir}/%{template_name}.conf
 
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/kernels
-cp vm_kernels/vmlinuz $RPM_BUILD_ROOT/%{dest_dir}/kernels/vmlinuz
-cp vm_kernels/initramfs $RPM_BUILD_ROOT/%{dest_dir}/kernels/initramfs
+cp vm_kernels_appvm/vmlinuz $RPM_BUILD_ROOT/%{dest_dir}/kernels/vmlinuz
+cp vm_kernels_appvm/initramfs $RPM_BUILD_ROOT/%{dest_dir}/kernels/initramfs
 
 cp vm_initramfs_patches/qubes_cow_setup.sh $RPM_BUILD_ROOT/%{dest_dir}/kernels/qubes_cow_setup.sh
 

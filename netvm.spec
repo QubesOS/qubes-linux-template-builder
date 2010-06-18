@@ -5,6 +5,8 @@
 
 %{!?version: %define version %(cat version_netvm)}
 
+%define _binaries_in_noarch_packages_terminate_build 0
+
 Name:		qubes-servicevm-%{netvm_name}
 Version:	%{version}
 Release:	1
@@ -40,8 +42,8 @@ sed -e s/%NETVMNAME%/%{netvm_name}/ < vm_conf_files/netvm.conf >\
      $RPM_BUILD_ROOT/%{dest_dir}/%{netvm_name}.conf
 
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/kernels
-cp vm_kernels/vmlinuz $RPM_BUILD_ROOT/%{dest_dir}/kernels/vmlinuz
-cp vm_kernels/initramfs $RPM_BUILD_ROOT/%{dest_dir}/kernels/initramfs
+cp vm_kernels_netvm/vmlinuz $RPM_BUILD_ROOT/%{dest_dir}/kernels/vmlinuz
+cp vm_kernels_netvm/initramfs $RPM_BUILD_ROOT/%{dest_dir}/kernels/initramfs
 
 cp vm_initramfs_patches/qubes_cow_setup.sh $RPM_BUILD_ROOT/%{dest_dir}/kernels/qubes_cow_setup.sh
 
