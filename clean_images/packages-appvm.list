@@ -1,0 +1,16 @@
+@base
+@core
+@editors
+@fonts
+@base-x
+@printing
+@kde-desktop
+@graphics
+@input-methods
+@system-tools
+@admin-tools
+@sound-and-video
+@office
+koffice-suite
+firefox
+thunderbird

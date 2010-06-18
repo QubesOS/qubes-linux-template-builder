@@ -3,21 +3,32 @@ The Template Builder
 
 (applies also to the netvm builder)
 
-1) get a clean image of a Linux install (e.g. by using virt-install) NOTE: We
-assume that the image will have a two-partition layout:
+1) First, create a clean image of Fedora Linux install. You can use the fedoraize_image
+script for this:
+
+fedorize_image <image> <file-with-packets-lists>
+
+NOTE: The fedorize_image script can be also used to update an image -- it
+automatically assumes the update mode if the <image> already exists.
+
+The fedorize image takes care about creating proper partition table, that
+contains root and swap partitions, to create the initial rpm database, and
+install some core packages.
+
+We assume that the image will have a two-partition layout:
 
 img1 <--- the root fs (/)
 img2 <--- the swap
 
-2) update symlinks in rpms_to_install so that they point to the current version
-of rpms to install
+2) Update symlinks in rpms_to_install_XXX/ so that they point to the current version
+of Qubes-specific rpms to install you want to use (e.g. qubes-gui-vm, etc).
 
 3) Now, you can "qubeize" the image. This must be done as root. E.g.:
 
-# ./qubeize_image clean_images/some_image.img f12-x64-compact
+# ./qubeize_image <img> <template-name>
 
-4) Make sure the symlinks in vm_kernels point to correct kernel and initramfs
-files.
+4) Make sure the symlinks in vm_kernels_XXX/ point to correct kernel and initramfs
+files you want to use for the template:
 
 4a) In order to prepare a patched initramfs file, use the
 patch_appvm_initramfs.sh program that is installed as part of
@@ -28,8 +39,6 @@ qubes-core-dom0.rpm:
 	 <filename_for_patched_initramfs> \
 	 /abs_path/vm-initramfs-patches/qubes_cow_setup.sh 
 
-
-4b) Manually adjust the appmenus
 
 5) Finally, build the Template RPM (do it as normal user, not root), e.g.: 
 

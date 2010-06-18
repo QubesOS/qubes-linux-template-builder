@@ -1,0 +1,43 @@
+#!/bin/sh
+
+IMG=$1
+PKGLISTFILE=$2
+
+if ! [ $# -eq 2 ]; then
+echo "usage $0 <img_file_name> <package_list>"
+exit
+fi
+
+
+if [ -f $IMG ]; then
+        echo "-> Image file already exists, assuming *update*..."
+        mount -o loop,offset=$((63*512)) $IMG mnt || exit 1
+        INSTALLDIR=`pwd`/mnt/
+else
+
+        echo "-> Initializing empty image with part table and filesystems..."
+        cp clean_images/clean-starter.img $IMG
+
+        touch $IMG || exit 1
+
+        mkdir -p mnt
+        mount -o loop,offset=$((63*512)) $IMG mnt || exit 1
+
+        INSTALLDIR=`pwd`/mnt/
+
+        echo "-> Initializing RPM database..."
+        rpm --initdb --root=$INSTALLDIR
+        rpm --import --root=$INSTALLDIR keys/*
+
+        echo "-> Installing core RPM packages..."
+        rpm -i --root=$INSTALLDIR base_rpms/setup-*.rpm
+        rpm -i --root=$INSTALLDIR base_rpms/filesystem-*.rpm
+        rpm -i --root=$INSTALLDIR base_rpms/fedora-release-*.rpm
+
+fi
+
+PKGGROUPS=$(cat $PKGLISTFILE)
+echo "-> Installing package groups..."
+yum install --installroot=$INSTALLDIR $PKGGROUPS
+
+umount mnt
