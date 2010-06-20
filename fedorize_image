@@ -16,7 +16,7 @@ if [ -f $IMG ]; then
 else
 
         echo "-> Initializing empty image with part table and filesystems..."
-        cp clean_images/clean-starter.img $IMG
+        tar kOxf clean_images/clean-starter.img.tar > $IMG
 
         touch $IMG || exit 1
 
