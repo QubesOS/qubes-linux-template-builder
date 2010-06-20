@@ -34,6 +34,9 @@ else
         rpm -i --root=$INSTALLDIR base_rpms/filesystem-*.rpm
         rpm -i --root=$INSTALLDIR base_rpms/fedora-release-*.rpm
 
+        cp clean_images/network $INSTALLDIR/etc/sysconfig
+        cp clean_images/resolv.conf $INSTALLDIR/etc
+
 fi
 
 PKGGROUPS=$(cat $PKGLISTFILE)
