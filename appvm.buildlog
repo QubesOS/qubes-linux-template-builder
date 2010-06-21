@@ -1,0 +1,17 @@
+$ su
+
+# ./fedorize_image fedorized_images/f13-x64-root.img clean_images/packages-appvm.list 
+
+# kpartx -a qubeized_images/linux-x64-root.img
+# mount /dev/mapper/loop0p1 mnt/
+# cp mnt/boot/initramfs-2.6.34-4.domU.qubes.x86_64 mnt/boot/vmlinuz-2.6.34-4.domU.qubes.x86_64 vm_kernels_appvm
+# cd vm_kernels_appvm
+# ../../core/dom0/aux-tools/patch_appvm_initramfs.sh initramfs-2.6.34-4.domU.qubes.x86_64 initramfs-2.6.34-4.domU.qubes.x86_64.qubeized `pwd`/../vm_initramfs_patches/qubes_cow_setup.sh 
+# ln -sf initramfs-2.6.34-4.domU.qubes.x86_64.qubeized initramfs
+# ln -sf vmlinuz-2.6.34-4.domU.qubes.x86_64 vmlinuz
+
+# ./qubeize_image_appvm fedorized_images/f13-x64-root.img linux-x64
+
+# exit
+
+$ ./build_template_rpm linux-x64
