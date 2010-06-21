@@ -3,6 +3,7 @@
 @editors
 @hardware-support
 @base-x
-@kde-desktop
+kdebse
 xterm
-
+bridge-utils
+stalonetray
