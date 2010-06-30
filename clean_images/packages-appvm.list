@@ -14,3 +14,4 @@
 firefox
 thunderbird
 keepassx
+--exclude=kdegames
