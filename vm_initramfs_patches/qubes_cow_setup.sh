@@ -9,7 +9,7 @@ if [ -e /dev/mapper/dmroot ] ; then
     die "Qubes: FATAL error: /dev/mapper/dmroot already exists?!"
 fi
 
-modprobe xen-blkfront || echo "Qubes: Cannot load Xen Block Frontend..."
+modprobe xenblk || modprobe xen-blkfront || echo "Qubes: Cannot load Xen Block Frontend..."
 
 echo "Waiting for /dev/xvda* devices..."
 while ! [ -e /dev/xvda ]; do sleep 0.1; done
