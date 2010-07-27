@@ -51,6 +51,8 @@ echo "--> Createing the Apps Menu templates..."
 echo "--> Installing 3rd party apps"
 ./add_3rd_party_software.sh
 
+echo "--> Copying DispVM dotfiles dir..."
+cp dispvm-dotfiles.tbz mnt/etc/
 
 echo "--> Unmounting $IMG"
 umount mnt
