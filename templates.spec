@@ -43,6 +43,8 @@ cp vm_conf_files/templatevm.conf $RPM_BUILD_ROOT/%{dest_dir}/templatevm.conf
 sed -e s/%TEMPLATENAME%/%{template_name}/ < vm_conf_files/templatevm.conf >\
      $RPM_BUILD_ROOT/%{dest_dir}/%{template_name}.conf
 
+cp vm_conf_files/dispvm-prerun.sh $RPM_BUILD_ROOT/%{dest_dir}/
+
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/kernels
 cp vm_kernels_appvm/vmlinuz $RPM_BUILD_ROOT/%{dest_dir}/kernels/vmlinuz
 cp vm_kernels_appvm/initramfs $RPM_BUILD_ROOT/%{dest_dir}/kernels/initramfs
@@ -115,6 +117,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dest_dir}/appvm-template.conf
 %{dest_dir}/templatevm.conf
 %{dest_dir}/%{template_name}.conf
+%{dest_dir}/dispvm-prerun.sh
 %dir %{dest_dir}/kernels
 %{dest_dir}/kernels/vmlinuz
 %{dest_dir}/kernels/initramfs
