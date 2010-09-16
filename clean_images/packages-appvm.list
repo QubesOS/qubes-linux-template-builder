@@ -14,4 +14,5 @@
 firefox
 thunderbird
 keepassx
+perl-File-MimeInfo
 --exclude=kdegames
