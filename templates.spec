@@ -20,6 +20,7 @@ Requires:	qubes-core-dom0 xdg-utils
 %define _rpmdir %(pwd)/rpm
 %define dest_dir /var/lib/qubes/vm-templates/%{template_name}
 
+%define _binaries_in_noarch_packages_terminate_build 0
 %description
 Qubes template for %{template_name}
 
