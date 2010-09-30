@@ -14,7 +14,8 @@ License:	GPL
 URL:		http://www.qubes-os.org
 Source:		.
 
-Requires:	qubes-core-dom0 xdg-utils
+Requires:	qubes-core-dom0 >= 1.3.8
+Requires:	xdg-utils
 
 %define _builddir %(pwd)
 %define _rpmdir %(pwd)/rpm
@@ -91,6 +92,9 @@ if [ "$1" = 1 ] ; then
     # installing for the first time
     qvm-add-template --rpm %{template_name}
 fi
+
+echo "--> Recreating VM conf files..."
+/usr/lib/qubes/reset_vm_configs.py %template_name}
 
 %preun
 if [ "$1" = 0 ] ; then
