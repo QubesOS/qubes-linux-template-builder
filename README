@@ -27,6 +27,10 @@ of Qubes-specific rpms to install you want to use (e.g. qubes-gui-vm, etc).
 
 # ./qubeize_image <img> <template-name>
 
+3a) You should remove yum cached files, and override unused block with
+zeroes, via
+# ./cleanup_image qubeized_images/name-root.img
+
 4) Make sure the symlinks in vm_kernels_XXX/ point to correct kernel and initramfs
 files you want to use for the template:
 
