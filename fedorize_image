@@ -41,6 +41,6 @@ fi
 
 PKGGROUPS=$(cat $PKGLISTFILE)
 echo "-> Installing package groups..."
-yum install --installroot=$INSTALLDIR $PKGGROUPS
+yum install -y --installroot=$INSTALLDIR $PKGGROUPS
 
 umount mnt
