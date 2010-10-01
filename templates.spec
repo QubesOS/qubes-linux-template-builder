@@ -59,6 +59,16 @@ cp -r qubeized_images/%{template_name}-apps.templates/* $RPM_BUILD_ROOT/%{dest_d
 cp -r qubeized_images/%{template_name}-apps/* $RPM_BUILD_ROOT/%{dest_dir}/apps
 touch $RPM_BUILD_ROOT/%{dest_dir}/icon.png
 
+%pre
+
+export XDG_DATA_DIRS=/usr/share/
+if [ "$1" -gt 1 ] ; then
+    # upgrading already installed template...
+    echo "--> Removing previous menu shortcuts..."
+    xdg-desktop-menu uninstall --mode system %{dest_dir}/apps/*.directory %{dest_dir}/apps/*.desktop
+fi
+
+
 %post
 echo "--> Processing the root.img... (this might take a while)"
 cat %{dest_dir}/root.img.part.* | tar --sparse -xf - -C %{dest_dir}
@@ -78,11 +88,6 @@ fi
 
 
 export XDG_DATA_DIRS=/usr/share/
-if [ "$1" -gt 1 ] ; then
-    # upgrading already installed template...
-    echo "--> Removing previous menu shortcuts..."
-    xdg-desktop-menu uninstall --mode system %{dest_dir}/apps/*.directory %{dest_dir}/apps/*.desktop
-fi
 
 echo "--> Instaling menu shortcuts..."
 ln -sf /usr/share/qubes/icons/template.png %{dest_dir}/icon.png
