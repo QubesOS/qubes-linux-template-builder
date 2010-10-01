@@ -94,7 +94,7 @@ if [ "$1" = 1 ] ; then
 fi
 
 echo "--> Recreating VM conf files..."
-/usr/lib/qubes/reset_vm_configs.py %template_name}
+/usr/lib/qubes/reset_vm_configs.py %{template_name}
 
 %preun
 if [ "$1" = 0 ] ; then
