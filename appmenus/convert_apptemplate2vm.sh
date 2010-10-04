@@ -6,7 +6,7 @@ VMDIR=$4
 
 DST=$DSTDIR/$VMNAME-$(basename $SRC)
 
-sed -e "s/%VMNAME%/$VMNAME/" \
+sed -e "s/%VMNAME%/$VMNAME/g" \
     -e "s %VMDIR% $VMDIR " \
         <$SRC >$DST
 
