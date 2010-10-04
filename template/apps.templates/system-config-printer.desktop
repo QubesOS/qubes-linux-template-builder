@@ -114,9 +114,10 @@ Comment[uk]=Налаштовування принтерів
 Comment[vi]=Cấu hình máy in
 Comment[zh_CN]=配置打印机
 Comment[zh_TW]=設定印表機
-Exec=qvm-run -q --tray -a %VMNAME% 'system-config-printer'
+Exec=qvm-run -q --tray -a --user=root %VMNAME% "system-config-printer"
 Terminal=false
 Type=Application
+Icon=printer
 X-Desktop-File-Install-Version=0.16
 Categories=GTK;Printing;HardwareSettings;Settings;System;
 X-Qubes-VmName=%VMNAME%

@@ -1,6 +1,7 @@
 [Desktop Entry]
 Type=Application
-Exec=qvm-run -q --tray -a %VMNAME% 'konsole'
+Exec=qvm-run -q --tray -a --user=root %VMNAME% "konsole"
+Icon=utilities-terminal
 X-DocPath=konsole/index.html
 Terminal=false
 X-KDE-StartupNotify=true

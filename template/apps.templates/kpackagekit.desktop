@@ -1,6 +1,7 @@
 [Desktop Entry]
 Type=Application
-Exec=qvm-run -q --tray -a %VMNAME% 'kpackagekit -caption "%c" %i %F'
+Icon=applications-other
+Exec=qvm-run -q --tray -a --user=root %VMNAME% "kpackagekit -caption "%c" %i %F"
 X-DBUS-StartupType=Unique
 X-DBUS-ServiceName=org.kde.KPackageKit
 
