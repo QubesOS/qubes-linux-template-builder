@@ -59,3 +59,5 @@ umount mnt
 
 echo "Qubeized image stored at: $IMG"
 
+echo "Reducing image size (calling cleanup_image)..."
+./cleanup_image $IMG
