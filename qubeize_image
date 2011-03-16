@@ -33,10 +33,10 @@ cp $CLEANIMG $IMG || exit 1
 echo "--> Mouting $IMG"
 
 mkdir -p mnt
-mount -o loop,offset=$((63*512)) qubeized_images/$NAME-root.img mnt || exit 1
+mount -o loop,offset=$((63*512)) $IMG mnt || exit 1
 
 echo "--> Installing RPMs..."
-rpm --force --nodeps --root=$(pwd)/mnt -ihv rpms_to_install_netvm/*
+rpm --force --root=$(pwd)/mnt -ihv rpms_to_install/*
 
 
 echo "--> Copying the Apps Menu shortcuts..."
@@ -45,13 +45,27 @@ APPSTEMPL=qubeized_images/$NAME-apps.templates
 mkdir -p $APPSORIG
 cp -r $(pwd)/mnt/usr/share/applications/* $APPSORIG
 
-if ! [ -d netvm/apps.templates ] ; then
-echo "--> ERROR: Missing netvm/apps.templates directory."
-exit 1
-fi
+echo "--> Createing the Apps Menu templates..."
+./create_apps_templates.sh $APPSORIG $APPSTEMPL
+
+echo "--> Installing 3rd party apps"
+./add_3rd_party_software.sh
+
+echo "--> Copying DispVM dotfiles dir..."
+cp dispvm-dotfiles.tbz mnt/etc/
+
+echo "--> Linking /home to /rw/home..."
+mv mnt/home mnt/home.orig
+ln -sf /rw/home mnt/home
+
+echo "--> Linking /usr/local to /rw/usrlocal..."
+mv mnt/usr/local mnt/usr/local.orig
+ln -sf /rw/usrlocal mnt/usr/local
 
 echo "--> Unmounting $IMG"
 umount mnt
 
 echo "Qubeized image stored at: $IMG"
 
+echo "Reducing image size (calling cleanup_image)..."
+./cleanup_image $IMG
