@@ -43,7 +43,7 @@ touch $RPM_BUILD_ROOT/%{dest_dir}/private.img # we will create the real file in 
 cp vm_conf_files/appvm-template.conf $RPM_BUILD_ROOT/%{dest_dir}/appvm-template.conf
 cp vm_conf_files/netvm-template.conf $RPM_BUILD_ROOT/%{dest_dir}/netvm-template.conf
 cp vm_conf_files/templatevm.conf $RPM_BUILD_ROOT/%{dest_dir}/templatevm.conf
-sed -e s/%TEMPLATENAME%/%{template_name}/ < vm_conf_files/templatevm.conf >\
+sed -e s/%TEMPLATENAME%/%{template_name}/g < vm_conf_files/templatevm.conf >\
      $RPM_BUILD_ROOT/%{dest_dir}/%{template_name}.conf
 
 cp vm_conf_files/dispvm-prerun.sh $RPM_BUILD_ROOT/%{dest_dir}/
