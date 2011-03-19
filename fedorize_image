@@ -11,17 +11,18 @@ fi
 
 if [ -f $IMG ]; then
         echo "-> Image file already exists, assuming *update*..."
-        mount -o loop,offset=$((63*512)) $IMG mnt || exit 1
+        mount -o loop $IMG mnt || exit 1
         INSTALLDIR=`pwd`/mnt/
 else
 
-        echo "-> Initializing empty image with part table and filesystems..."
-        tar kOxf clean_images/clean-starter.img.tar > $IMG
+        echo "-> Initializing empty image..."
+        truncate -s 10G $IMG || exit 1
 
-        touch $IMG || exit 1
+        echo "-> Creating filesystem..."
+        mkfs.ext4 -F $IMG || exit 1
 
         mkdir -p mnt
-        mount -o loop,offset=$((63*512)) $IMG mnt || exit 1
+        mount -o loop $IMG mnt || exit 1
 
         INSTALLDIR=`pwd`/mnt/
 

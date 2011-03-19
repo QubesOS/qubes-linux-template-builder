@@ -33,7 +33,7 @@ cp $CLEANIMG $IMG || exit 1
 echo "--> Mouting $IMG"
 
 mkdir -p mnt
-mount -o loop,offset=$((63*512)) $IMG mnt || exit 1
+mount -o loop $IMG mnt || exit 1
 
 echo "--> Installing RPMs..."
 rpm --force --root=$(pwd)/mnt -ihv rpms_to_install/*

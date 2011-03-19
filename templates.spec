@@ -40,6 +40,8 @@ for i in qubeized_images/root.img.part.* ; do ln $i $RPM_BUILD_ROOT/%{dest_dir}/
 touch $RPM_BUILD_ROOT/%{dest_dir}/root.img # we will create the real file in %post
 touch $RPM_BUILD_ROOT/%{dest_dir}/private.img # we will create the real file in %post
 
+cp clean_images/clean-volatile.img.tar $RPM_BUILD_ROOT/%{dest_dir}/clean-volatile.img.tar
+
 cp vm_conf_files/appvm-template.conf $RPM_BUILD_ROOT/%{dest_dir}/appvm-template.conf
 cp vm_conf_files/netvm-template.conf $RPM_BUILD_ROOT/%{dest_dir}/netvm-template.conf
 cp vm_conf_files/templatevm.conf $RPM_BUILD_ROOT/%{dest_dir}/templatevm.conf
@@ -77,6 +79,9 @@ rm -f %{dest_dir}/root.img.part.*
 mv %{dest_dir}/%{template_name}-root.img %{dest_dir}/root.img
 chown root.qubes %{dest_dir}/root.img
 chmod 0660 %{dest_dir}/root.img
+
+echo "--> Processing the clean-volatile.img..."
+tar --sparse -xf {dest_dir}/clean-volatile.img.tar -C %{dest_dir}
 
 if [ "$1" = 1 ] ; then
     # installing for the first time
@@ -126,6 +131,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{dest_dir}
 %ghost %{dest_dir}/root.img
 %{dest_dir}/root.img.part.*
+%ghost %{dest_dir}/clean-volatile.img
+%{dest_dir}/clean-volatile.img.tar
 %ghost %{dest_dir}/private.img
 %{dest_dir}/appvm-template.conf
 %{dest_dir}/netvm-template.conf
