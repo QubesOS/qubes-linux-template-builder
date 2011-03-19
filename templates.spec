@@ -80,8 +80,10 @@ mv %{dest_dir}/%{template_name}-root.img %{dest_dir}/root.img
 chown root.qubes %{dest_dir}/root.img
 chmod 0660 %{dest_dir}/root.img
 
-echo "--> Processing the clean-volatile.img..."
-tar --sparse -xf {dest_dir}/clean-volatile.img.tar -C %{dest_dir}
+echo "--> Processing the volatile.img..."
+tar --sparse -xf %{dest_dir}/clean-volatile.img.tar -C %{dest_dir}
+chown root.qubes %{dest_dir}/volatile.img
+chmod 0660 %{dest_dir}/volatile.img
 
 if [ "$1" = 1 ] ; then
     # installing for the first time
@@ -131,8 +133,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{dest_dir}
 %ghost %{dest_dir}/root.img
 %{dest_dir}/root.img.part.*
-%ghost %{dest_dir}/clean-volatile.img
 %{dest_dir}/clean-volatile.img.tar
+%ghost %{dest_dir}/volatile.img
 %ghost %{dest_dir}/private.img
 %{dest_dir}/appvm-template.conf
 %{dest_dir}/netvm-template.conf
