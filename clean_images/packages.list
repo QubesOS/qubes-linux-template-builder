@@ -12,6 +12,7 @@
 @admin-tools
 @sound-and-video
 @office
+gnupg
 NetworkManager-gnome
 bridge-utils
 ethtool
