@@ -14,7 +14,7 @@ License:	GPL
 URL:		http://www.qubes-os.org
 Source:		.
 
-Requires:	qubes-core-dom0 >= 1.3.8
+Requires:	qubes-core-dom0 >= 1.4.1
 Requires:	xdg-utils
 
 %define _builddir %(pwd)
