@@ -1,8 +1,0 @@
-[Desktop Entry]
-Type=Application
-Exec=(qvm-run -q --tray -a --user=root %VMNAME% "stalonetray --background white" && qvm-run -q %VMNAME% --user=root "/usr/bin/nm-applet &")
-Icon=%VMDIR%/icon.png
-Name=%VMNAME%: Show Tray
-Categories=System
-StartupNotify=false
-X-Qubes-VmName=%VMNAME%
