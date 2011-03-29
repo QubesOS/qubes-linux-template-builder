@@ -1,5 +1,5 @@
 [Desktop Entry]
 Encoding=UTF-8
 Type=Directory
-Name=%VMNAME% (VM)
+Name=Domain: %VMNAME%
 Icon=%VMDIR%/icon.png
