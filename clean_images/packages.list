@@ -6,6 +6,7 @@
 @base-x
 @printing
 @kde-desktop
+@gnome-desktop
 @input-methods
 @system-tools
 @admin-tools
