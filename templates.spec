@@ -141,6 +141,7 @@ rm -rf $RPM_BUILD_ROOT
 %{dest_dir}/root.img.part.*
 %{dest_dir}/clean-volatile.img.tar
 %ghost %{dest_dir}/volatile.img
+%ghost %{dest_dir}/root-cow.img
 %ghost %{dest_dir}/private.img
 %{dest_dir}/appvm-template.conf
 %{dest_dir}/netvm-template.conf
