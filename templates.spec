@@ -115,7 +115,12 @@ qvm-template-commit %{template_name}
 %preun
 if [ "$1" = 0 ] ; then
     # no more packages left
-    qvm-remove -q --just-db %{template_name}
+    # First remove DispVM template (even if not exists...)
+    qvm-remove -q %{template_name}-dvm
+
+    if ! qvm-remove -q --just-db %{template_name}; then
+        exit 1
+    fi
 
     # we need to have it here, because rpm -U <template>
     # apparently executes %preun of the old package *after* %post of the new packages...
