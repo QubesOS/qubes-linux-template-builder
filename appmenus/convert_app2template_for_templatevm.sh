@@ -10,6 +10,7 @@ sed -e "s/^\(Name.*\)=\(.*\)/\1=%VMNAME%: \2/" \
         grep -v "^Mime" | \
         grep -v "^TryExec" | \
         grep -v "^OnlyShowIn" | \
+        grep -v "^NotShowIn" | \
         grep -v "^Startup" >$DST
 
 #echo "Categories=%VMNAME%" >> $DST
