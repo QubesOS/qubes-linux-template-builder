@@ -58,9 +58,11 @@ cp vm_kernels/initramfs $RPM_BUILD_ROOT/%{dest_dir}/kernels/initramfs
 cp vm_initramfs_patches/qubes_cow_setup.sh $RPM_BUILD_ROOT/%{dest_dir}/kernels/qubes_cow_setup.sh
 
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
+mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps-template.templates
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps
 cp -r qubeized_images/%{template_name}-apps.templates/* $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
 cp -r qubeized_images/%{template_name}-apps/* $RPM_BUILD_ROOT/%{dest_dir}/apps
+cp -r appmenus/apps_templates_for_templatevm/* $RPM_BUILD_ROOT/%{dest_dir}/apps-template.templates
 touch $RPM_BUILD_ROOT/%{dest_dir}/icon.png
 
 %pre
@@ -156,4 +158,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr (664,root,qubes) %{dest_dir}/apps/*
 %attr (775,root,qubes) %dir %{dest_dir}/apps.templates
 %attr (664,root,qubes) %{dest_dir}/apps.templates/*
+%attr (775,root,qubes) %dir %{dest_dir}/apps-template.templates
+%attr (664,root,qubes) %{dest_dir}/apps-template.templates/*
 %{dest_dir}/icon.png
