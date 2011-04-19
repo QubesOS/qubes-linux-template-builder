@@ -3,13 +3,14 @@ SRC=$1
 DSTDIR=$2
 DST=$DSTDIR/$(basename $SRC)
 
-# Do not copy KDE/GNOME specific apps, e.g. "Home", "Find files", etc
-if grep -q OnlyShowIn $SRC ; then
+if ! grep -q ^Name $SRC ; then
+    echo "WARNING: app $SRC doesn't have Name keyword, skipping..."
     exit 0
 fi
 
-if ! grep -q ^Name $SRC ; then
-    echo "WARNING: app $SRC doesn't have Name keyword, skipping..."
+# Skip all the appmenus not explicitly white-listed
+DESKTOP_NAME=$(basename $SRC)
+if ! grep -q ^$DESKTOP_NAME$ appmenus/whitelisted-appmenus.list ; then
     exit 0
 fi
 
@@ -20,6 +21,8 @@ sed -e "s/^\(Name.*\)=\(.*\)/\1=%VMNAME%: \2/" \
         grep -v "^Mime" | \
         grep -v "^Icon" | \
         grep -v "^TryExec" | \
+        grep -v "^OnlyShowIn" | \
+        grep -v "^NotShowIn" | \
         grep -v "^Startup" >$DST
 
 echo X-Qubes-VmName=%VMNAME% >> $DST

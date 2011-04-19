@@ -9,15 +9,6 @@ fedorize_image <image> <file-with-packets-lists>
 NOTE: The fedorize_image script can be also used to update an image -- it
 automatically assumes the update mode if the <image> already exists.
 
-The fedorize image takes care about creating proper partition table, that
-contains root and swap partitions, to create the initial rpm database, and
-install some core packages.
-
-We assume that the image will have a two-partition layout:
-
-img1 <--- the root fs (/)
-img2 <--- the swap
-
 2) Update symlinks in rpms_to_install_XXX/ so that they point to the current version
 of Qubes-specific rpms to install you want to use (e.g. qubes-gui-vm, etc).
 

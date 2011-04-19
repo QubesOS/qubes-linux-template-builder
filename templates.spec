@@ -30,7 +30,7 @@ cd qubeized_images
 rm -f root.img.part.*
 tar --sparse -cf - %{template_name}-root.img | split -d -b 1G - root.img.part.
 cd ..
-./create_apps_for_templatevm.sh template/apps.templates/ %{template_name} %{dest_dir} qubeized_images/%{template_name}-apps
+./create_apps_for_templatevm.sh appmenus/apps_templates_for_templatevm %{template_name} %{dest_dir} qubeized_images/%{template_name}-apps
 
 
 %install
@@ -141,7 +141,6 @@ rm -rf $RPM_BUILD_ROOT
 %{dest_dir}/root.img.part.*
 %{dest_dir}/clean-volatile.img.tar
 %ghost %{dest_dir}/volatile.img
-%ghost %{dest_dir}/root-cow.img
 %ghost %{dest_dir}/private.img
 %{dest_dir}/appvm-template.conf
 %{dest_dir}/netvm-template.conf
