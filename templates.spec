@@ -63,6 +63,7 @@ mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps
 cp -r qubeized_images/%{template_name}-apps.templates/* $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
 cp -r qubeized_images/%{template_name}-apps/* $RPM_BUILD_ROOT/%{dest_dir}/apps
 cp -r appmenus/apps_templates_for_templatevm/* $RPM_BUILD_ROOT/%{dest_dir}/apps-template.templates
+cp appmenus/qubes-templatevm.directory.template $RPM_BUILD_ROOT/%{dest_dir}/apps-template.templates
 touch $RPM_BUILD_ROOT/%{dest_dir}/icon.png
 
 %pre
