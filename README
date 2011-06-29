@@ -16,20 +16,7 @@ of Qubes-specific rpms to install you want to use (e.g. qubes-gui-vm, etc).
 
 # ./qubeize_image <img> <template-name>
 
-4) Make sure the symlinks in vm_kernels_XXX/ point to correct kernel and initramfs
-files you want to use for the template:
-
-4a) In order to prepare a patched initramfs file, use the
-patch_appvm_initramfs.sh program that is installed as part of
-qubes-core-dom0.rpm:
-
-# /usr/lib/qubes/patch_appvm_initramfs.sh \
-	<original_initrafms> \
-	 <filename_for_patched_initramfs> \
-	 /abs_path/vm-initramfs-patches/qubes_cow_setup.sh 
-
-
-5) Finally, build the Template RPM (do it as normal user, not root), e.g.: 
+4) Finally, build the Template RPM (do it as normal user, not root), e.g.: 
 
 $./build_rpm <name>
 

@@ -15,6 +15,7 @@ URL:		http://www.qubes-os.org
 Source:		.
 
 Requires:	qubes-core-dom0 >= 1.4.1
+Requires:   kernel-qubes-vm
 Requires:	xdg-utils
 
 %define _builddir %(pwd)
@@ -43,12 +44,6 @@ touch $RPM_BUILD_ROOT/%{dest_dir}/private.img # we will create the real file in 
 cp clean_images/clean-volatile.img.tar $RPM_BUILD_ROOT/%{dest_dir}/clean-volatile.img.tar
 
 cp vm_conf_files/dispvm-prerun.sh $RPM_BUILD_ROOT/%{dest_dir}/
-
-mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/kernels
-cp vm_kernels/vmlinuz $RPM_BUILD_ROOT/%{dest_dir}/kernels/vmlinuz
-cp vm_kernels/initramfs $RPM_BUILD_ROOT/%{dest_dir}/kernels/initramfs
-
-cp vm_initramfs_patches/qubes_cow_setup.sh $RPM_BUILD_ROOT/%{dest_dir}/kernels/qubes_cow_setup.sh
 
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps-template.templates
@@ -136,10 +131,6 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %{dest_dir}/volatile.img
 %ghost %{dest_dir}/private.img
 %{dest_dir}/dispvm-prerun.sh
-%dir %{dest_dir}/kernels
-%{dest_dir}/kernels/vmlinuz
-%{dest_dir}/kernels/initramfs
-%{dest_dir}/kernels/qubes_cow_setup.sh
 %attr (775,root,qubes) %dir %{dest_dir}/apps
 %attr (664,root,qubes) %{dest_dir}/apps/*
 %attr (775,root,qubes) %dir %{dest_dir}/apps.templates
