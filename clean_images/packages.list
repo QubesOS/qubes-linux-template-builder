@@ -23,3 +23,4 @@ keepassx
 perl-File-MimeInfo
 gnome-terminal
 --exclude=kdegames
+yum-plugin-post-transaction-actions
