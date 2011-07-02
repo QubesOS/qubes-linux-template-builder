@@ -9,8 +9,11 @@ fedorize_image <image> <file-with-packets-lists>
 NOTE: The fedorize_image script can be also used to update an image -- it
 automatically assumes the update mode if the <image> already exists.
 
-2) Update symlinks in rpms_to_install_XXX/ so that they point to the current version
-of Qubes-specific rpms to install you want to use (e.g. qubes-gui-vm, etc).
+2) Update symlinks in rpms_to_install/ using the create_symlinks_in_rpms_to_install_dir.sh script. The script
+reads the core, gui, and xen packages versions from version_{core,gui,xen} files and creates appropriate symlinks
+in rpms_to_install/ dir.
+
+Verify that all symlinks are correct.
 
 3) Now, you can "qubeize" the image. This must be done as root. E.g.:
 
