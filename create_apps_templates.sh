@@ -10,5 +10,3 @@ fi
 rm -f $APPSTMPL/*
 mkdir -p $APPSTMPL
 find $APPSORIG -name "*.desktop" -exec appmenus/convert_app2template.sh {} $APPSTMPL \;
-
-cp appmenus/qubes-vm.directory.template $APPSTMPL

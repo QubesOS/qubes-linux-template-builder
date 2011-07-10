@@ -31,7 +31,6 @@ cd qubeized_images
 rm -f root.img.part.*
 tar --sparse -cf - %{template_name}-root.img | split -d -b 1G - root.img.part.
 cd ..
-./create_apps_for_templatevm.sh appmenus/apps_templates_for_templatevm %{template_name} %{dest_dir} qubeized_images/%{template_name}-apps
 
 
 %install
@@ -46,12 +45,9 @@ cp clean_images/clean-volatile.img.tar $RPM_BUILD_ROOT/%{dest_dir}/clean-volatil
 cp vm_conf_files/dispvm-prerun.sh $RPM_BUILD_ROOT/%{dest_dir}/
 
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
-mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps-template.templates
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps
 cp -r qubeized_images/%{template_name}-apps.templates/* $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
-cp -r qubeized_images/%{template_name}-apps/* $RPM_BUILD_ROOT/%{dest_dir}/apps
-cp -r appmenus/apps_templates_for_templatevm/* $RPM_BUILD_ROOT/%{dest_dir}/apps-template.templates
-cp appmenus/qubes-templatevm.directory.template $RPM_BUILD_ROOT/%{dest_dir}/apps-template.templates
+cp appmenus/whitelisted-appmenus.list appmenus/vm-whitelisted-appmenus.list $RPM_BUILD_ROOT/%{dest_dir}/
 touch $RPM_BUILD_ROOT/%{dest_dir}/icon.png
 
 %pre
@@ -91,7 +87,7 @@ export XDG_DATA_DIRS=/usr/share/
 
 echo "--> Instaling menu shortcuts..."
 ln -sf /usr/share/qubes/icons/template.png %{dest_dir}/icon.png
-xdg-desktop-menu install --mode system %{dest_dir}/apps/*.directory %{dest_dir}/apps/*.desktop
+/usr/lib/qubes/create_apps_for_appvm.sh %{dest_dir}/apps.templates %{template_name} vm-templates
 
 if [ "$1" = 1 ] ; then
     # installing for the first time
@@ -132,9 +128,8 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %{dest_dir}/private.img
 %{dest_dir}/dispvm-prerun.sh
 %attr (775,root,qubes) %dir %{dest_dir}/apps
-%attr (664,root,qubes) %{dest_dir}/apps/*
 %attr (775,root,qubes) %dir %{dest_dir}/apps.templates
 %attr (664,root,qubes) %{dest_dir}/apps.templates/*
-%attr (775,root,qubes) %dir %{dest_dir}/apps-template.templates
-%attr (664,root,qubes) %{dest_dir}/apps-template.templates/*
+%attr (664,root,qubes) %{dest_dir}/whitelisted-appmenus.list
+%attr (664,root,qubes) %{dest_dir}/vm-whitelisted-appmenus.list
 %{dest_dir}/icon.png
