@@ -3,7 +3,7 @@
 # This includes the VM's root image, patched with all qubes rpms, etc
 #
 
-%{!?version: %define version %(cat version_appvm)}
+%{!?version: %define version %(cat version)}
 
 Name:		qubes-template-%{template_name}
 Version:	%{version}

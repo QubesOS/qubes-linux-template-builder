@@ -24,3 +24,4 @@ perl-File-MimeInfo
 gnome-terminal
 yum-plugin-post-transaction-actions
 --exclude=kdegames
+yum-plugin-post-transaction-actions
