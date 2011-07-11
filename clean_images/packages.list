@@ -22,4 +22,5 @@ thunderbird
 keepassx
 perl-File-MimeInfo
 gnome-terminal
+yum-plugin-post-transaction-actions
 --exclude=kdegames
