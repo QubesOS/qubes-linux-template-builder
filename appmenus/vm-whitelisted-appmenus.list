@@ -2,8 +2,4 @@ gnome-terminal.desktop
 gnome-nautilus-home.desktop
 mozilla-firefox.desktop
 mozilla-thunderbird.desktop
-openoffice.org-calc.desktop
-openoffice.org-draw.desktop
-openoffice.org-impress.desktop
-openoffice.org-math.desktop
-openoffice.org-writer.desktop
+openoffice.org-startcenter.desktop
