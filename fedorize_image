@@ -45,8 +45,9 @@ else
 
 fi
 
+mount -t proc proc mnt/proc
 PKGGROUPS=$(cat $PKGLISTFILE)
 echo "-> Installing package groups..."
 yum install -y --installroot=$INSTALLDIR $PKGGROUPS
 
-umount mnt
+umount mnt/proc mnt
