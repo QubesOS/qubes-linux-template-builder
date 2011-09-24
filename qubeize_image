@@ -34,6 +34,7 @@ echo "--> Mouting $IMG"
 
 mkdir -p mnt
 mount -o loop $IMG mnt || exit 1
+mount -t proc proc mnt/proc
 
 echo "--> Installing RPMs..."
 rpm --force --root=$(pwd)/mnt -ihv rpms_to_install/*
@@ -63,7 +64,7 @@ mv mnt/usr/local mnt/usr/local.orig
 ln -sf /rw/usrlocal mnt/usr/local
 
 echo "--> Unmounting $IMG"
-umount mnt
+umount mnt/proc mnt
 
 echo "Qubeized image stored at: $IMG"
 
