@@ -3,6 +3,8 @@
 IMG=$1
 PKGLISTFILE=$2
 
+: ${DIST=fc14}
+
 if ! [ $# -eq 2 ]; then
 echo "usage $0 <img_file_name> <package_list>"
 exit
@@ -14,6 +16,11 @@ if [ -f $IMG ]; then
         mount -o loop $IMG mnt || exit 1
         INSTALLDIR=`pwd`/mnt/
 else
+
+        echo "-> Preparing instalation of $DIST template..."
+        rm -f keys base_rpms
+        ln -sf keys_$DIST keys
+        ln -sf base_rpms_$DIST base_rpms
 
         echo "-> Initializing empty image..."
         truncate -s 10G $IMG || exit 1
@@ -31,9 +38,7 @@ else
         rpm --import --root=$INSTALLDIR keys/*
 
         echo "-> Installing core RPM packages..."
-        rpm -i --root=$INSTALLDIR base_rpms/setup-*.rpm
-        rpm -i --root=$INSTALLDIR base_rpms/filesystem-*.rpm
-        rpm -i --root=$INSTALLDIR base_rpms/fedora-release-*.rpm
+        rpm -i --root=$INSTALLDIR base_rpms/*.rpm
 
         cp clean_images/network $INSTALLDIR/etc/sysconfig
         cp clean_images/resolv.conf $INSTALLDIR/etc
