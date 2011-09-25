@@ -24,3 +24,4 @@ perl-File-MimeInfo
 gnome-terminal
 --exclude=kdegames
 yum-plugin-post-transaction-actions
+liblzma.so.0()(64bit)
