@@ -3,6 +3,8 @@
 IMG=$1
 PKGLISTFILE=$2
 
+RETCODE=0
+
 : ${DIST=fc14}
 
 if ! [ $# -eq 2 ]; then
@@ -38,7 +40,7 @@ else
         rpm --import --root=$INSTALLDIR keys/*
 
         echo "-> Installing core RPM packages..."
-        rpm -i --root=$INSTALLDIR base_rpms/*.rpm
+        rpm -i --root=$INSTALLDIR base_rpms/*.rpm || exit 1
 
         cp clean_images/network $INSTALLDIR/etc/sysconfig
         cp clean_images/resolv.conf $INSTALLDIR/etc
@@ -48,6 +50,8 @@ fi
 mount -t proc proc mnt/proc
 PKGGROUPS=$(cat $PKGLISTFILE)
 echo "-> Installing package groups..."
-yum install -y --installroot=$INSTALLDIR $PKGGROUPS
+yum install -y --installroot=$INSTALLDIR $PKGGROUPS || RETCODE=1
 
 umount mnt/proc mnt
+
+exit $RETCODE

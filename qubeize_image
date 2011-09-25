@@ -3,6 +3,8 @@
 CLEANIMG=$1
 NAME=$2
 
+set -e
+
 if [ $# -eq 0 ]; then
 echo "usage $0 <clean_image_file> <template_name>"
 exit
