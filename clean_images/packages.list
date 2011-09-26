@@ -23,5 +23,6 @@ keepassx
 perl-File-MimeInfo
 gnome-terminal
 --exclude=kdegames
+--exclude=firstboot
 yum-plugin-post-transaction-actions
 liblzma.so.0()(64bit)
