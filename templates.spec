@@ -39,6 +39,7 @@ mkdir -p $RPM_BUILD_ROOT/%{dest_dir}
 for i in qubeized_images/root.img.part.* ; do ln $i $RPM_BUILD_ROOT/%{dest_dir}/`basename $i` ; done
 touch $RPM_BUILD_ROOT/%{dest_dir}/root.img # we will create the real file in %post
 touch $RPM_BUILD_ROOT/%{dest_dir}/private.img # we will create the real file in %post
+touch $RPM_BUILD_ROOT/%{dest_dir}/volatile.img # we will create the real file in %post
 
 cp clean_images/clean-volatile.img.tar $RPM_BUILD_ROOT/%{dest_dir}/clean-volatile.img.tar
 
