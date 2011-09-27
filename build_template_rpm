@@ -6,4 +6,7 @@ echo "usage $0 <template_name>"
 exit 
 fi
 
-rpmbuild --sign --target noarch --define "template_name $NAME" -bb templates.spec
+SIGN_OPT=--sign
+[ "$NO_SIGN" = "1" ] && SIGN_OPT=
+
+rpmbuild $SIGN_OPT --target noarch --define "template_name $NAME" -bb templates.spec
