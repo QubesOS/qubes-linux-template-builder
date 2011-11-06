@@ -3,7 +3,7 @@ NAME=$1
 
 if [ x$NAME = x ] ; then
 echo "usage $0 <template_name>"
-exit 
+exit 1
 fi
 
 SIGN_OPT=--sign
