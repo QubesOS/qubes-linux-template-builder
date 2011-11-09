@@ -25,7 +25,8 @@ update-repo-installer:
 clean:
 	sudo rm -fr qubeized_images/root.img.*
 	sudo rm -fr qubeized_images/$(TEMPLATE_NAME)*
-	sudo rm -fr rpmbuild/*
+	sudo rm -fr rpmbuild/BUILDROOT/*
+	sudo rm -fr rpmbuild/tmp/*
 	# We're not removing any images from fedorized_images/ intentionally
 	# because the user might want to keep using the same image for a long time
 	# and they are not dependent on any of the Qubes packahes
