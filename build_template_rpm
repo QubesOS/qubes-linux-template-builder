@@ -12,4 +12,5 @@ SIGN_OPT=--sign
 rpmbuild $SIGN_OPT --target noarch \
          --define "template_name $NAME" \
          --define "_topdir $PWD/rpmbuild" \
+         --define "_tmppath $PWD/rpmbuild/tmp" \
          -bb templates.spec
