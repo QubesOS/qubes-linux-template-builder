@@ -9,4 +9,7 @@ fi
 SIGN_OPT=--sign
 [ "$NO_SIGN" = "1" ] && SIGN_OPT=
 
-rpmbuild $SIGN_OPT --target noarch --define "template_name $NAME" -bb templates.spec
+rpmbuild $SIGN_OPT --target noarch \
+         --define "template_name $NAME" \
+         --define "_topdir $PWD/rpmbuild" \
+         -bb templates.spec
