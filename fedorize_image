@@ -50,7 +50,7 @@ fi
 mount -t proc proc mnt/proc
 PKGGROUPS=$(cat $PKGLISTFILE)
 echo "-> Installing package groups..."
-yum install $YUM_OPTS -y --installroot=$INSTALLDIR $PKGGROUPS || RETCODE=1
+yum install -c $PWD/yum.conf $YUM_OPTS -y --installroot=$INSTALLDIR $PKGGROUPS || RETCODE=1
 
 umount mnt/proc mnt
 
