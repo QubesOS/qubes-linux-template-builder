@@ -8,6 +8,7 @@ VERSION := $(shell cat version)
 help:
 	@echo "make rpms                  -- generate template rpm"
 	@echo "make update-repo-installer -- copy newly generated rpm to installer repo"
+	@echo "make clean                 -- copy newly generated rpm to installer repo"
 
 
 rpms:
@@ -21,4 +22,10 @@ rpms:
 update-repo-installer:	
 	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-*.noarch.rpm ../installer/yum/qubes-dom0/rpm
 
+clean:
+	sudo rm -fr qubeized_images/root.img.*
+	sudo rm -fr qubeized_images/$(TEMPLATE_NAME)*
+	# We're not removing any images from fedorized_images/ intentionally
+	# because the user might want to keep using the same image for a long time
+	# and they are not dependent on any of the Qubes packahes
 
