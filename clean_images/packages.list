@@ -22,6 +22,7 @@ thunderbird
 keepassx
 perl-File-MimeInfo
 gnome-terminal
+Terminal
 --exclude=kdegames
 --exclude=firstboot
 yum-plugin-post-transaction-actions
