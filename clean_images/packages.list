@@ -26,3 +26,6 @@ gnome-terminal
 --exclude=firstboot
 yum-plugin-post-transaction-actions
 liblzma.so.0()(64bit)
+git
+createrepo
+rpm-build
