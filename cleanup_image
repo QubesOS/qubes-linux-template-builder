@@ -2,6 +2,8 @@
 
 IMG=$1
 
+set -e
+
 if ! [ $# -eq 1 ]; then
 	echo "usage $0 <img_file_name>"
 	exit 1
@@ -16,7 +18,12 @@ ls -als $IMG
 mount -o loop $IMG mnt || exit 1
 INSTALLDIR=`pwd`/mnt/
 yum -c $PWD/yum.conf clean packages --installroot=$INSTALLDIR
-dd if=/dev/zero of=mnt/fillme bs=1M
+
+# Make sure that rpm database has right format (for rpm version in template, not host)
+echo "--> Rebuilding rpm database..."
+chroot `pwd`/mnt /bin/rpm --rebuilddb
+
+dd if=/dev/zero of=mnt/fillme bs=1M || true
 sync
 rm mnt/fillme
 umount mnt
