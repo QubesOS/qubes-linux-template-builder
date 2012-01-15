@@ -101,9 +101,9 @@ qvm-template-commit %{template_name}
 if [ "$1" = 0 ] ; then
     # no more packages left
     # First remove DispVM template (even if not exists...)
-    qvm-remove -q %{template_name}-dvm
+    qvm-remove --force-root -q %{template_name}-dvm
 
-    if ! qvm-remove -q --just-db %{template_name}; then
+    if ! qvm-remove --force-root -q --just-db %{template_name}; then
         exit 1
     fi
 
