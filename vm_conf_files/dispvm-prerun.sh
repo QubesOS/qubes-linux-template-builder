@@ -1,6 +1,6 @@
 #!/bin/sh
 
-apps="evince okular openoffice gwenview firefox"
+apps="evince /usr/libexec/evinced soffice firefox"
 
 cat /etc/dispvm-dotfiles.tbz | tar -xjf- --overwrite -C /home/user --owner user 2>&1 >/tmp/dispvm-dotfiles-errors.log
 
