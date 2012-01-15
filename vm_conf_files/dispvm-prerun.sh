@@ -10,7 +10,15 @@ for app in $apps ; do
 done
 
 echo "Sleeping..."
-sleep 60
+PREV_IO=0
+while true; do
+	IO=`vmstat -D | awk '/read|write/ {IOs+=$1} END {print IOs}'`
+	if [ $IO -lt $[ $PREV_IO + 50 ] ]; then
+		break;
+	fi
+	PREV_IO=$IO
+	sleep 1
+done
 
 ps ax > /tmp/dispvm-prerun-proclist.log
 
