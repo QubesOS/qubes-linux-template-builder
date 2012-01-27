@@ -6,10 +6,7 @@ echo "usage $0 <template_name>"
 exit 1
 fi
 
-SIGN_OPT=--sign
-[ "$NO_SIGN" = "1" ] && SIGN_OPT=
-
-rpmbuild $SIGN_OPT --target noarch \
+rpmbuild --target noarch \
          --define "template_name $NAME" \
          --define "_topdir $PWD/rpmbuild" \
          --define "_tmppath $PWD/rpmbuild/tmp" \
