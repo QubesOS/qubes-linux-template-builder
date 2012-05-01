@@ -49,6 +49,7 @@ mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps
 cp -r qubeized_images/%{template_name}-apps.templates/* $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
 cp appmenus/whitelisted-appmenus.list appmenus/vm-whitelisted-appmenus.list $RPM_BUILD_ROOT/%{dest_dir}/
+cp appmenus/netvm-whitelisted-appmenus.list $RPM_BUILD_ROOT/%{dest_dir}/
 touch $RPM_BUILD_ROOT/%{dest_dir}/icon.png
 
 %pre
@@ -133,4 +134,5 @@ rm -rf $RPM_BUILD_ROOT
 %attr (664,root,qubes) %{dest_dir}/apps.templates/*
 %attr (664,root,qubes) %{dest_dir}/whitelisted-appmenus.list
 %attr (664,root,qubes) %{dest_dir}/vm-whitelisted-appmenus.list
+%attr (664,root,qubes) %{dest_dir}/netvm-whitelisted-appmenus.list
 %{dest_dir}/icon.png
