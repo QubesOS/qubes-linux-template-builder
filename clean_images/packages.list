@@ -26,6 +26,7 @@ Terminal
 --exclude=kdegames
 --exclude=firstboot
 yum-plugin-post-transaction-actions
+tinyproxy
 liblzma.so.0()(64bit)
 git
 createrepo
