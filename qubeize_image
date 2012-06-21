@@ -41,6 +41,8 @@ mount -t proc proc mnt/proc
 echo "--> Installing RPMs..."
 rpm --force --root=$(pwd)/mnt -ihv rpms_to_install/*
 
+echo "--> Installing 3rd party apps"
+./add_3rd_party_software.sh
 
 echo "--> Copying the Apps Menu shortcuts..."
 APPSORIG=qubeized_images/$NAME-apps.orig
@@ -50,9 +52,6 @@ cp -r $(pwd)/mnt/usr/share/applications/* $APPSORIG
 
 echo "--> Createing the Apps Menu templates..."
 ./create_apps_templates.sh $APPSORIG $APPSTEMPL
-
-echo "--> Installing 3rd party apps"
-./add_3rd_party_software.sh
 
 echo "--> Copying DispVM dotfiles dir..."
 cp dispvm-dotfiles.tbz mnt/etc/
