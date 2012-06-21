@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+X-Qubes-VmName=%VMNAME%
+Icon=%VMDIR%/icon.png
+Name=%VMNAME%: Add/Remove Applications
+GenericName=%VMNAME%: Add/Remove Applications
+Comment= Qubes VM Manager Settings - Applications tab
+Categories=System
+Exec= qubes-manager-settings %VMNAME% applications
