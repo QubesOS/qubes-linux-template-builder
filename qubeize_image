@@ -48,8 +48,16 @@ APPSTEMPL=qubeized_images/$NAME-apps.templates
 mkdir -p $APPSORIG
 cp -r $(pwd)/mnt/usr/share/applications/* $APPSORIG
 
-echo "--> Createing the Apps Menu templates..."
+echo "--> Creating the Apps Menu templates..."
 ./create_apps_templates.sh $APPSORIG $APPSTEMPL
+
+echo "--> Choosing appmenus whitelists..."
+rm -f appmenus
+if [ -d "appmenus_$DIST" ]; then
+    ln -s "appmenus_$DIST" appmenus
+else
+    ln -s "appmenus_generic" appmenus
+fi
 
 echo "--> Installing 3rd party apps"
 ./add_3rd_party_software.sh
