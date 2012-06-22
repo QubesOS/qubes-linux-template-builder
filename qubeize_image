@@ -53,9 +53,6 @@ cp -r $(pwd)/mnt/usr/share/applications/* $APPSORIG
 echo "--> Createing the Apps Menu templates..."
 ./create_apps_templates.sh $APPSORIG $APPSTEMPL
 
-echo "--> Copying extra appmenus..."
-cp qubes-specific-appmenus/*.desktop $APPSTEMPL
-
 echo "--> Copying DispVM dotfiles dir..."
 cp dispvm-dotfiles.tbz mnt/etc/
 
