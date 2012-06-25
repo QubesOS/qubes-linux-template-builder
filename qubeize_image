@@ -39,7 +39,7 @@ mount -o loop $IMG mnt || exit 1
 mount -t proc proc mnt/proc
 
 echo "--> Installing RPMs..."
-rpm --force --root=$(pwd)/mnt -ihv rpms_to_install/*
+yum install -c $PWD/yum.conf $YUM_OPTS -y --installroot=$(pwd)/mnt rpms_to_install/*rpm
 
 
 echo "--> Copying the Apps Menu shortcuts..."
