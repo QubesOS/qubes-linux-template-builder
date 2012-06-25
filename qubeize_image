@@ -39,7 +39,7 @@ mount -o loop $IMG mnt || exit 1
 mount -t proc proc mnt/proc
 
 echo "--> Installing RPMs..."
-rpm --force --root=$(pwd)/mnt -ihv rpms_to_install/*
+yum install -c $PWD/yum.conf $YUM_OPTS -y --installroot=$(pwd)/mnt rpms_to_install/*rpm
 
 echo "--> Installing 3rd party apps"
 ./add_3rd_party_software.sh
@@ -50,8 +50,19 @@ APPSTEMPL=qubeized_images/$NAME-apps.templates
 mkdir -p $APPSORIG
 cp -r $(pwd)/mnt/usr/share/applications/* $APPSORIG
 
-echo "--> Createing the Apps Menu templates..."
+echo "--> Creating the Apps Menu templates..."
 ./create_apps_templates.sh $APPSORIG $APPSTEMPL
+
+echo "--> Choosing appmenus whitelists..."
+rm -f appmenus
+if [ -d "appmenus_$DIST" ]; then
+    ln -s "appmenus_$DIST" appmenus
+else
+    ln -s "appmenus_generic" appmenus
+fi
+
+echo "--> Installing 3rd party apps"
+./add_3rd_party_software.sh
 
 echo "--> Copying DispVM dotfiles dir..."
 cp dispvm-dotfiles.tbz mnt/etc/
