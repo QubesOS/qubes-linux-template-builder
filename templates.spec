@@ -43,8 +43,6 @@ touch $RPM_BUILD_ROOT/%{dest_dir}/volatile.img # we will create the real file in
 
 cp clean_images/clean-volatile.img.tar $RPM_BUILD_ROOT/%{dest_dir}/clean-volatile.img.tar
 
-cp vm_conf_files/dispvm-prerun.sh $RPM_BUILD_ROOT/%{dest_dir}/
-
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps
 cp -r qubeized_images/%{template_name}-apps.templates/* $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
@@ -128,7 +126,6 @@ rm -rf $RPM_BUILD_ROOT
 %{dest_dir}/clean-volatile.img.tar
 %ghost %{dest_dir}/volatile.img
 %ghost %{dest_dir}/private.img
-%{dest_dir}/dispvm-prerun.sh
 %attr (775,root,qubes) %dir %{dest_dir}/apps
 %attr (775,root,qubes) %dir %{dest_dir}/apps.templates
 %attr (664,root,qubes) %{dest_dir}/apps.templates/*
