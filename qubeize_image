@@ -64,9 +64,6 @@ fi
 echo "--> Installing 3rd party apps"
 ./add_3rd_party_software.sh
 
-echo "--> Copying DispVM dotfiles dir..."
-cp dispvm-dotfiles.tbz mnt/etc/
-
 echo "--> Linking /home to /rw/home..."
 mv mnt/home mnt/home.orig
 ln -sf /rw/home mnt/home
