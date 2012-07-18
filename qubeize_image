@@ -41,6 +41,8 @@ mount -t proc proc mnt/proc
 echo "--> Installing RPMs..."
 yum install -c $PWD/yum.conf $YUM_OPTS -y --installroot=$(pwd)/mnt rpms_to_install/*rpm
 
+echo "--> Installing 3rd party apps"
+./add_3rd_party_software.sh
 
 echo "--> Copying the Apps Menu shortcuts..."
 APPSORIG=qubeized_images/$NAME-apps.orig
