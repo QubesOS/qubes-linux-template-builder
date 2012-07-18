@@ -34,4 +34,8 @@ ln -s $SRC_ROOT/addons/rpm/x86_64/thunderbird-qubes-$VERSION_TB.rpm thunderbird-
 VERSION_GPG=$(cat $SRC_ROOT/addons/gpg-split/version)-1.$DIST.x86_64
 ln -s $SRC_ROOT/addons/rpm/x86_64/qubes-gpg-split-$VERSION_GPG.rpm qubes-gpg-split.rpm
 
+# FIXME: rel hardcoded
+VERSION_DOCS=$(cat $SRC_ROOT/docs/version)-1.noarch
+ln -s $SRC_ROOT/docs/rpm/noarch/qubes-doc-vm-$VERSION_DOCS.rpm qubes-doc-vm.rpm
+
 popd
