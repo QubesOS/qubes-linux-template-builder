@@ -25,6 +25,7 @@ gnome-terminal
 Terminal
 --exclude=kdegames
 --exclude=firstboot
+--exclude=xorg-x11-drv-nouveau
 yum-plugin-post-transaction-actions
 tinyproxy
 liblzma.so.0()(64bit)
