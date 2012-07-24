@@ -32,3 +32,4 @@ liblzma.so.0()(64bit)
 git
 createrepo
 rpm-build
+./rpms_to_install/qubes-core-vm-kernel-placeholder.rpm

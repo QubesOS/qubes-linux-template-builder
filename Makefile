@@ -14,8 +14,8 @@ help:
 rpms:
 	@export DIST NO_SIGN
 	@echo "Building template: $(TEMPLATE_NAME)"
-	@sudo -E ./fedorize_image fedorized_images/$(TEMPLATE_NAME).img clean_images/packages.list && \
-	./create_symlinks_in_rpms_to_install_dir.sh && \
+	@./create_symlinks_in_rpms_to_install_dir.sh && \
+	sudo -E ./fedorize_image fedorized_images/$(TEMPLATE_NAME).img clean_images/packages.list && \
 	sudo -E ./qubeize_image fedorized_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME) && \
 	./build_template_rpm $(TEMPLATE_NAME) || exit 1; \
 

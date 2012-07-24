@@ -16,6 +16,7 @@ if [ "${DIST/fc/}" -ge 15 ]; then
 else
     ln -s $SRC_ROOT/core/rpm/x86_64/qubes-core-vm-sysvinit-$VERSION_CORE.rpm qubes-core-vm-init.rpm
 fi
+ln -s $SRC_ROOT/core/rpm/x86_64/qubes-core-vm-kernel-placeholder-1.0-1.$DIST.x86_64.rpm qubes-core-vm-kernel-placeholder.rpm
 
 # FIXME: rel hardcoded
 VERSION_GUI=$(cat $SRC_ROOT/gui/version)-1.$DIST.x86_64
