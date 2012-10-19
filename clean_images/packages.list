@@ -33,3 +33,5 @@ git
 createrepo
 rpm-build
 ./rpms_to_install/qubes-core-vm-kernel-placeholder.rpm
+ltrace
+strace
