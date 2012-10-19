@@ -44,6 +44,7 @@ else
 
         cp clean_images/network $INSTALLDIR/etc/sysconfig
         cp clean_images/resolv.conf $INSTALLDIR/etc
+        cp -a /dev/null /dev/zero /dev/random /dev/urandom $INSTALLDIR/dev/
 
 fi
 
