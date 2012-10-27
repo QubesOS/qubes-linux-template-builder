@@ -22,7 +22,7 @@ ln -s $SRC_ROOT/core/rpm/x86_64/qubes-core-vm-kernel-placeholder-1.0-1.$DIST.x86
 VERSION_GUI=$(cat $SRC_ROOT/gui/version)-1.$DIST.x86_64
 ln -s $SRC_ROOT/gui/rpm/x86_64/qubes-gui-vm-$VERSION_GUI.rpm qubes-gui-vm.rpm
 
-VERSION_XEN=$(cat $SRC_ROOT/xen/version)-$(cat $SRC_ROOT/xen/rel).qubes.x86_64
+VERSION_XEN=$(cat $SRC_ROOT/xen/version)-$(cat $SRC_ROOT/xen/rel).$DIST.x86_64
 ln -s $SRC_ROOT/xen/rpm/x86_64/xen-libs-$VERSION_XEN.rpm xen-libs.rpm
 ln -s $SRC_ROOT/xen/rpm/x86_64/xen-licenses-$VERSION_XEN.rpm xen-licenses.rpm
 ln -s $SRC_ROOT/xen/rpm/x86_64/xen-qubes-vm-essentials-$VERSION_XEN.rpm xen-qubes-vm-essentials.rpm
