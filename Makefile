@@ -3,7 +3,8 @@ $(error "You must set DIST variable, e.g. DIST=fc14")
 endif
 
 TEMPLATE_NAME := $${DIST/fc/fedora-}-x64
-VERSION := $(shell cat version)
+TIMESTAMP := $(shell date -u +%Y%m%d-%H%M)
+VERSION := $(shell cat version)-$(TIMESTAMP)
 
 help:
 	@echo "make rpms                  -- generate template rpm"
