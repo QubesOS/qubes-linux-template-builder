@@ -4,10 +4,11 @@
 #
 
 %{!?version: %define version %(cat version)}
+%{!?rel: %define rel %(cat build_timestamp)}
 
 Name:		qubes-template-%{template_name}
 Version:	%{version}
-Release:	1
+Release:	%{rel}
 Summary:	Qubes template for %{template_name}
 
 License:	GPL

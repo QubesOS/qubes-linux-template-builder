@@ -3,8 +3,8 @@ $(error "You must set DIST variable, e.g. DIST=fc14")
 endif
 
 TEMPLATE_NAME := $${DIST/fc/fedora-}-x64
-TIMESTAMP := $(shell date -u +%Y%m%d-%H%M)
-VERSION := $(shell cat version)-$(TIMESTAMP)
+VERSION := $(shell cat version)
+TIMESTAMP := $(shell date -u +%Y%m%d%H%M)
 
 help:
 	@echo "make rpms                  -- generate template rpm"
@@ -13,7 +13,8 @@ help:
 
 
 rpms:
-	@export DIST NO_SIGN
+	@echo $(TIMESTAMP) > build_timestamp
+	export DIST NO_SIGN
 	@echo "Building template: $(TEMPLATE_NAME)"
 	@./create_symlinks_in_rpms_to_install_dir.sh && \
 	sudo -E ./fedorize_image fedorized_images/$(TEMPLATE_NAME).img clean_images/packages.list && \
@@ -21,7 +22,7 @@ rpms:
 	./build_template_rpm $(TEMPLATE_NAME) || exit 1; \
 
 update-repo-installer:	
-	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-*.noarch.rpm ../installer/yum/qubes-dom0/rpm
+	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp)*.noarch.rpm ../installer/yum/qubes-dom0/rpm
 
 clean:
 	sudo rm -fr qubeized_images/root.img.*
