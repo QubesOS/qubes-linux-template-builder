@@ -14,7 +14,6 @@ help:
 
 rpms:
 	@echo $(TIMESTAMP) > build_timestamp
-	export DIST NO_SIGN
 	@echo "Building template: $(TEMPLATE_NAME)"
 	@./create_symlinks_in_rpms_to_install_dir.sh && \
 	sudo -E ./fedorize_image fedorized_images/$(TEMPLATE_NAME).img clean_images/packages.list && \
