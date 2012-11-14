@@ -28,7 +28,7 @@ else
         truncate -s 10G $IMG || exit 1
 
         echo "-> Creating filesystem..."
-        mkfs.ext4 -F $IMG || exit 1
+        mkfs.ext4 -q -F $IMG || exit 1
 
         mkdir -p mnt
         mount -o loop $IMG mnt || exit 1
