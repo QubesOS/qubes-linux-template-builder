@@ -15,13 +15,17 @@ help:
 rpms:
 	@echo $(TIMESTAMP) > build_timestamp
 	@echo "Building template: $(TEMPLATE_NAME)"
-	@./create_symlinks_in_rpms_to_install_dir.sh && \
+	@createrepo -g $$PWD/comps-qubes-template.xml yum_repo_qubes/$(DIST) -o yum_repo_qubes/$(DIST) && \
 	sudo -E ./fedorize_image fedorized_images/$(TEMPLATE_NAME).img clean_images/packages.list && \
 	sudo -E ./qubeize_image fedorized_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME) && \
 	./build_template_rpm $(TEMPLATE_NAME) || exit 1; \
 
 update-repo-installer:	
 	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp)*.noarch.rpm ../installer/yum/qubes-dom0/rpm
+
+prepare-repo-template:
+	rm -rf yum_repo_qubes/*
+	mkdir -p yum_repo_qubes/$(DIST)/rpm yum_repo_qubes/$(DIST)/repodata
 
 clean:
 	sudo rm -fr qubeized_images/root.img.*

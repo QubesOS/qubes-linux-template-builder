@@ -39,7 +39,8 @@ mount -o loop $IMG mnt || exit 1
 mount -t proc proc mnt/proc
 
 echo "--> Installing RPMs..."
-yum install -c $PWD/yum.conf $YUM_OPTS -y --installroot=$(pwd)/mnt rpms_to_install/*rpm
+export YUM0=$PWD/yum_repo_qubes
+yum install -c $PWD/yum.conf $YUM_OPTS -y --installroot=$(pwd)/mnt @qubes-vm
 
 echo "--> Installing 3rd party apps"
 ./add_3rd_party_software.sh
