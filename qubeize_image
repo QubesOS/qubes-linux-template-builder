@@ -27,6 +27,13 @@ if [ $ID != 0 ] ; then
     exit 1
 fi
 
+function cleanup() {
+    if grep -q " $PWD/mnt " /proc/mounts; then
+	umount mnt/proc mnt
+    fi
+}
+
+trap cleanup ERR
 
 IMG=qubeized_images/$NAME-root.img
 echo "--> Copying $CLEANIMG to $IMG..."
