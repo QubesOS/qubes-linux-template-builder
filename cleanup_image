@@ -18,14 +18,14 @@ ls -als $IMG
 mount -o loop $IMG mnt || exit 1
 INSTALLDIR=`pwd`/mnt/
 rm -f $INSTALLDIR/var/lib/rpm/__db.00* $INSTALLDIR/var/lib/rpm/.rpm.lock
-yum -c $PWD/yum.conf clean packages --installroot=$INSTALLDIR
+yum -c $PWD/yum.conf $YUM_OPTS clean packages --installroot=$INSTALLDIR
 
 # Make sure that rpm database has right format (for rpm version in template, not host)
 echo "--> Rebuilding rpm database..."
 chroot `pwd`/mnt /bin/rpm --rebuilddb 2> /dev/null
 
 echo "--> Compacting image file..."
-dd if=/dev/zero of=mnt/fillme bs=1M 2> /dev/null || true
+dd if=/dev/zero of=mnt/fillme bs=1M > /dev/null 2>&1 || true
 sync
 rm mnt/fillme
 umount mnt

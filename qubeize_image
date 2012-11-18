@@ -27,6 +27,10 @@ if [ $ID != 0 ] ; then
     exit 1
 fi
 
+if [ "$VERBOSE" == "1" ]; then
+    export YUM_OPTS="$YUM_OPTS -q"
+fi
+
 function cleanup() {
     if grep -q " $PWD/mnt " /proc/mounts; then
 	umount mnt/proc mnt

@@ -12,6 +12,9 @@ echo "usage $0 <img_file_name> <package_list>"
 exit
 fi
 
+if [ "$VERBOSE" == "1" ]; then
+    YUM_OPTS="$YUM_OPTS -q"
+fi
 
 if [ -f $IMG ]; then
         echo "-> Image file already exists, assuming *update*..."
