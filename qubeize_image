@@ -81,6 +81,11 @@ echo "--> Linking /usr/local to /rw/usrlocal..."
 mv mnt/usr/local mnt/usr/local.orig
 ln -sf /rw/usrlocal mnt/usr/local
 
+if ! [ -r mnt/etc/sysconfig/i18n ]; then
+    echo "--> Setting up default locale..."
+    echo LC_CTYPE=en_US.UTF-8 > mnt/etc/sysconfig/i18n
+fi
+
 echo "--> Unmounting $IMG"
 umount mnt/proc mnt
 
