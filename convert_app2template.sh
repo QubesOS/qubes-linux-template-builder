@@ -8,16 +8,11 @@ if ! grep -q ^Name $SRC ; then
     exit 0
 fi
 
-sed -e "s/^\(Name.*\)=\(.*\)/\1=%VMNAME%: \2/" \
-    -e "s/^\(GenericName.*\)=\(.*\)/\1=%VMNAME%: \2/" \
-    -e "s/^Exec=\(.*\)/Exec=qvm-run -q --tray -a %VMNAME% \'\1\'/" \
-        <$SRC | \
-        grep -v "^Mime" | \
-        grep -v "^Icon" | \
-        grep -v "^TryExec" | \
-        grep -v "^OnlyShowIn" | \
-        grep -v "^NotShowIn" | \
-        grep -v "^Startup" >$DST
+sed -n -e "s/^\(Name.*\)=\(.*\)/\1=%VMNAME%: \2/p" \
+    -e "s/^\(GenericName.*\)=\(.*\)/\1=%VMNAME%: \2/p" \
+    -e "s/^Exec=\(.*\)/Exec=qvm-run -q --tray -a %VMNAME% \'\1\'/p" \
+    -e "/^Comment.*=/p" \
+    -e "/Categories=/p" <$SRC >$DST
 
 echo X-Qubes-VmName=%VMNAME% >> $DST
 echo Icon=%VMDIR%/icon.png >> $DST
