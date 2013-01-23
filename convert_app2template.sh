@@ -8,7 +8,8 @@ if ! grep -q ^Name $SRC ; then
     exit 0
 fi
 
-sed -n -e "s/^\(Name.*\)=\(.*\)/\1=%VMNAME%: \2/p" \
+sed -n -e "/^\[Desktop Entry\]$/p" \
+    -e "s/^\(Name.*\)=\(.*\)/\1=%VMNAME%: \2/p" \
     -e "s/^\(GenericName.*\)=\(.*\)/\1=%VMNAME%: \2/p" \
     -e "s/^Exec=\(.*\)/Exec=qvm-run -q --tray -a %VMNAME% \'\1\'/p" \
     -e "/^Comment.*=/p" \
