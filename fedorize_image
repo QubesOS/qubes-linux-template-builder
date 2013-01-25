@@ -1,31 +1,28 @@
 #!/bin/sh
 
-IMG=$1
-PKGLISTFILE=$2
+export IMG=$1
 
 RETCODE=0
 
 : ${DIST=fc14}
 
-if ! [ $# -eq 2 ]; then
-echo "usage $0 <img_file_name> <package_list>"
+if ! [ $# -eq 1 ]; then
+echo "usage $0 <img_file_name>"
 exit
 fi
 
 if [ "$VERBOSE" == "1" ]; then
-    YUM_OPTS="$YUM_OPTS -q"
+    export YUM_OPTS="$YUM_OPTS -q"
 fi
 
 if [ -f $IMG ]; then
         echo "-> Image file already exists, assuming *update*..."
         mount -o loop $IMG mnt || exit 1
-        INSTALLDIR=`pwd`/mnt/
+        export INSTALLDIR=`pwd`/mnt/
 else
 
         echo "-> Preparing instalation of $DIST template..."
-        rm -f keys base_rpms
-        ln -sf keys_$DIST keys
-        ln -sf base_rpms_$DIST base_rpms
+	scripts_"${DIST}"/00_prepare.sh
 
         echo "-> Initializing empty image..."
         truncate -s 10G $IMG || exit 1
@@ -36,29 +33,18 @@ else
         mkdir -p mnt
         mount -o loop $IMG mnt || exit 1
 
-        INSTALLDIR=`pwd`/mnt/
+        export INSTALLDIR=`pwd`/mnt/
 
-        echo "-> Initializing RPM database..."
-        rpm --initdb --root=$INSTALLDIR
-        rpm --import --root=$INSTALLDIR keys/*
-
-        echo "-> Installing core RPM packages..."
-        rpm -i --root=$INSTALLDIR base_rpms/*.rpm || exit 1
-
-        cp clean_images/network $INSTALLDIR/etc/sysconfig
-        cp clean_images/resolv.conf $INSTALLDIR/etc
-        cp -a /dev/null /dev/zero /dev/random /dev/urandom $INSTALLDIR/dev/
+	scripts_"${DIST}"/01_install_core.sh
 
 fi
 
-mount -t proc proc mnt/proc
-PKGGROUPS=$(cat $PKGLISTFILE)
-export YUM0=$PWD/yum_repo_qubes
-echo "-> Installing package groups..."
-yum clean all -c $PWD/yum.conf $YUM_OPTS -y --installroot=$PWD/mnt
-yum install -c $PWD/yum.conf $YUM_OPTS -y --installroot=$INSTALLDIR $PKGGROUPS || RETCODE=1
-yum update -c $PWD/yum.conf $YUM_OPTS -y --installroot=$INSTALLDIR || RETCODE=1
+export PKGGROUPS=$(cat scripts_"${DIST}/packages.list")
 
-umount mnt/proc mnt
+echo "-> Installing package groups..."
+scripts_"${DIST}"/02_install_groups.sh
+
+echo "-> Unmounting fedorized_image..."
+sudo umount $INSTALLDIR
 
 exit $RETCODE

@@ -1,7 +1,7 @@
 #!/bin/sh
 
-CLEANIMG=$1
-NAME=$2
+export CLEANIMG=$1
+export NAME=$2
 
 set -e
 
@@ -39,26 +39,22 @@ function cleanup() {
 
 trap cleanup ERR
 
-IMG=qubeized_images/$NAME-root.img
+export IMG=qubeized_images/$NAME-root.img
 echo "--> Copying $CLEANIMG to $IMG..."
+echo "--> cp could fail with a sparse file error"
 cp $CLEANIMG $IMG || exit 1
 
 echo "--> Mouting $IMG"
 
 mkdir -p mnt
 mount -o loop $IMG mnt || exit 1
-mount -t proc proc mnt/proc
+export INSTALLDIR=mnt
 
-echo "--> Installing RPMs..."
-export YUM0=$PWD/yum_repo_qubes
-yum install -c $PWD/yum.conf $YUM_OPTS -y --installroot=$(pwd)/mnt @qubes-vm
-
-echo "--> Installing 3rd party apps"
-./add_3rd_party_software.sh
+scripts_"${DIST}"/04_install_qubes.sh
 
 echo "--> Copying the Apps Menu shortcuts..."
-APPSORIG=qubeized_images/$NAME-apps.orig
-APPSTEMPL=qubeized_images/$NAME-apps.templates
+export APPSORIG=qubeized_images/$NAME-apps.orig
+export APPSTEMPL=qubeized_images/$NAME-apps.templates
 mkdir -p $APPSORIG
 cp -r $(pwd)/mnt/usr/share/applications/* $APPSORIG
 
@@ -87,7 +83,7 @@ if ! [ -r mnt/etc/sysconfig/i18n ]; then
 fi
 
 echo "--> Unmounting $IMG"
-umount mnt/proc mnt
+umount mnt
 
 echo "Qubeized image stored at: $IMG"
 
