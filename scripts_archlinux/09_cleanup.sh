@@ -11,6 +11,11 @@ sudo ./archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Rsc $cl
 # Clean pacman cache
 sudo ./archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Scc
 
+# Remove build data
+rm $INSTALLDIR/etc/build_package.sh
+rm $INSTALLDIR/etc/CF8D4BBE.pub
+rm $INSTALLDIR/etc/package.sig
+
 sudo umount archlinux_dvd
 
 #rm -f $INSTALLDIR/var/lib/rpm/__db.00* $INSTALLDIR/var/lib/rpm/.rpm.lock
