@@ -12,7 +12,4 @@ ttf-dejavu
 ttf-freefont
 wget
 zsh
-binutils
-yajl
-gcc
-make
+xfce4-terminal

@@ -8,9 +8,6 @@ echo "--> Starting cleanup actions"
 cleanuppkgs=`sudo ./archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman -Qdt | cut -d " " -f 1`
 sudo ./archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Rsc $cleanuppkgs
 
-# Remove yaourt dependencies
-sudo ./archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Rsc binutils yajl gcc make
-
 # Clean pacman cache
 sudo ./archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Scc
 
