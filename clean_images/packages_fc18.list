@@ -1,5 +1,7 @@
 @^gnome-desktop-environment
 @libreoffice
+emacs
+vim-enhanced
 gnupg
 xterm
 firefox
