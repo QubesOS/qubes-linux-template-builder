@@ -39,7 +39,8 @@ else
 
 fi
 
-export PKGGROUPS=$(cat scripts_"${DIST}/packages.list")
+PKGLISTFILE=$(shell [ -r scripts_"${DIST}/packages_$(DIST).list" ] && echo scripts_"${DIST}/packages_$(DIST).list" || echo scripts_"${DIST}/packages.list")
+export PKGGROUPS=$(cat $PKGLISTFILE)
 
 echo "-> Installing package groups..."
 scripts_"${DIST}"/02_install_groups.sh
