@@ -8,6 +8,8 @@ RETCODE=0
 
 . ./builder_setup
 
+set -e
+
 if ! [ $# -eq 1 ]; then
 echo "usage $0 <img_file_name>"
 exit
