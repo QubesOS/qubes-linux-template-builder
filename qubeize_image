@@ -3,6 +3,8 @@
 export CLEANIMG=$1
 export NAME=$2
 
+. ./builder_setup
+
 set -e
 
 if [ $# -eq 0 ]; then
@@ -50,7 +52,7 @@ mkdir -p mnt
 mount -o loop $IMG mnt || exit 1
 export INSTALLDIR=mnt
 
-scripts_"${DIST}"/04_install_qubes.sh
+$SCRIPTSDIR/04_install_qubes.sh
 
 echo "--> Copying the Apps Menu shortcuts..."
 export APPSORIG=qubeized_images/$NAME-apps.orig

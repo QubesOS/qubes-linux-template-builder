@@ -6,6 +6,8 @@ RETCODE=0
 
 : ${DIST=fc14}
 
+. ./builder_setup
+
 if ! [ $# -eq 1 ]; then
 echo "usage $0 <img_file_name>"
 exit
@@ -15,14 +17,14 @@ if [ "$VERBOSE" == "1" ]; then
 	export YUM_OPTS="$YUM_OPTS -q"
 fi
 
+echo "-> Preparing instalation of $DIST template..."
+$SCRIPTSDIR/00_prepare.sh
+
 if [ -f $IMG ]; then
 	echo "-> Image file already exists, assuming *update*..."
 	mount -o loop $IMG mnt || exit 1
 	export INSTALLDIR=`pwd`/mnt/
 else
-
-	echo "-> Preparing instalation of $DIST template..."
-	scripts_"${DIST}"/00_prepare.sh
 
 	echo "-> Initializing empty image..."
 	truncate -s 10G $IMG || exit 1
@@ -35,14 +37,11 @@ else
 
 	export INSTALLDIR=`pwd`/mnt/
 
-	scripts_"${DIST}"/01_install_core.sh
+	$SCRIPTSDIR/01_install_core.sh
 fi
 
-PKGLISTFILE=$(shell [ -r scripts_"${DIST}/packages_$(DIST).list" ] && echo scripts_"${DIST}/packages_$(DIST).list" || echo scripts_"${DIST}/packages.list")
-export PKGGROUPS=$(cat $PKGLISTFILE)
-
 echo "-> Installing package groups..."
-scripts_"${DIST}"/02_install_groups.sh
+$SCRIPTSDIR/02_install_groups.sh
 
 echo "-> Unmounting fedorized_image..."
 sudo umount $INSTALLDIR

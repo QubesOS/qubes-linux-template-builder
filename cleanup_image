@@ -2,6 +2,8 @@
 
 export IMG=$1
 
+. ./builder_setup
+
 set -e
 
 if ! [ $# -eq 1 ]; then
@@ -18,7 +20,7 @@ ls -als $IMG
 mount -o loop $IMG mnt || exit 1
 export INSTALLDIR=`pwd`/mnt/
 
-scripts_"${DIST}"/09_cleanup.sh
+$SCRIPTSDIR/09_cleanup.sh
 
 echo "--> Compacting image file..."
 dd if=/dev/zero of=mnt/fillme bs=1M > /dev/null 2>&1 || true

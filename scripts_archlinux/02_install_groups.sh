@@ -3,6 +3,8 @@
 echo "Mounting archlinux install system into archlinux_dvd..."
 sudo mount root-image.fs archlinux_dvd
 
+PKGGROUPS=`cat $SCRIPTSDIR/packages.list`
+
 echo "-> Installing archlinux package groups..."
 echo "-> Selected packages:"
 echo "$PKGGROUPS"

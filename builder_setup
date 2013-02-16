@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Setup env variables
+
+case "$DIST" in
+	fc*)
+		DISTRIBUTION=fedora
+		VERSION=${DIST/fc/}
+		;;
+	*)
+		DISTRIBUTION="$DIST"
+		VERSION=
+		;;
+esac
+
+if [ -d "scripts_$DIST" ]; then
+	SCRIPTSDIR="scripts_$DIST"
+else
+	SCRIPTSDIR="scripts_$DISTRIBUTION"
+fi
+
+export SCRIPTSDIR
