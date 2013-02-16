@@ -19,4 +19,6 @@ else
 	SCRIPTSDIR="scripts_$DISTRIBUTION"
 fi
 
-export SCRIPTSDIR
+CACHEDIR=cache_$DIST
+
+export SCRIPTSDIR CACHEDIR

@@ -1,23 +1,23 @@
 #!/bin/sh
 
-echo "Mounting archlinux install system into archlinux_dvd..."
-sudo mount root-image.fs archlinux_dvd
+echo "Mounting archlinux install system into mnt_archlinux_dvd..."
+sudo mount $CACHEDIR/root-image.fs mnt_archlinux_dvd
 
 echo "Creating chroot bootstrap environment"
 
-sudo mount --bind $INSTALLDIR archlinux_dvd/mnt
-sudo cp /etc/resolv.conf archlinux_dvd/etc
+sudo mount --bind $INSTALLDIR mnt_archlinux_dvd/mnt
+sudo cp /etc/resolv.conf mnt_archlinux_dvd/etc
 
 echo "-> Initializing pacman keychain"
-sudo ./archlinux_dvd/usr/bin/arch-chroot archlinux_dvd/ pacman-key --init
-sudo ./archlinux_dvd/usr/bin/arch-chroot archlinux_dvd/ pacman-key --populate
+sudo ./mnt_archlinux_dvd/usr/bin/arch-chroot mnt_archlinux_dvd/ pacman-key --init
+sudo ./mnt_archlinux_dvd/usr/bin/arch-chroot mnt_archlinux_dvd/ pacman-key --populate
 
 echo "-> Installing core pacman packages..."
-sudo ./archlinux_dvd/usr/bin/arch-chroot archlinux_dvd/ sh -c 'pacstrap /mnt base'
+sudo ./mnt_archlinux_dvd/usr/bin/arch-chroot mnt_archlinux_dvd/ sh -c 'pacstrap /mnt base'
 
 echo "-> Cleaning up bootstrap environment"
-sudo umount archlinux_dvd/mnt
+sudo umount mnt_archlinux_dvd/mnt
 
-sudo umount archlinux_dvd
+sudo umount mnt_archlinux_dvd
 
-cp scripts_"${DIST}"/resolv.conf $INSTALLDIR/etc
+cp $SCRIPTSDIR/resolv.conf $INSTALLDIR/etc

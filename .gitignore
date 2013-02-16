@@ -1,5 +1,7 @@
 *~
 appmenus
 build_timestamp
+cache_*
+mnt_*
 *.iso
 *.fs
