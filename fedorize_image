@@ -12,31 +12,30 @@ exit
 fi
 
 if [ "$VERBOSE" == "1" ]; then
-    export YUM_OPTS="$YUM_OPTS -q"
+	export YUM_OPTS="$YUM_OPTS -q"
 fi
 
 if [ -f $IMG ]; then
-        echo "-> Image file already exists, assuming *update*..."
-        mount -o loop $IMG mnt || exit 1
-        export INSTALLDIR=`pwd`/mnt/
+	echo "-> Image file already exists, assuming *update*..."
+	mount -o loop $IMG mnt || exit 1
+	export INSTALLDIR=`pwd`/mnt/
 else
 
-        echo "-> Preparing instalation of $DIST template..."
+	echo "-> Preparing instalation of $DIST template..."
 	scripts_"${DIST}"/00_prepare.sh
 
-        echo "-> Initializing empty image..."
-        truncate -s 10G $IMG || exit 1
+	echo "-> Initializing empty image..."
+	truncate -s 10G $IMG || exit 1
 
-        echo "-> Creating filesystem..."
-        mkfs.ext4 -q -F $IMG || exit 1
+	echo "-> Creating filesystem..."
+	mkfs.ext4 -q -F $IMG || exit 1
 
-        mkdir -p mnt
-        mount -o loop $IMG mnt || exit 1
+	mkdir -p mnt
+	mount -o loop $IMG mnt || exit 1
 
-        export INSTALLDIR=`pwd`/mnt/
+	export INSTALLDIR=`pwd`/mnt/
 
 	scripts_"${DIST}"/01_install_core.sh
-
 fi
 
 PKGLISTFILE=$(shell [ -r scripts_"${DIST}/packages_$(DIST).list" ] && echo scripts_"${DIST}/packages_$(DIST).list" || echo scripts_"${DIST}/packages.list")
