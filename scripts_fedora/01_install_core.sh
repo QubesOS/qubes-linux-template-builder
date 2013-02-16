@@ -2,11 +2,11 @@
 
 echo "-> Initializing RPM database..."
 rpm --initdb --root=$INSTALLDIR
-rpm --import --root=$INSTALLDIR keys/*
+rpm --import --root=$INSTALLDIR $SCRIPTSDIR/keys/*
 
 echo "-> Installing core RPM packages..."
-rpm -i --root=$INSTALLDIR base_rpms/*.rpm || exit 1
+rpm -i --root=$INSTALLDIR $SCRIPTSDIR/base_rpms/*.rpm || exit 1
 
-cp scripts_"${DIST}"/resolv.conf $INSTALLDIR/etc
-cp scripts_"${DIST}"/network $INSTALLDIR/etc/sysconfig
+cp $SCRIPTSDIR/resolv.conf $INSTALLDIR/etc
+cp $SCRIPTSDIR/network $INSTALLDIR/etc/sysconfig
 cp -a /dev/null /dev/zero /dev/random /dev/urandom $INSTALLDIR/dev/
