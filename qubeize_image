@@ -43,7 +43,6 @@ trap cleanup ERR
 
 export IMG=qubeized_images/$NAME-root.img
 echo "--> Copying $CLEANIMG to $IMG..."
-echo "--> cp could fail with a sparse file error"
 cp $CLEANIMG $IMG || exit 1
 
 echo "--> Mouting $IMG"

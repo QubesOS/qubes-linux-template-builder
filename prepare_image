@@ -45,7 +45,7 @@ fi
 echo "-> Installing package groups..."
 $SCRIPTSDIR/02_install_groups.sh
 
-echo "-> Unmounting fedorized_image..."
+echo "-> Unmounting prepared_image..."
 sudo umount $INSTALLDIR
 
 exit $RETCODE
