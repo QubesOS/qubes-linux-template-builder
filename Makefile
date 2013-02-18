@@ -6,6 +6,8 @@ TEMPLATE_NAME := $${DIST/fc/fedora-}-x64
 VERSION := $(shell cat version)
 TIMESTAMP := $(shell date -u +%Y%m%d%H%M)
 
+PKGLISTFILE := $(shell [ -r clean_images/packages_$(DIST).list ] && echo clean_images/packages_$(DIST).list || echo clean_images/packages.list)
+
 help:
 	@echo "make rpms                  -- generate template rpm"
 	@echo "make update-repo-installer -- copy newly generated rpm to installer repo"
@@ -16,7 +18,7 @@ rpms:
 	@echo $(TIMESTAMP) > build_timestamp
 	@echo "Building template: $(TEMPLATE_NAME)"
 	@createrepo -q -g $$PWD/comps-qubes-template.xml yum_repo_qubes/$(DIST) -o yum_repo_qubes/$(DIST) && \
-	sudo -E ./fedorize_image fedorized_images/$(TEMPLATE_NAME).img clean_images/packages.list && \
+	sudo -E ./fedorize_image fedorized_images/$(TEMPLATE_NAME).img $(PKGLISTFILE) && \
 	sudo -E ./qubeize_image fedorized_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME) && \
 	./build_template_rpm $(TEMPLATE_NAME) || exit 1; \
 

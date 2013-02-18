@@ -16,10 +16,11 @@ URL:		http://www.qubes-os.org
 Source:		.
 
 Requires:	qubes-core-dom0 >= 1.4.1
-Requires:   kernel-qubes-vm
+Requires:	kernel-qubes-vm
 Requires:	xdg-utils
 Requires(post):	tar
 Requires(post):	qubes-core-dom0
+Provides:	qubes-template
 
 %define _builddir %(pwd)
 %define _rpmdir %(pwd)/rpm
