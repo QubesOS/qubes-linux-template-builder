@@ -14,6 +14,7 @@
       <packagereq type="mandatory">xen-qubes-vm-essentials</packagereq>
       <packagereq type="default">thunderbird-qubes</packagereq>
       <packagereq type="default">qubes-doc-vm</packagereq>
+      <packagereq type="default">qubes-pdf-converter</packagereq>
     </packagelist>
   </group>
 </comps>
