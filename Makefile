@@ -23,7 +23,7 @@ rpms:
 	./build_template_rpm $(TEMPLATE_NAME) || exit 1; \
 
 update-repo-installer:	
-	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp)*.noarch.rpm ../installer/yum/qubes-dom0/rpm
+	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp_$(DIST))*.noarch.rpm ../installer/yum/qubes-dom0/rpm
 
 prepare-repo-template:
 	rm -rf yum_repo_qubes/*
