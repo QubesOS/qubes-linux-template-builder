@@ -15,7 +15,7 @@ help:
 
 
 rpms:
-	@echo $(TIMESTAMP) > build_timestamp
+	@echo $(TIMESTAMP) > build_timestamp_$(DIST)
 	@echo "Building template: $(TEMPLATE_NAME)"
 	@createrepo -q -g $$PWD/comps-qubes-template.xml yum_repo_qubes/$(DIST) -o yum_repo_qubes/$(DIST) && \
 	sudo -E ./fedorize_image fedorized_images/$(TEMPLATE_NAME).img $(PKGLISTFILE) && \
