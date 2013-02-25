@@ -2,4 +2,4 @@
 base_rpms
 keys
 appmenus
-build_timestamp
+build_timestamp_*
