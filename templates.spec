@@ -19,7 +19,7 @@ Requires:	qubes-core-dom0 >= 1.4.1
 Requires:	kernel-qubes-vm
 Requires:	xdg-utils
 Requires(post):	tar
-Requires(post):	qubes-core-dom0
+Requires(post):	qubes-core-dom0-linux
 Provides:	qubes-template
 
 %define _builddir %(pwd)
@@ -91,7 +91,7 @@ export XDG_DATA_DIRS=/usr/share/
 
 echo "--> Instaling menu shortcuts..."
 ln -sf /usr/share/qubes/icons/template.png %{dest_dir}/icon.png
-/usr/lib/qubes/create_apps_for_appvm.sh %{dest_dir}/apps.templates %{template_name} vm-templates
+/usr/libexec/qubes-appmenus/create-apps-for-appvm.sh %{dest_dir}/apps.templates %{template_name} vm-templates
 
 if [ "$1" = 1 ] ; then
     # installing for the first time
