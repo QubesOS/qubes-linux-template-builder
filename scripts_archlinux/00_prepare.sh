@@ -15,10 +15,10 @@ gpg --verify "$SCRIPTSDIR/archlinux-$ISO_VERSION-dual.iso.sig" "$CACHEDIR/archli
 if [ "$CACHEDIR/archlinux-$ISO_VERSION-dual.iso" -nt $CACHEDIR/root-image.fs ]; then
 	echo "Extracting squash filesystem from DVD..."
 	mkdir mnt_archlinux_dvd
-	sudo mount -o loop "cache_$DIST/archlinux-$ISO_VERSION-dual.iso" mnt_archlinux_dvd
+	sudo mount -o loop "$CACHEDIR/archlinux-$ISO_VERSION-dual.iso" mnt_archlinux_dvd
 	cp mnt_archlinux_dvd/arch/x86_64/root-image.fs.sfs $CACHEDIR/
 	sudo umount mnt_archlinux_dvd
-	sudo mount -o loop cache_$DIST/root-image.fs.sfs mnt_archlinux_dvd
+	sudo mount -o loop $CACHEDIR/root-image.fs.sfs mnt_archlinux_dvd
 	cp mnt_archlinux_dvd/root-image.fs $CACHEDIR/
 	sudo umount mnt_archlinux_dvd
 	rm $CACHEDIR/root-image.fs.sfs
