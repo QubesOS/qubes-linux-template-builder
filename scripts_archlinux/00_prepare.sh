@@ -7,8 +7,7 @@ echo "Downloading Archlinux dvd..."
 wget -N -P $CACHEDIR "http://mir.archlinux.fr/iso/$ISO_VERSION/archlinux-$ISO_VERSION-dual.iso"
 
 echo "Verifying dvd..."
-echo "If verification fails, ensure that you imported and verified the archlinux key"
-echo "eg: gpg --recv-keys 9741E8AC"
+gpg --import "$SCRIPTSDIR/archlinux-master-keys.asc"
 
 gpg --verify "$SCRIPTSDIR/archlinux-$ISO_VERSION-dual.iso.sig" "$CACHEDIR/archlinux-$ISO_VERSION-dual.iso" || exit
 
