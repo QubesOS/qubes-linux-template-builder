@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 echo "Mounting archlinux install system into mnt_archlinux_dvd..."
 sudo mount $CACHEDIR/root-image.fs mnt_archlinux_dvd
 
