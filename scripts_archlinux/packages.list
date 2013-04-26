@@ -13,3 +13,6 @@ ttf-freefont
 wget
 zsh
 xfce4-terminal
+networkmanager
+network-manager-applet
+linux-firmware
