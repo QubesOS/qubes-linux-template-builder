@@ -27,7 +27,7 @@ update-repo-installer:
 	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp_$(DIST))*.noarch.rpm $$UPDATE_REPO/rpm
 
 prepare-repo-template:
-	rm -rf yum_repo_qubes/*
+	rm -rf yum_repo_qubes/$(DIST)
 	mkdir -p yum_repo_qubes/$(DIST)/rpm yum_repo_qubes/$(DIST)/repodata
 
 clean:

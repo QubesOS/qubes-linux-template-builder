@@ -25,6 +25,8 @@ sudo mount --bind $CUSTOMREPO $INSTALLDIR/mnt/qubes-rpms-mirror-repo
 
 sudo ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "cd /mnt/qubes-rpms-mirror-repo/;repo-add pkgs/qubes.db.tar.gz pkgs/*.pkg.tar.xz"
 
+chown -R --reference=$CUSTOMREPO $CUSTOMREPO
+
 sudo ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "pacman -Sy"
 
 echo "--> Installing qubes-packages..."
