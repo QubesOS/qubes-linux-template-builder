@@ -23,11 +23,7 @@ export INSTALLDIR=`pwd`/mnt/
 $SCRIPTSDIR/09_cleanup.sh
 
 echo "--> Compacting image file..."
-dd if=/dev/zero of=mnt/fillme bs=1M > /dev/null 2>&1 || true
-sync
-rm mnt/fillme
+fstrim mnt/
 umount mnt
-cp --sparse=always $IMG $IMG.new
-mv  $IMG.new $IMG
 ls -als $IMG
 
