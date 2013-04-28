@@ -2,6 +2,7 @@ ifndef DIST
 $(error "You must set DIST variable, e.g. DIST=fc14")
 endif
 
+#TODO: build template name somehow smarter
 TEMPLATE_NAME := $${DIST/fc/fedora-}-x64
 VERSION := $(shell cat version)
 TIMESTAMP := $(shell date -u +%Y%m%d%H%M)
@@ -17,9 +18,8 @@ help:
 rpms:
 	@echo $(TIMESTAMP) > build_timestamp_$(DIST)
 	@echo "Building template: $(TEMPLATE_NAME)"
-	@createrepo -q -g $$PWD/comps-qubes-template.xml yum_repo_qubes/$(DIST) -o yum_repo_qubes/$(DIST) && \
-	sudo -E ./fedorize_image fedorized_images/$(TEMPLATE_NAME).img $(PKGLISTFILE) && \
-	sudo -E ./qubeize_image fedorized_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME) && \
+	sudo -E ./prepare_image prepared_images/$(TEMPLATE_NAME).img && \
+	sudo -E ./qubeize_image prepared_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME) && \
 	./build_template_rpm $(TEMPLATE_NAME) || exit 1; \
 
 update-repo-installer:	
@@ -35,7 +35,7 @@ clean:
 	sudo rm -fr qubeized_images/$(TEMPLATE_NAME)*
 	sudo rm -fr rpmbuild/BUILDROOT/*
 	sudo rm -fr rpmbuild/tmp/*
-	# We're not removing any images from fedorized_images/ intentionally
+	# We're not removing any images from prepared_images/ intentionally
 	# because the user might want to keep using the same image for a long time
-	# and they are not dependent on any of the Qubes packahes
+	# and they are not dependent on any of the Qubes packages
 

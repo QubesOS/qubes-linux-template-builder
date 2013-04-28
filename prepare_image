@@ -1,0 +1,51 @@
+#!/bin/sh
+
+export IMG=$1
+
+RETCODE=0
+
+: ${DIST=fc14}
+
+. ./builder_setup
+
+set -e
+
+if ! [ $# -eq 1 ]; then
+echo "usage $0 <img_file_name>"
+exit
+fi
+
+if [ "$VERBOSE" == "1" ]; then
+	export YUM_OPTS="$YUM_OPTS -q"
+fi
+
+echo "-> Preparing instalation of $DIST template..."
+$SCRIPTSDIR/00_prepare.sh
+
+if [ -f $IMG ]; then
+	echo "-> Image file already exists, assuming *update*..."
+	mount -o loop $IMG mnt || exit 1
+	export INSTALLDIR=`pwd`/mnt/
+else
+
+	echo "-> Initializing empty image..."
+	truncate -s 10G $IMG || exit 1
+
+	echo "-> Creating filesystem..."
+	mkfs.ext4 -q -F $IMG || exit 1
+
+	mkdir -p mnt
+	mount -o loop $IMG mnt || exit 1
+
+	export INSTALLDIR=`pwd`/mnt/
+
+	$SCRIPTSDIR/01_install_core.sh
+fi
+
+echo "-> Installing package groups..."
+$SCRIPTSDIR/02_install_groups.sh
+
+echo "-> Unmounting prepared_image..."
+sudo umount $INSTALLDIR
+
+exit $RETCODE

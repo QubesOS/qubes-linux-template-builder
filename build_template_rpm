@@ -6,9 +6,13 @@ echo "usage $0 <template_name>"
 exit 1
 fi
 
+. ./builder_setup
+
 rpmbuild --target noarch \
          --define "template_name $NAME" \
          --define "DIST $DIST" \
+         --define "DISTRIBUTION $DISTRIBUTION" \
+         --define "VERSION $VERSION" \
          --define "_topdir $PWD/rpmbuild" \
          --define "_tmppath $PWD/rpmbuild/tmp" \
          -bb templates.spec
