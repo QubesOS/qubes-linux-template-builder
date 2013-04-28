@@ -9,4 +9,4 @@ yum install -c $PWD/yum.conf $YUM_OPTS -y --installroot=$(pwd)/mnt @qubes-vm
 echo "--> Installing 3rd party apps"
 $SCRIPTSDIR/add_3rd_party_software.sh
 
-sudo umount $PWD/mnt/proc
+umount $PWD/mnt/proc
