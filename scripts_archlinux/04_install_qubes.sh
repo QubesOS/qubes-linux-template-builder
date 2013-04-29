@@ -40,7 +40,6 @@ cat >> $INSTALLDIR/etc/fstab <<EOF
 /dev/xvdb /rw ext4 defaults,noatime 1 2
 /dev/xvdc1 swap swap defaults 0 0
 /rw/home /home none noauto,bind,defaults 0 0
-/dev/xvdd /usr/lib/modules ext3 defaults,noatime 0 0
 EOF
 
 echo "--> Cleaning up..."
