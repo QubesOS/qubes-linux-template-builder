@@ -98,7 +98,12 @@ if [ "$1" = 1 ] ; then
     qvm-add-template --rpm %{template_name}
 fi
 
-qvm-template-commit %{template_name}
+# If running inside of chroot (means - from anaconda), force offline mode
+if [ "`stat -c %d:%i /`" != "`stat -c %d:%i /proc/1/root/.`" ]; then
+    qvm-template-commit --offline-mode %{template_name}
+else
+    qvm-template-commit %{template_name}
+fi
 
 %preun
 if [ "$1" = 0 ] ; then
