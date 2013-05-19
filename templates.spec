@@ -129,7 +129,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(660,root,qubes,770)
-%dir %{dest_dir}
+%attr(2770,root,qubes) %dir %{dest_dir}
 %ghost %{dest_dir}/root.img
 %{dest_dir}/root.img.part.*
 %{dest_dir}/clean-volatile.img.tar
