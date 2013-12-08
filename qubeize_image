@@ -34,8 +34,11 @@ if [ "$VERBOSE" == "1" ]; then
 fi
 
 function cleanup() {
+	if grep -q " $PWD/mnt/proc " /proc/mounts; then
+		umount mnt/proc
+	fi
 	if grep -q " $PWD/mnt " /proc/mounts; then
-		umount mnt/proc mnt
+		umount mnt
 	fi
 }
 

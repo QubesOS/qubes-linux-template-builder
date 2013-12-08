@@ -7,7 +7,7 @@ mount $CACHEDIR/root-image.fs mnt_archlinux_dvd
 
 echo "--> Starting cleanup actions"
 # Remove unused packages and their dependencies (make dependencies)
-cleanuppkgs=`./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman -Qdt | cut -d " " -f 1`
+cleanuppkgs=`./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman -Qdt | grep -v kernel | cut -d " " -f 1`
 echo "--> Packages that can be cleaned up: $cleanuppkgs"
 if [ -n "$cleanuppkgs" ] ; then
 	./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Rsc $cleanuppkgs
