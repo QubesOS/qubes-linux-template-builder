@@ -15,3 +15,5 @@ yum install -c $PWD/yum.conf $YUM_OPTS -y --installroot=$INSTALLDIR $PKGGROUPS |
 yum update -c $PWD/yum.conf $YUM_OPTS -y --installroot=$INSTALLDIR || RETCODE=1
 
 umount mnt/proc
+
+exit $RETCODE
