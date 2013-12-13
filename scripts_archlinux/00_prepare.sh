@@ -5,11 +5,12 @@ mkdir -p $CACHEDIR
 
 echo "Downloading Archlinux dvd..."
 wget -N -P $CACHEDIR "http://mir.archlinux.fr/iso/$ISO_VERSION/archlinux-$ISO_VERSION-dual.iso"
+wget -N -P $CACHEDIR "http://mir.archlinux.fr/iso/$ISO_VERSION/archlinux-$ISO_VERSION-dual.iso.sig"
 
 echo "Verifying dvd..."
 gpg --import "$SCRIPTSDIR/archlinux-master-keys.asc"
 
-gpg --verify "$SCRIPTSDIR/archlinux-$ISO_VERSION-dual.iso.sig" "$CACHEDIR/archlinux-$ISO_VERSION-dual.iso" || exit
+gpg --verify "$CACHEDIR/archlinux-$ISO_VERSION-dual.iso.sig" "$CACHEDIR/archlinux-$ISO_VERSION-dual.iso" || exit
 
 if [ "$CACHEDIR/archlinux-$ISO_VERSION-dual.iso" -nt $CACHEDIR/root-image.fs ]; then
 	echo "Extracting squash filesystem from DVD..."
