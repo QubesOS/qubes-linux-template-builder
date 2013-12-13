@@ -115,13 +115,19 @@ if [ "$1" = 0 ] ; then
         exit 1
     fi
 
+    rm -f %{dest_dir}/root-cow.img
+    rm -f %{dest_dir}/root-cow.img.old
+    rm -f %{dest_dir}/firewall.xml
+    rm -f %{dest_dir}/%{template_name}.conf
+    rm -f %{dest_dir}/updates.stat
+
     # we need to have it here, because rpm -U <template>
     # apparently executes %preun of the old package *after* %post of the new packages...
     echo "--> Removing menu shortcuts..."
     export XDG_DATA_DIRS=/usr/share/
     xdg-desktop-menu uninstall --mode system %{dest_dir}/apps/*.directory %{dest_dir}/apps/*.desktop
 
-
+    rm -rf %{dest_dir}/apps %{dest_dir}/apps.templates
 fi
 
 %clean
