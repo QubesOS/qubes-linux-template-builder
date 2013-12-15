@@ -7,8 +7,6 @@ TEMPLATE_NAME := $${DIST/fc/fedora-}-x64
 VERSION := $(shell cat version)
 TIMESTAMP := $(shell date -u +%Y%m%d%H%M)
 
-PKGLISTFILE := $(shell [ -r clean_images/packages_$(DIST).list ] && echo clean_images/packages_$(DIST).list || echo clean_images/packages.list)
-
 help:
 	@echo "make rpms                  -- generate template rpm"
 	@echo "make update-repo-installer -- copy newly generated rpm to installer repo"
