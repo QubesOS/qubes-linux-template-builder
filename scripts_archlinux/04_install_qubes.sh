@@ -42,6 +42,8 @@ cat >> $INSTALLDIR/etc/fstab <<EOF
 /rw/home /home none noauto,bind,defaults 0 0
 EOF
 
+mkdir -p $INSTALLDIR/lib/modules
+
 echo "--> Cleaning up..."
 umount $INSTALLDIR/mnt/qubes-rpms-mirror-repo
 umount mnt_archlinux_dvd
