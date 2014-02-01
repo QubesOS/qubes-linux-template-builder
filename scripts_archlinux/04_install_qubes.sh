@@ -43,6 +43,8 @@ cat >> $INSTALLDIR/etc/fstab <<EOF
 EOF
 
 mkdir -p $INSTALLDIR/lib/modules
+# Creating a random file in /lib/modules to ensure that the directory in never deleted when packages are removed
+touch $INSTALLDIR/lib/modules/QUBES
 
 echo "--> Cleaning up..."
 umount $INSTALLDIR/mnt/qubes-rpms-mirror-repo
