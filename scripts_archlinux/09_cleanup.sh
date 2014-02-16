@@ -18,6 +18,14 @@ echo "--> Cleaning up linux kernel"
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Rsc linux
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -S linux-firmware
 
+# Remove video plugins
+echo "--> Removing video plugins"
+VIDEOPKGS=`./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman -Qs -q xf86-video`
+echo $VIDEOPKGS | ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Rsc -
+
+# Remove other font package
+./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Rsc xorg-fonts-100dpi xorg-fonts-75dpi
+
 # Disable qubes local repository
 sed '/QubesTMP/d' -i $INSTALLDIR/etc/pacman.conf
 

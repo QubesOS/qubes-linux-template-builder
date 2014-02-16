@@ -30,6 +30,8 @@ chown -R --reference=$CUSTOMREPO $CUSTOMREPO
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "pacman -Sy"
 
 echo "--> Installing qubes-packages..."
+# Install xinit first to allow qubes-vm-core to fix potential bugs in xinit (xinit is a dep of qubes-vm-gui)
+./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "pacman -S --noconfirm --asdeps xorg-xinit"
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "pacman -S --noconfirm qubes-vm-xen"
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "pacman -S --noconfirm qubes-vm-core"
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "pacman -S --noconfirm qubes-vm-gui"
@@ -50,7 +52,6 @@ ln -s /etc/sysconfig/i18n $INSTALLDIR/etc/locale.conf
 # Enable some locales (incl. UTF-8
 sed 's/#en_US/en_US/g' -i $INSTALLDIR/etc/locale.gen
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "locale-gen"
-
 
 mkdir -p $INSTALLDIR/lib/modules
 # Creating a random file in /lib/modules to ensure that the directory in never deleted when packages are removed
