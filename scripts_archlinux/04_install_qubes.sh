@@ -14,9 +14,9 @@ su -c "echo 'Include = /etc/pacman.d/mirrorlist' >> $INSTALLDIR/etc/pacman.conf"
 echo "--> Registering Qubes custom repository"
 
 cat >> $INSTALLDIR/etc/pacman.conf <<EOF
-[qubes]
-SigLevel = Optional TrustAll
-Server = file:///mnt/qubes-rpms-mirror-repo/pkgs
+[qubes] # QubesTMP
+SigLevel = Optional TrustAll # QubesTMP
+Server = file:///mnt/qubes-rpms-mirror-repo/pkgs # QubesTMP
 EOF
 
 export CUSTOMREPO=$PWD/yum_repo_qubes/archlinux
@@ -41,6 +41,16 @@ cat >> $INSTALLDIR/etc/fstab <<EOF
 /dev/xvdc1 swap swap defaults 0 0
 /rw/home /home none noauto,bind,defaults 0 0
 EOF
+
+echo "--> Configuring system to our preferences"
+# Name network devices using simple names (ethX)
+ln -s /dev/null $INSTALLDIR/etc/udev/rules.d/80-net-name-slot.rules
+# Initialize encoding to qubes standards
+ln -s /etc/sysconfig/i18n $INSTALLDIR/etc/locale.conf
+# Enable some locales (incl. UTF-8
+sed 's/#en_US/en_US/g' -i $INSTALLDIR/etc/locale.gen
+./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "locale-gen"
+
 
 mkdir -p $INSTALLDIR/lib/modules
 # Creating a random file in /lib/modules to ensure that the directory in never deleted when packages are removed

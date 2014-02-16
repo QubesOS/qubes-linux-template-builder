@@ -18,6 +18,9 @@ echo "--> Cleaning up linux kernel"
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Rsc linux
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -S linux-firmware
 
+# Disable qubes local repository
+sed '/QubesTMP/d' -i $INSTALLDIR/etc/pacman.conf
+
 # Clean pacman cache
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Scc
 
