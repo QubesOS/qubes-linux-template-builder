@@ -30,8 +30,6 @@ chown -R --reference=$CUSTOMREPO $CUSTOMREPO
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "pacman -Sy"
 
 echo "--> Installing qubes-packages..."
-# Install xinit first to allow qubes-vm-core to fix potential bugs in xinit (xinit is a dep of qubes-vm-gui)
-./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "pacman -S --noconfirm --asdeps xorg-xinit"
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "pacman -S --noconfirm qubes-vm-xen"
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "pacman -S --noconfirm qubes-vm-core"
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "pacman -S --noconfirm qubes-vm-gui"
