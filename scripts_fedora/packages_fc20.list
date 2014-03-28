@@ -9,7 +9,8 @@ thunderbird
 keepassx
 perl-File-MimeInfo
 network-manager-applet
-Terminal
+xfce4-terminal
+exo
 --exclude=kdegames
 --exclude=firstboot
 --exclude=xorg-x11-drv-nouveau
