@@ -22,6 +22,7 @@ Requires(post):	tar
 Requires(post):	qubes-core-dom0
 Requires(post):	qubes-core-dom0-linux
 Provides:	qubes-template
+Obsoletes:  %{name} > %{version}-%{release}
 
 %define _builddir %(pwd)
 %define _rpmdir %(pwd)/rpm
