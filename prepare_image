@@ -26,6 +26,7 @@ if [ -f $IMG ]; then
 	echo "-> Image file already exists, assuming *update*..."
 	mount -o loop $IMG mnt || exit 1
 	export INSTALLDIR=`pwd`/mnt/
+	trap "umount $INSTALLDIR" EXIT
 else
 
 	echo "-> Initializing empty image..."
@@ -39,12 +40,15 @@ else
 
 	export INSTALLDIR=`pwd`/mnt/
 
+	trap "umount $INSTALLDIR" EXIT
+
 	$SCRIPTSDIR/01_install_core.sh
 fi
 
 echo "-> Installing package groups..."
 $SCRIPTSDIR/02_install_groups.sh
 
+trap - EXIT
 echo "-> Unmounting prepared_image..."
 sudo umount $INSTALLDIR
 
