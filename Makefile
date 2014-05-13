@@ -4,6 +4,9 @@ endif
 
 #TODO: build template name somehow smarter
 TEMPLATE_NAME := $${DIST/fc/fedora-}-x64
+ifdef TEMPLATE_FLAVOR
+TEMPLATE_NAME := $(TEMPLATE_NAME)-$(TEMPLATE_FLAVOR)
+endif
 VERSION := $(shell cat version)
 TIMESTAMP := $(shell date -u +%Y%m%d%H%M)
 

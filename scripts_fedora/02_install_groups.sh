@@ -1,12 +1,19 @@
 #!/bin/sh
-echo "--> Preparing environment..."
-mount -t proc proc mnt/proc
-
-if [ -r "$SCRIPTSDIR/packages_${DIST}.list" ]; then
+if [ -n "${TEMPLATE_FLAVOR}" ]; then
+	PKGLISTFILE="$SCRIPTSDIR/packages_${DIST}_${TEMPLATE_FLAVOR}.list"
+		if ! [ -r "${PKGLISTFILE}" ]; then
+		echo "ERROR: ${PKGLISTFILE} does not exists!"
+		exit 1
+	fi
+elif [ -r "$SCRIPTSDIR/packages_${DIST}.list" ]; then
 	PKGLISTFILE="$SCRIPTSDIR/packages_${DIST}.list"
 else
 	PKGLISTFILE="$SCRIPTSDIR/packages.list"
 fi
+
+echo "--> Preparing environment..."
+mount -t proc proc mnt/proc
+
 export PKGGROUPS=$(cat $PKGLISTFILE)
 
 export YUM0=$PWD/yum_repo_qubes
