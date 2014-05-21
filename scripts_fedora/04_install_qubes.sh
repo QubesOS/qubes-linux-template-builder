@@ -6,7 +6,11 @@ trap "umount $PWD/mnt/proc" EXIT
 
 export YUM0=$PWD/yum_repo_qubes
 if [ "$TEMPLATE_FLAVOR" == "minimal" ]; then
-    YUM_OPTS="$YUM_OPTS --group_package_types=mandatory"
+    YUM_OPTS="$YUM_OPTS --setopt=group_package_types=mandatory"
+    rpmbuild -bb --define "_rpmdir $CACHEDIR" $SCRIPTSDIR/qubes-template-minimal-stub.spec || exit 1
+    yum install -c $PWD/yum.conf $YUM_OPTS -y --installroot=$(pwd)/mnt $CACHEDIR/*/qubes-template-minimal-stub*rpm || exit 1
+else
+    YUM_OPTS="$YUM_OPTS --setopt=group_package_types=mandatory,default,optional"
 fi
 
 echo "--> Installing RPMs..."
