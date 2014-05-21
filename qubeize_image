@@ -48,13 +48,13 @@ export IMG=qubeized_images/$NAME-root.img
 echo "--> Copying $CLEANIMG to $IMG..."
 cp $CLEANIMG $IMG || exit 1
 
-echo "--> Mouting $IMG"
+echo "--> Mounting $IMG"
 
 mkdir -p mnt
 mount -o loop $IMG mnt || exit 1
 export INSTALLDIR=mnt
 
-$SCRIPTSDIR/04_install_qubes.sh || exit 1
+$SCRIPTSDIR/04_install_qubes.sh || { umount $INSTALLDIR; exit 1; }
 
 echo "--> Copying the Apps Menu shortcuts..."
 export APPSORIG=qubeized_images/$NAME-apps.orig
