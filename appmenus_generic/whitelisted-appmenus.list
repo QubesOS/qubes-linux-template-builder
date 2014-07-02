@@ -5,6 +5,5 @@ gpk-install-file.desktop
 gpk-log.desktop
 gpk-prefs.desktop
 gpk-repo.desktop
-gpk-update-viewer.desktop
 system-config-date.desktop
 system-config-printer.desktop
