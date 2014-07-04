@@ -22,3 +22,4 @@ rpm-build
 qubes-core-vm-kernel-placeholder
 ltrace
 strace
+haveged
