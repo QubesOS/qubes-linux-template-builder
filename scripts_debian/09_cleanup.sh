@@ -3,5 +3,8 @@
 
 rm -f $INSTALLDIR/var/cache/apt/archives/*
 
+rm -f $INSTALLDIR/etc/apt/sources.list.d/qubes-builder.list
+rm -f $INSTALLDIR/etc/apt/trusted.gpg.d/qubes-builder.gpg
+
 rm -rf buildchroot
 

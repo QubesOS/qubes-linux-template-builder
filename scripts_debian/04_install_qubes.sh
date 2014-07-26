@@ -30,13 +30,38 @@ xen /proc/xen xenfs defaults 0 0
 EOF
 
 echo "--> Installing qubes packages"
-export CUSTOMREPO="$PWD/yum_repo_qubes/debian"
-mkdir -p $INSTALLDIR/tmp/qubesdebs
-find $CUSTOMREPO/apt -name '*.deb' -exec cp -t $INSTALLDIR/tmp/qubesdebs '{}' \;
-chroot $INSTALLDIR /bin/sh -c 'dpkg -i /tmp/qubesdebs/*.deb'
-rm -rf $INSTALLDIR/tmp/qubesdebs
-# Install dependencies for qubes packages
-chroot $INSTALLDIR apt-get -f -y install
+export CUSTOMREPO="$PWD/yum_repo_qubes/$DIST/apt"
+
+if ! [ -e $CACHEDIR/repo-secring.gpg ]; then
+    mkdir -p $CACHEDIR
+    gpg --gen-key --batch <<EOF
+Key-Type: RSA
+Key-Length: 1024
+Key-Usage: sign
+Name-Real: Qubes builder
+Expire-Date: 0
+%pubring $CACHEDIR/repo-pubring.gpg
+%secring $CACHEDIR/repo-secring.gpg
+%commit
+EOF
+fi
+gpg -abs --no-default-keyring \
+        --secret-keyring $CACHEDIR/repo-secring.gpg \
+        --keyring $CACHEDIR/repo-pubring.gpg \
+        -o $CUSTOMREPO/dists/$DIST/Release.gpg \
+        $CUSTOMREPO/dists/$DIST/Release
+
+mkdir -p $INSTALLDIR/tmp/qubes_repo
+mount --bind $CUSTOMREPO $INSTALLDIR/tmp/qubes_repo
+cat > $INSTALLDIR/etc/apt/sources.list.d/qubes-builder.list <<EOF
+deb file:/tmp/qubes_repo $DEBIANVERSION main
+EOF
+cp $CACHEDIR/repo-pubring.gpg $INSTALLDIR/etc/apt/trusted.gpg.d/qubes-builder.gpg
+chroot $INSTALLDIR apt-get update || { umount $INSTALLDIR/tmp/qubes_repo; exit 1; }
+chroot $INSTALLDIR apt-get -y install `cat $SCRIPTSDIR/packages_qubes.list` || { umount $INSTALLDIR/tmp/qubes_repo; exit 1; }
+umount $INSTALLDIR/tmp/qubes_repo
+rm -f $INSTALLDIR/etc/apt/sources.list.d/qubes-builder.list
+chroot $INSTALLDIR apt-get update || exit 1
 
 # Remove temporary policy layer so services can start normally in the
 # deployed template.
