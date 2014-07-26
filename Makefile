@@ -1,9 +1,12 @@
 ifndef DIST
 $(error "You must set DIST variable, e.g. DIST=fc14")
 endif
+export DIST
 
-#TODO: build template name somehow smarter
-TEMPLATE_NAME := $${DIST/fc/fedora-}-x64
+dist_ver := $(shell DIST=$(DIST) ./builder_setup)
+DISTRIBUTION := $(word 1,$(dist_ver))
+DIST_VERSION := $(word 2,$(dist_ver))
+TEMPLATE_NAME := $(DISTRIBUTION)-$(DIST_VERSION)-x64
 ifdef TEMPLATE_FLAVOR
 TEMPLATE_NAME := $(TEMPLATE_NAME)-$(TEMPLATE_FLAVOR)
 endif

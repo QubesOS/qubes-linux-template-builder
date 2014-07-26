@@ -3,7 +3,7 @@
 export CLEANIMG=$1
 export NAME=$2
 
-. ./builder_setup
+. ./builder_setup >/dev/null
 
 set -e
 
