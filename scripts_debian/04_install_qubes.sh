@@ -76,6 +76,6 @@ echo "xen_netfront" >> $INSTALLDIR/etc/modules
 
 
 # Kill any processes that might have been started by apt before unmounting
-lsof $INSTALLDIR | tail -n +2 | awk '{print $2}' | xargs kill
+lsof $INSTALLDIR | tail -n +2 | awk '{print $2}' | xargs --no-run-if-empty kill
 
 
