@@ -29,6 +29,9 @@ xen /proc/xen xenfs defaults 0 0
 /dev/xvdi /mnt/removable auto noauto,user,rw 0 0
 EOF
 
+rm -f $INSTALLDIR/etc/mtab
+ln -s ../proc/self/mounts $INSTALLDIR/etc/mtab
+
 mkdir -p $INSTALLDIR/lib/modules
 
 echo "--> Installing qubes packages"
