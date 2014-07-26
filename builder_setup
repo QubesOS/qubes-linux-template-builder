@@ -7,6 +7,14 @@ case "$DIST" in
 		DISTRIBUTION=fedora
 		VERSION=${DIST/fc/}
 		;;
+	wheezy)
+		DISTRIBUTION=debian
+		VERSION=7
+		;;
+	jessie)
+		DISTRIBUTION=debian
+		VERSION=8
+		;;
 	*)
 		DISTRIBUTION="$DIST"
 		VERSION=

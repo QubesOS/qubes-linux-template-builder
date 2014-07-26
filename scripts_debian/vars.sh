@@ -1,6 +1,6 @@
 # The codename of the debian version to install.
 # jessie = testing, wheezy = stable
-DEBIANVERSION='jessie'
+DEBIANVERSION=$DIST
 
 EXTRAPKGS="openssh-clients,screen,vim-nox,less"
 
