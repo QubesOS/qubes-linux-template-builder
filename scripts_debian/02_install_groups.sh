@@ -31,6 +31,8 @@ else # testing/unstable
     chroot $INSTALLDIR apt-get -y install systemd-sysv
 fi
 
+chroot $INSTALLDIR systemctl set-default multi-user.target
+
 echo "--> Upgrading system"
 chroot $INSTALLDIR apt-get update
 chroot $INSTALLDIR apt-get -y upgrade
