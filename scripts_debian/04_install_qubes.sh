@@ -29,6 +29,8 @@ xen /proc/xen xenfs defaults 0 0
 /dev/xvdi /mnt/removable auto noauto,user,rw 0 0
 EOF
 
+mkdir -p $INSTALLDIR/lib/modules
+
 echo "--> Installing qubes packages"
 export CUSTOMREPO="$PWD/yum_repo_qubes/$DIST/apt"
 
