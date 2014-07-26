@@ -7,5 +7,5 @@ echo "-> Installing base debian system"
 
 COMPONENTS="" debootstrap --arch=amd64 --include=ncurses-term \
     --components=main --keyring=${SCRIPTSDIR}/debian-archive-keyring.gpg \
-    $DEBIANVERSION "$INSTALLDIR" || { echo "Debootstrap failed!"; exit 1; }
+    $DEBIANVERSION "$INSTALLDIR" http://http.debian.net/debian || { echo "Debootstrap failed!"; exit 1; }
 
