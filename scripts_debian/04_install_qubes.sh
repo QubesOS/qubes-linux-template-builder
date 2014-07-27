@@ -35,7 +35,7 @@ ln -s ../proc/self/mounts $INSTALLDIR/etc/mtab
 mkdir -p $INSTALLDIR/lib/modules
 
 echo "--> Installing qubes packages"
-export CUSTOMREPO="$PWD/yum_repo_qubes/$DIST/apt"
+export CUSTOMREPO="$PWD/yum_repo_qubes/$DIST"
 
 if ! [ -e $CACHEDIR/repo-secring.gpg ]; then
     mkdir -p $CACHEDIR
