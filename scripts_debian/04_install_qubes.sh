@@ -89,6 +89,7 @@ chroot $INSTALLDIR useradd -g user -G dialout,cdrom,floppy,sudo,audio,dip,video,
 
 echo "xen_netfront" >> $INSTALLDIR/etc/modules
 
+sed -i -e '/^mesg n/d' $INSTALLDIR/root/.profile
 
 # Kill any processes that might have been started by apt before unmounting
 lsof $INSTALLDIR | tail -n +2 | awk '{print $2}' | xargs --no-run-if-empty kill
