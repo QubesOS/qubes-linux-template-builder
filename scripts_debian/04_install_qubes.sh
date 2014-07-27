@@ -62,6 +62,18 @@ cat > $INSTALLDIR/etc/apt/sources.list.d/qubes-builder.list <<EOF
 deb file:/tmp/qubes_repo $DEBIANVERSION main
 EOF
 cp $CACHEDIR/repo-pubring.gpg $INSTALLDIR/etc/apt/trusted.gpg.d/qubes-builder.gpg
+
+# configure keyboard layout
+chroot $INSTALLDIR debconf-set-selections <<EOF
+keyboard-configuration  keyboard-configuration/variant  select  English (US)
+keyboard-configuration  keyboard-configuration/layout   select  English (US)
+keyboard-configuration  keyboard-configuration/model    select  Generic 105-key (Intl) PC
+keyboard-configuration  keyboard-configuration/modelcode    string  pc105
+keyboard-configuration  keyboard-configuration/layoutcode   string  us
+keyboard-configuration  keyboard-configuration/variantcode  string  
+keyboard-configuration  keyboard-configuration/optionscode  string  
+EOF
+
 chroot $INSTALLDIR apt-get update || { umount $INSTALLDIR/tmp/qubes_repo; exit 1; }
 chroot $INSTALLDIR apt-get -y install `cat $SCRIPTSDIR/packages_qubes.list` || { umount $INSTALLDIR/tmp/qubes_repo; exit 1; }
 umount $INSTALLDIR/tmp/qubes_repo
