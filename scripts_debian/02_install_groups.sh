@@ -37,6 +37,17 @@ echo "--> Upgrading system"
 chroot $INSTALLDIR apt-get update
 chroot $INSTALLDIR apt-get -y upgrade
 
+echo "--> Setting keyboard layout"
+chroot $INSTALLDIR debconf-set-selections <<EOF
+keyboard-configuration  keyboard-configuration/variant  select  English (US)
+keyboard-configuration  keyboard-configuration/layout   select  English (US)
+keyboard-configuration  keyboard-configuration/model    select  Generic 105-key (Intl) PC
+keyboard-configuration  keyboard-configuration/modelcode    string  pc105
+keyboard-configuration  keyboard-configuration/layoutcode   string  us
+keyboard-configuration  keyboard-configuration/variantcode  string  
+keyboard-configuration  keyboard-configuration/optionscode  string  
+EOF
+
 echo "--> Installing extra packages"
 xargs chroot $INSTALLDIR apt-get -y install < $SCRIPTSDIR/packages.list
 
