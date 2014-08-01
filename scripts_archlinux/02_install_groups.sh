@@ -1,11 +1,20 @@
 #!/bin/sh
+if [ -n "${TEMPLATE_FLAVOR}" ]; then
+	PKGLISTFILE="$SCRIPTSDIR/packages_${TEMPLATE_FLAVOR}.list"
+		if ! [ -r "${PKGLISTFILE}" ]; then
+		echo "ERROR: ${PKGLISTFILE} does not exists!"
+		exit 1
+	fi
+else
+	PKGLISTFILE="$SCRIPTSDIR/packages.list"
+fi
 
 set -e
 
 echo "Mounting archlinux install system into mnt_archlinux_dvd..."
 mount $CACHEDIR/root-image.fs mnt_archlinux_dvd
 
-PKGGROUPS=`cat $SCRIPTSDIR/packages.list`
+PKGGROUPS=`cat $PKGLISTFILE`
 
 echo "-> Installing archlinux package groups..."
 echo "-> Selected packages:"
