@@ -13,11 +13,6 @@ if [ -n "$cleanuppkgs" ] ; then
 	./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Rsc $cleanuppkgs
 fi
 
-# Remove non required linux kernel
-echo "--> Cleaning up linux kernel"
-./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Rsc linux
-./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -S linux-firmware
-
 # Remove video plugins
 echo "--> Removing video plugins"
 VIDEOPKGS=`./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman -Qs -q xf86-video`

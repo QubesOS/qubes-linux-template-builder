@@ -18,6 +18,9 @@ echo "-> Initializing pacman keychain"
 echo "-> Installing core pacman packages..."
 ./mnt_archlinux_dvd/usr/bin/arch-chroot mnt_archlinux_dvd/ sh -c 'pacstrap /mnt base'
 
+echo "--> Removing non required linux kernel (can be added manually through a package)"
+./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Rsc linux
+
 echo "-> Cleaning up bootstrap environment"
 umount mnt_archlinux_dvd/mnt
 
