@@ -83,7 +83,7 @@ if [ "$1" = 1 ] ; then
     # installing for the first time
     echo "--> Creating private.img..."
     truncate -s 2G %{dest_dir}/private.img
-    mkfs.ext4 -q -F %{dest_dir}/private.img
+    mkfs.ext4 -m 0 -q -F %{dest_dir}/private.img
     chown root.qubes %{dest_dir}/private.img
     chmod 0660 %{dest_dir}/private.img
 fi
