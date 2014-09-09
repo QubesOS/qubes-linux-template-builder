@@ -50,6 +50,7 @@ touch $RPM_BUILD_ROOT/%{dest_dir}/volatile.img # we will create the real file in
 cp $SCRIPTSDIR/clean-volatile.img.tar $RPM_BUILD_ROOT/%{dest_dir}/clean-volatile.img.tar
 
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
+mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps.tempicons
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps
 cp -r qubeized_images/%{template_name}-apps.templates/* $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
 cp appmenus/whitelisted-appmenus.list appmenus/vm-whitelisted-appmenus.list $RPM_BUILD_ROOT/%{dest_dir}/
@@ -145,6 +146,7 @@ rm -rf $RPM_BUILD_ROOT
 %ghost %{dest_dir}/private.img
 %attr (775,root,qubes) %dir %{dest_dir}/apps
 %attr (775,root,qubes) %dir %{dest_dir}/apps.templates
+%attr (775,root,qubes) %dir %{dest_dir}/apps.tempicons
 %attr (664,root,qubes) %{dest_dir}/apps.templates/*
 %attr (664,root,qubes) %{dest_dir}/whitelisted-appmenus.list
 %attr (664,root,qubes) %{dest_dir}/vm-whitelisted-appmenus.list
