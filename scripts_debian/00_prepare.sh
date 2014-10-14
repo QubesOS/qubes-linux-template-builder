@@ -6,8 +6,8 @@
 # ------------------------------------------------------------------------------
 . ./umount.sh >/dev/null
 
-INSTALLDIR="`pwd`/mnt/"
-umount_image "${INSTALLDIR::-1}" || :
+INSTALLDIR="$(readlink -m mnt)"
+umount_image "$INSTALLDIR" || :
 
 # ------------------------------------------------------------------------------
 # Set debug display
@@ -39,7 +39,7 @@ if [ -f "$IMG" ]; then
     fi
 
     # Umount image; don't fail if its already umounted
-    umount_image "${INSTALLDIR::-1}" || :
+    umount_image "$INSTALLDIR" || :
 fi
 
 # ------------------------------------------------------------------------------

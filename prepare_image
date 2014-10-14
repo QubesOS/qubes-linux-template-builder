@@ -1,5 +1,4 @@
 #!/bin/bash
-#XXX: use bash #!/bin/sh
 
 # ------------------------------------------------------------------------------
 # Configurations
@@ -38,31 +37,22 @@ echo "-> Preparing instalation of $DIST template..."
 # ------------------------------------------------------------------------------
 # Mount image and install core OS
 # ------------------------------------------------------------------------------
+export INSTALLDIR="$(readlink -m mnt)"
+
 if [ -f "$IMG" ]; then
     echo "-> Image file already exists, assuming *update*..."
-    mount -o loop "$IMG" mnt || exit 1
-    export INSTALLDIR="`pwd`/mnt/"
-    trap "umount_image ${INSTALLDIR::-1}" EXIT
-
-    # XXX: Temp; just for debugging
-    if ! [ -f "$INSTALLDIR/tmp/.prepared_debootstrap" ]; then
-        "$SCRIPTSDIR/01_install_core.sh"
-    fi
 else
     echo "-> Initializing empty image..."
     truncate -s 10G "$IMG" || exit 1
 
     echo "-> Creating filesystem..."
     mkfs.ext4 -q -F "$IMG" || exit 1
-
-    mkdir -p mnt
-    mount -o loop "$IMG" mnt || exit 1
-
-    export INSTALLDIR="`pwd`/mnt/"
-    trap "umount_image ${INSTALLDIR::-1}" EXIT
-
-    "$SCRIPTSDIR/01_install_core.sh"
 fi
+
+mkdir -p "$INSTALLDIR"
+mount -o loop "$IMG" "$INSTALLDIR" || exit 1
+trap "umount_image $(readlink -m $INSTALLDIR)" EXIT
+"$SCRIPTSDIR/01_install_core.sh"
 
 # ------------------------------------------------------------------------------
 # Install package groups
@@ -76,6 +66,6 @@ echo "-> Installing package groups..."
 trap - EXIT
 
 echo "-> Unmounting prepared_image..."
-umount_image "$INSTALLDIR" || :
+umount_image "$(readlink -m $INSTALLDIR)" || :
 
 exit $RETCODE

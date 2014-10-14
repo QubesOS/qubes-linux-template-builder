@@ -131,20 +131,20 @@ EOF
     # --------------------------------------------------------------------------
     # Update system; exit is not successful
     # --------------------------------------------------------------------------
-    chroot "$INSTALLDIR" apt-get update || { umount "$INSTALLDIR/tmp/qubes_repo"; exit 1; }
+    chroot "$INSTALLDIR" apt-get update || { umount_image "$INSTALLDIR"; exit 1; }
 
     # --------------------------------------------------------------------------
     # Install Qubes packages
     # --------------------------------------------------------------------------
     DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
         chroot "$INSTALLDIR" apt-get -y --force-yes install `cat $SCRIPTSDIR/packages_qubes.list` || \
-        { umount "$INSTALLDIR/tmp/qubes_repo"; exit 1; }
+        { umount_image "$INSTALLDIR"; exit 1; }
 
     # --------------------------------------------------------------------------
     # Remove Quebes repo from sources.list.d
     # --------------------------------------------------------------------------
     rm -f "$INSTALLDIR"/etc/apt/sources.list.d/qubes*.list
-    umount "$INSTALLDIR/tmp/qubes_repo"
+    umount_image "$INSTALLDIR/tmp/qubes_repo"
     rm -f "$INSTALLDIR/etc/apt/sources.list.d/qubes-builder.list"
     chroot "$INSTALLDIR" apt-get update || exit 1
 

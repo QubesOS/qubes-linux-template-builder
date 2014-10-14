@@ -10,7 +10,11 @@ export LC_ALL=POSIX
 . ./builder_setup >/dev/null
 . ./umount.sh >/dev/null
 
-set -e
+if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+    set -x
+else
+    set -e
+fi
 
 if [ $# -eq 0 ]; then
     echo "usage $0 <clean_image_file> <template_name>"
