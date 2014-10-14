@@ -11,7 +11,7 @@ RETCODE=0
 : ${DIST=fc14}
 
 . ./builder_setup >/dev/null
-. ./umount.sh >/dev/null
+. ./umount_kill.sh >/dev/null
 
 if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
     set -x
@@ -51,7 +51,7 @@ fi
 
 mkdir -p "$INSTALLDIR"
 mount -o loop "$IMG" "$INSTALLDIR" || exit 1
-trap "umount_image $(readlink -m $INSTALLDIR)" EXIT
+trap "umount_kill $(readlink -m $INSTALLDIR)" EXIT
 "$SCRIPTSDIR/01_install_core.sh"
 
 # ------------------------------------------------------------------------------
@@ -66,6 +66,6 @@ echo "-> Installing package groups..."
 trap - EXIT
 
 echo "-> Unmounting prepared_image..."
-umount_image "$(readlink -m $INSTALLDIR)" || :
+umount_kill "$(readlink -m $INSTALLDIR)" || :
 
 exit $RETCODE

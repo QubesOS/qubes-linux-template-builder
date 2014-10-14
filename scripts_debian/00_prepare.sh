@@ -4,10 +4,10 @@
 # ------------------------------------------------------------------------------
 # Configurations
 # ------------------------------------------------------------------------------
-. ./umount.sh >/dev/null
+. ./umount_kill.sh >/dev/null
 
 INSTALLDIR="$(readlink -m mnt)"
-umount_image "$INSTALLDIR" || :
+umount_kill "$INSTALLDIR" || :
 
 # ------------------------------------------------------------------------------
 # Set debug display
@@ -39,7 +39,7 @@ if [ -f "$IMG" ]; then
     fi
 
     # Umount image; don't fail if its already umounted
-    umount_image "$INSTALLDIR" || :
+    umount_kill "$INSTALLDIR" || :
 fi
 
 # ------------------------------------------------------------------------------

@@ -10,7 +10,7 @@ set -x
 # Source external scripts
 # ------------------------------------------------------------------------------
 . $SCRIPTSDIR/vars.sh
-. ./umount.sh >/dev/null
+. ./umount_kill.sh >/dev/null
 
 # ------------------------------------------------------------------------------
 # If .prepared_groups has not been completed, don't continue
@@ -131,20 +131,20 @@ EOF
     # --------------------------------------------------------------------------
     # Update system; exit is not successful
     # --------------------------------------------------------------------------
-    chroot "$INSTALLDIR" apt-get update || { umount_image "$INSTALLDIR"; exit 1; }
+    chroot "$INSTALLDIR" apt-get update || { umount_kill "$INSTALLDIR"; exit 1; }
 
     # --------------------------------------------------------------------------
     # Install Qubes packages
     # --------------------------------------------------------------------------
     DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
         chroot "$INSTALLDIR" apt-get -y --force-yes install `cat $SCRIPTSDIR/packages_qubes.list` || \
-        { umount_image "$INSTALLDIR"; exit 1; }
+        { umount_kill "$INSTALLDIR"; exit 1; }
 
     # --------------------------------------------------------------------------
     # Remove Quebes repo from sources.list.d
     # --------------------------------------------------------------------------
     rm -f "$INSTALLDIR"/etc/apt/sources.list.d/qubes*.list
-    umount_image "$INSTALLDIR/tmp/qubes_repo"
+    umount_kill "$INSTALLDIR/tmp/qubes_repo"
     rm -f "$INSTALLDIR/etc/apt/sources.list.d/qubes-builder.list"
     chroot "$INSTALLDIR" apt-get update || exit 1
 
@@ -198,5 +198,5 @@ customStep "$0" "post"
 # Kill all processes and umount all mounts within $INSTALLDIR, but not 
 # $INSTALLDIR itself (extra '/' prevents $INSTALLDIR from being umounted itself)
 # ------------------------------------------------------------------------------
-umount_image "$INSTALLDIR/" || :
+umount_kill "$INSTALLDIR/" || :
 

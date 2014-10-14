@@ -8,7 +8,7 @@ export NAME="$2"
 export LC_ALL=POSIX
 
 . ./builder_setup >/dev/null
-. ./umount.sh >/dev/null
+. ./umount_kill.sh >/dev/null
 
 if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
     set -x
@@ -46,7 +46,7 @@ fi
 # Cleanup function
 # ------------------------------------------------------------------------------
 function cleanup() {
-    umount_image "$PWD/mnt" || :
+    umount_kill "$PWD/mnt" || :
 }
 trap cleanup ERR
 

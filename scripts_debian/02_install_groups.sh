@@ -7,7 +7,7 @@
 set -x
 
 . $SCRIPTSDIR/vars.sh
-. ./umount.sh >/dev/null
+. ./umount_kill.sh >/dev/null
 
 # ------------------------------------------------------------------------------
 # If .prepared_debootstrap has not been completed, don't continue
@@ -34,7 +34,7 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_groups" ]; then
     function error() {
         echo "--> Install groups error and umount"
         rm -f "$INSTALLDIR/usr/sbin/policy-rc.d"
-        umount_image "$INSTALLDIR" || :
+        umount_kill "$INSTALLDIR" || :
         exit 1
     }
     trap error ERR
@@ -172,7 +172,7 @@ EOF
     # Kill all processes and umount all mounts within $INSTALLDIR, 
     # but not $INSTALLDIR itself (extra '/' prevents $INSTALLDIR from being
     # umounted itself)
-    umount_image "$INSTALLDIR/" || :
+    umount_kill "$INSTALLDIR/" || :
 fi
 
 # ------------------------------------------------------------------------------

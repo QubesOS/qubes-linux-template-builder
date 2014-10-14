@@ -5,7 +5,7 @@
 # Configurations
 # ------------------------------------------------------------------------------
 . $SCRIPTSDIR/vars.sh
-. ./umount.sh >/dev/null
+. ./umount_kill.sh >/dev/null
 
 if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
     set -x
@@ -112,7 +112,7 @@ EOF
 # ------------------------------------------------------------------------------
 function error() {
     echo "--> Whonix error; umounting $INSTALLDIR to prevent further writes"
-    umount_image "$INSTALLDIR" || :
+    umount_kill "$INSTALLDIR" || :
     exit 1
 }
 trap error ERR
