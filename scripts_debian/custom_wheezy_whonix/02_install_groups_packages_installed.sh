@@ -125,6 +125,34 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     echo "-> Installing whonix system"
 
     # --------------------------------------------------------------------------
+    # Initialize Whonix submodules
+    # --------------------------------------------------------------------------
+    pushd "$WHONIX_DIR"
+    {
+        git submodule update --init --recursive;
+    }
+    popd
+
+    # --------------------------------------------------------------------------
+    # Patch Whonix submodules
+    # --------------------------------------------------------------------------
+
+    # Patch anon-meta-packages to not depend on grub-pc
+    # XXX: Seems like the error disappears, but then whonix updates to original code?
+    pushd "$WHONIX_DIR/packages/anon-meta-packages/debian"
+    {
+        sed -i 's/ grub-pc,//g' control;
+        #git commit -am 'removed grub-pc depend';
+    }
+    popd
+
+    pushd "$WHONIX_DIR/build-steps.d"
+    {
+    sed -i 's/   check_for_uncommited_changes/   #check_for_uncommited_changes/g' 1200_create-debian-packages;
+    }
+    popd
+
+    # --------------------------------------------------------------------------
     # Whonix system config dependancies
     # --------------------------------------------------------------------------
     #/usr/sbin/grub-probe: error: cannot find a device for / (is /dev mounted?)
