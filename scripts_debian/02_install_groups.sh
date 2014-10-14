@@ -120,9 +120,14 @@ EOF
     #   For jessie and newer, sysvinit is provided by sysvinit-core which
     #   is not an essential package.
     # ------------------------------------------------------------------------------
-    echo "--> Installing systemd for wheezy ($DEBIANVERSION)"
-    echo 'Yes, do as I say!' | DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-        chroot "$INSTALLDIR" apt-get -y --force-yes remove sysvinit
+    echo "--> Installing systemd for debian ($DEBIANVERSION)"
+    if [ "$DEBIANVERSION" == "wheezy" ]; then
+        echo 'Yes, do as I say!' | DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
+            chroot "$INSTALLDIR" apt-get -y --force-yes remove sysvinit
+    else
+        DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
+            chroot "$INSTALLDIR" apt-get -y --force-yes remove sysvinit
+    fi
 
     # Prevent sysvinit from being re-installed
     echo "--> Preventing sysvinit re-installation"
@@ -144,7 +149,7 @@ EOF
     # ------------------------------------------------------------------------------
     if [ "$DEBIANVERSION" == "wheezy" ]; then
         echo "--> Adding wheezy backports repository."
-        source="deb http://http.debian.net/debian wheezy-backports main"
+        source="deb ${DEBIAN_MIRROR} wheezy-backports main"
         if ! grep -r -q "$source" "$INSTALLDIR/etc/apt/sources.list"*; then
             touch "$INSTALLDIR/etc/apt/sources.list"
             echo "$source" >> "$INSTALLDIR/etc/apt/sources.list"
