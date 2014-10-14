@@ -1,5 +1,0 @@
-NOTES
-=====
-
-- move whonix install into step 01-pre!
-  that way we dont need to setup systemd 2 times!
