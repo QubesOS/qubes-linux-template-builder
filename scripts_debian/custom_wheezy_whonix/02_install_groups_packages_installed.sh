@@ -154,7 +154,7 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
 
     pushd "$WHONIX_DIR/build-steps.d"
     {
-    sed -i 's/   check_for_uncommited_changes/   #check_for_uncommited_changes/g' 1200_create-debian-packages;
+        sed -i 's/   check_for_uncommited_changes/   #check_for_uncommited_changes/g' 1200_create-debian-packages;
     }
     popd
 
