@@ -135,7 +135,7 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     # --------------------------------------------------------------------------
     pushd "$WHONIX_DIR"
     {
-        git submodule update --init --recursive;
+        su $USER -c "git submodule update --init --recursive"
     }
     popd
 
