@@ -64,10 +64,12 @@ sudo rm -f resolv.conf
 sudo ln -s resolv.conf.backup resolv.conf
 popd
 
-sudo update-rc.d network-manager disable
-sudo update-rc.d spice-vdagent disable
-sudo update-rc.d swap-file-creator disable
-sudo update-rc.d whonix-initializer disable
+# Enable Tor
+sudo sed -i 's/#DisableNetwork 0/DisableNetwork 0/g' /etc/tor/torrc
+
+# Fake that whonixsetup was already run
+sudo mkdir -p /var/lib/whonix/do_once
+sudo touch /var/lib/whonix/do_once/whonixsetup.done
 
 # Fake that initializer was already run
 sudo mkdir -p /root/.whonix
@@ -78,6 +80,11 @@ sudo su -c 'echo WHONIXCHECK_NO_EXIT_ON_UNSUPPORTED_VIRTUALIZER=\"1\" >> /etc/wh
 
 # Ensure umask set in /etc/login.defs is used (022)
 sudo su -c 'echo "session optional pam_umask.so" >> /etc/pam.d/common-session'
+
+sudo update-rc.d network-manager disable
+sudo update-rc.d spice-vdagent disable
+sudo update-rc.d swap-file-creator disable
+sudo update-rc.d whonix-initializer disable
 
 sudo touch "/tmp/.prepared_whonix"
 
