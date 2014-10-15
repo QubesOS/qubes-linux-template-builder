@@ -15,7 +15,6 @@ fi
 # chroot Whonix build script (Make sure set -e is not set)
 # ------------------------------------------------------------------------------
 read -r -d '' WHONIX_BUILD_SCRIPT <<'EOF'
-#!/bin/bash
 
 ################################################################################
 # Pre Fixups
