@@ -36,19 +36,27 @@ else
 fi
 
 INSTALLDIR="$(readlink -m mnt)"
-umount_kill "$INSTALLDIR" || :
 
 # ------------------------------------------------------------------------------
 # Use a snapshot of the debootstraped debian image to install Whonix (for DEBUGGING)
 # ------------------------------------------------------------------------------
-splitPath "$IMG" path_parts
-PREPARED_IMG="${path_parts[dir]}${path_parts[base]}-debootstrap${path_parts[dotext]}"
 
-if [ -f "$PREPARED_IMG" ]; then
-    warn "Copying $PREPARED_IMG to $IMG"
-    mount -o loop "$PREPARED_IMG" "$INSTALLDIR" || exit 1
+copy_snapshot() {
+    warn "Copying $1 to $IMG"
+    umount_kill "$INSTALLDIR" || :
+    mount -o loop "$1" "$INSTALLDIR" || exit 1
     rm -f "$INSTALLDIR/tmp/.prepared_groups"
     umount_kill "$INSTALLDIR" || :
-    cp -f "$PREPARED_IMG" "$IMG"
+    cp -f "$1" "$IMG"
+}
+
+splitPath "$IMG" path_parts
+debootstrap_snapshot="${path_parts[dir]}${path_parts[base]}-debootstrap${path_parts[dotext]}"
+updated_snapshot="${path_parts[dir]}${path_parts[base]}-updated${path_parts[dotext]}"
+
+if [ -f "$updated_snapshot" ]; then
+    copy_snapshot "$updated_snapshot"
+elif [ -f "$debootstrap_snapshot" ]; then
+    copy_snapshot "$debootstrap_snapshot"
 fi
 

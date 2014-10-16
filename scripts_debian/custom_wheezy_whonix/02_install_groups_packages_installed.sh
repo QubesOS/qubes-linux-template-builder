@@ -33,7 +33,6 @@ if [ "$SNAPSHOT" == "1" ]; then
     fi
 fi
 
-
 # ------------------------------------------------------------------------------
 # chroot Whonix build script (Make sure set -e is not set)
 # ------------------------------------------------------------------------------
@@ -174,7 +173,7 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     # --------------------------------------------------------------------------
     pushd "$WHONIX_DIR"
     {
-        su $USER -c "git submodule update --init --recursive"
+        su user -c "git submodule update --init --recursive"
     }
     popd
 
@@ -187,23 +186,23 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     pushd "$WHONIX_DIR"
     {
         sed -i 's/grub-pc//g' grml_packages || :;
-        su $USER -c "git commit -am 'removed grub-pc depend'" || :;
+        su user -c "git commit -am 'removed grub-pc depend'" || :;
     }
     popd
 
     pushd "$WHONIX_DIR/packages/anon-meta-packages/debian"
     {
         sed -i 's/ grub-pc,//g' control || :;
-        su $USER -c "dpkg-source --commit" || :;
-        su $USER -c "git commit -am 'removed grub-pc depend'" || :;
+        su user -c "dpkg-source --commit" || :;
+        su user -c "git commit -am 'removed grub-pc depend'" || :;
     }
     popd
 
     pushd "$WHONIX_DIR/packages/anon-shared-build-fix-grub/usr/lib/anon-dist/chroot-scripts-post.d"
     {
         sed -i 's/update-grub/:/g' 85_update_grub || :;
-        su $USER -c "dpkg-source --commit" || :;
-        su $USER -c "git commit -am 'removed grub-pc depend'" || :;
+        su user -c "dpkg-source --commit" || :;
+        su user -c "git commit -am 'removed grub-pc depend'" || :;
     }
     popd
 
