@@ -2,21 +2,25 @@
 # vim: set ts=4 sw=4 sts=4 et :
 
 # ------------------------------------------------------------------------------
-# Configurations
-# ------------------------------------------------------------------------------
-set -x
-
-# ------------------------------------------------------------------------------
 # Source external scripts
 # ------------------------------------------------------------------------------
 . $SCRIPTSDIR/vars.sh
 . ./umount_kill.sh >/dev/null
 
 # ------------------------------------------------------------------------------
+# Configurations
+# ------------------------------------------------------------------------------
+if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+    set -x
+else
+    set -e
+fi
+
+# ------------------------------------------------------------------------------
 # If .prepared_groups has not been completed, don't continue
 # ------------------------------------------------------------------------------
 if ! [ -f "$INSTALLDIR/tmp/.prepared_groups" ]; then
-    echo "--> prepared_groups installataion has not completed!... Exiting"
+    error "prepared_groups installataion has not completed!... Exiting"
     exit 1
 fi
 
@@ -34,7 +38,7 @@ customStep "$0" "pre"
 # Install Qubes Packages
 # ------------------------------------------------------------------------------
 if ! [ -f "$INSTALLDIR/tmp/.prepared_qubes" ]; then
-    echo "--> Installing qbues modules"
+    debug "Installing qbues modules"
 
     # --------------------------------------------------------------------------
     # Set up a temporary policy-rc.d to prevent apt from starting services
@@ -49,7 +53,7 @@ EOF
     # --------------------------------------------------------------------------
     # Generate locales
     # --------------------------------------------------------------------------
-    echo "--> Generate locales"
+    debug "Generate locales"
     echo "en_US.UTF-8 UTF-8" >> "$INSTALLDIR/etc/locale.gen"
     chroot "$INSTALLDIR" locale-gen
     chroot "$INSTALLDIR" update-locale LANG=en_US.UTF-8
@@ -57,7 +61,7 @@ EOF
     # --------------------------------------------------------------------------
     # Update /etc/fstab
     # --------------------------------------------------------------------------
-    echo "--> Updating template fstab file..."
+    debug "Updating template fstab file..."
     cat >> "$INSTALLDIR/etc/fstab" <<EOF
 /dev/mapper/dmroot /         ext4 defaults,noatime 1 1
 /dev/xvdc1 swap              swap    defaults 0 0
@@ -89,7 +93,7 @@ EOF
     # --------------------------------------------------------------------------
     # Start of Qubes package installation
     # --------------------------------------------------------------------------
-    echo "--> Installing qubes packages"
+    debug "Installing qubes packages"
     export CUSTOMREPO="$PWD/yum_repo_qubes/$DIST"
 
     # --------------------------------------------------------------------------
@@ -183,7 +187,7 @@ EOF
     # Copy over any extra files that may be needed that are located in
     # $SCRIPT_DIR/extra-qubes-files
     # --------------------------------------------------------------------------
-    echo "-> Copy extra files..." 
+    debug "Copy extra files..." 
     copy_dirs "extra-qubes-files"
 
     touch "$INSTALLDIR/tmp/.prepared_qubes"

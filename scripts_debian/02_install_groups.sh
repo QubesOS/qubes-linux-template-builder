@@ -2,18 +2,26 @@
 # vim: set ts=4 sw=4 sts=4 et :
 
 # ------------------------------------------------------------------------------
-# Configurations
+# Source external scripts
 # ------------------------------------------------------------------------------
-set -x
-
 . $SCRIPTSDIR/vars.sh
 . ./umount_kill.sh >/dev/null
+
+# ------------------------------------------------------------------------------
+# Configurations
+# ------------------------------------------------------------------------------
+if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+    set -x
+else
+    set -e
+fi
 
 # ------------------------------------------------------------------------------
 # If .prepared_debootstrap has not been completed, don't continue
 # ------------------------------------------------------------------------------
 if ! [ -f "$INSTALLDIR/tmp/.prepared_debootstrap" ]; then
-    echo "--> prepared_debootstrap installataion has not completed!... Exiting"
+    error "prepared_debootstrap installataion has not completed!... Exiting"
+    umount_kill "$INSTALLDIR" || :
     exit 1
 fi
 
@@ -31,14 +39,14 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_groups" ]; then
     # ------------------------------------------------------------------------------
     # Cleanup function
     # ------------------------------------------------------------------------------
-    function error() {
-        echo "--> Install groups error and umount"
+    function cleanup() {
+        error "Install groups error and umount"
         rm -f "$INSTALLDIR/usr/sbin/policy-rc.d"
         umount_kill "$INSTALLDIR" || :
         exit 1
     }
-    trap error ERR
-    trap error EXIT
+    trap cleanup ERR
+    trap cleanup EXIT
 
     # ------------------------------------------------------------------------------
     # Set up a temporary policy-rc.d to prevent apt from starting services
@@ -53,7 +61,7 @@ EOF
     # ------------------------------------------------------------------------------
     # Add debian security repository
     # ------------------------------------------------------------------------------
-    echo "--> Adding debian-security repository."
+    debug "Adding debian-security repository."
     source="deb http://security.debian.org ${DEBIANVERSION}/updates main"
     if ! grep -r -q "$source" "$INSTALLDIR/etc/apt/sources.list"*; then
         touch "$INSTALLDIR/etc/apt/sources.list"
@@ -68,7 +76,7 @@ EOF
     # ------------------------------------------------------------------------------
     # Upgrade system
     # ------------------------------------------------------------------------------
-    echo "--> Upgrading system"
+    debug "Upgrading system"
     chroot "$INSTALLDIR" apt-get update
     DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
         chroot "$INSTALLDIR" apt-get -y --force-yes dist-upgrade
@@ -76,7 +84,7 @@ EOF
     # ------------------------------------------------------------------------------
     # Configure keyboard
     # ------------------------------------------------------------------------------
-    echo "--> Setting keyboard layout"
+    debug "Setting keyboard layout"
     chroot "$INSTALLDIR" debconf-set-selections <<EOF
 keyboard-configuration  keyboard-configuration/variant  select  English (US)
 keyboard-configuration  keyboard-configuration/layout   select  English (US)
@@ -93,7 +101,8 @@ EOF
     if [ -n "${TEMPLATE_FLAVOR}" ]; then
         PKGLISTFILE="$SCRIPTSDIR/packages_${DIST}_${TEMPLATE_FLAVOR}.list"
         if ! [ -r "${PKGLISTFILE}" ]; then
-            echo "ERROR: ${PKGLISTFILE} does not exists!"
+            error "ERROR: ${PKGLISTFILE} does not exists!"
+            umount_kill "$INSTALLDIR" || :
             exit 1
         fi
     elif [ -r "$SCRIPTSDIR/packages_${DIST}.list" ]; then
@@ -102,7 +111,7 @@ EOF
         PKGLISTFILE="$SCRIPTSDIR/packages.list"
     fi
 
-    echo "--> Installing extra packages"
+    debug "Installing extra packages"
     DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
         xargs chroot $INSTALLDIR apt-get -y --force-yes install < "$PKGLISTFILE"
 
@@ -120,7 +129,7 @@ EOF
     #   For jessie and newer, sysvinit is provided by sysvinit-core which
     #   is not an essential package.
     # ------------------------------------------------------------------------------
-    echo "--> Installing systemd for debian ($DEBIANVERSION)"
+    debug "Installing systemd for debian ($DEBIANVERSION)"
     if [ "$DEBIANVERSION" == "wheezy" ]; then
         echo 'Yes, do as I say!' | DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
             chroot "$INSTALLDIR" apt-get -y --force-yes remove sysvinit
@@ -130,7 +139,7 @@ EOF
     fi
 
     # Prevent sysvinit from being re-installed
-    echo "--> Preventing sysvinit re-installation"
+    debug "Preventing sysvinit re-installation"
     chroot "$INSTALLDIR" apt-mark hold sysvinit
 
     chroot "$INSTALLDIR" apt-get update
@@ -148,7 +157,7 @@ EOF
     # Qubes is now being built with some SID packages; grab backport for wheezy
     # ------------------------------------------------------------------------------
     if [ "$DEBIANVERSION" == "wheezy" ]; then
-        echo "--> Adding wheezy backports repository."
+        debug "Adding wheezy backports repository."
         source="deb ${DEBIAN_MIRROR} wheezy-backports main"
         if ! grep -r -q "$source" "$INSTALLDIR/etc/apt/sources.list"*; then
             touch "$INSTALLDIR/etc/apt/sources.list"

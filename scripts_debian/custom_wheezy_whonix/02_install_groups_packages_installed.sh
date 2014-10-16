@@ -2,13 +2,18 @@
 # vim: set ts=4 sw=4 sts=4 et :
 
 # ------------------------------------------------------------------------------
-# Configurations
+# Source external scripts
 # ------------------------------------------------------------------------------
 . $SCRIPTSDIR/vars.sh
 . ./umount_kill.sh >/dev/null
 
+# ------------------------------------------------------------------------------
+# Configurations
+# ------------------------------------------------------------------------------
 if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
     set -x
+else
+    set -e
 fi
 
 # ------------------------------------------------------------------------------
@@ -28,7 +33,7 @@ sudo mkdir --parents --mode=g+rw "/tmp/uwt"
 # on the package.  Things seem to work anyway. BUT hopfully the
 # hold on grub* don't get removed
 sudo apt-mark hold sysvinit
-sudo apt-mark hold grub-common grub-pc-bin grub2-common
+sudo apt-mark hold grub-pc grub-pc-bin grub-common grub2-common
 
 # Whonix expects haveged to be started
 sudo /etc/init.d/haveged start
@@ -89,7 +94,6 @@ sudo touch "/tmp/.prepared_whonix"
 
 EOF
 
-
 # ------------------------------------------------------------------------------
 # chroot Whonix fix script (Make sure set -e is not set)
 # Run ../whonix_fix when whonix gives grub-pc error
@@ -98,10 +102,27 @@ EOF
 # ignore certain errors
 read -r -d '' WHONIX_FIX_SCRIPT <<'EOF'
 DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-    sudo apt-get -y --force-yes remove grub-common grub-pc-bin grub2-common
+    sudo apt-get -y --force-yes remove grub-pc grub-common grub-pc-bin grub2-common
 sudo apt-mark hold grub-common grub-pc-bin grub2-common
 EOF
 
+read -r -d '' WHONIX_APT_PIN <<'EOF'
+Package: grub-pc
+Pin: version *
+Pin-Priority: -100
+
+Package: grub-pc-bin
+Pin: version *
+Pin-Priority: -100
+
+Package: grub-common
+Pin: version *
+Pin-Priority: -100
+
+Package: grub2-common
+Pin: version *
+Pin-Priority: -100
+EOF
 
 # ------------------------------------------------------------------------------
 # Set defualts for apt not to install recommended or extra packages
@@ -116,19 +137,19 @@ EOF
 # ------------------------------------------------------------------------------
 # Cleanup function
 # ------------------------------------------------------------------------------
-function error() {
-    echo "--> Whonix error; umounting $INSTALLDIR to prevent further writes"
+function cleanup() {
+    error "Whonix error; umounting $INSTALLDIR to prevent further writes"
     umount_kill "$INSTALLDIR" || :
     exit 1
 }
-trap error ERR
-trap error EXIT
+trap cleanup ERR
+trap cleanup EXIT
 
 # ------------------------------------------------------------------------------
 # Mount devices, etc required for Whonix installation
 # ------------------------------------------------------------------------------
 if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
-    echo "-> Installing whonix system"
+    info "Installing Whonix system"
 
     # --------------------------------------------------------------------------
     # Initialize Whonix submodules
@@ -147,16 +168,30 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     # XXX: Seems like the error disappears, but then whonix updates to original code?
     pushd "$WHONIX_DIR/packages/anon-meta-packages/debian"
     {
-        sed -i 's/ grub-pc,//g' control;
-        #git commit -am 'removed grub-pc depend';
+        sed -i 's/ grub-pc,//g' control || :;
+        su $USER -c "git commit -am 'removed grub-pc depend'" || :;
     }
     popd
 
-    pushd "$WHONIX_DIR/build-steps.d"
+    pushd "$WHONIX_DIR"
     {
-        sed -i 's/   check_for_uncommited_changes/   #check_for_uncommited_changes/g' 1200_create-debian-packages;
+        sed -i 's/grub-pc//g' grml_packages || :;
+        su $USER -c "git commit -am 'removed grub-pc depend'" || :;
     }
     popd
+
+    pushd "$WHONIX_DIR/packages/anon-shared-build-fix-grub/usr/lib/anon-dist/chroot-scripts-post.d"
+    {
+        sed -i 's/update-grub/:/g' 85_update_grub || :;
+        su $USER -c "git commit -am 'removed grub-pc depend'" || :;
+    }
+    popd
+
+    #pushd "$WHONIX_DIR/build-steps.d"
+    #{
+    #    sed -i 's/   check_for_uncommited_changes/   #check_for_uncommited_changes/g' 1200_create-debian-packages;
+    #}
+    #popd
 
     # --------------------------------------------------------------------------
     # Whonix system config dependancies
@@ -184,17 +219,21 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     # Install Whonix system
     # --------------------------------------------------------------------------
     if ! [ -d "$INSTALLDIR/home/user/Whonix" ]; then
-        echo "-> Installing Whonix build environment..."
+        debug "Installing Whonix build environment..."
         chroot "$INSTALLDIR" su user -c 'mkdir /home/user/Whonix'
     fi
 
     if [ -d "$INSTALLDIR/home/user/Whonix" ]; then
+        debug "Building Whonix..."
         mount --bind "../Whonix" "$INSTALLDIR/home/user/Whonix"
-        echo "-> Building Whonix..."
 
        # Install apt-get preferences
        echo "$WHONIX_APT_PREFERENCE" > "$INSTALLDIR/etc/apt/apt.conf.d/99whonix"
        chmod 0644 "$INSTALLDIR/etc/apt/apt.conf.d/99whonix"
+
+       # Pin grub packages so they will not install
+       echo "$WHONIX_APT_PIN" > "$INSTALLDIR/etc/apt/preferences.d/whonix_qubes"
+       chmod 0644 "$INSTALLDIR/etc/apt/preferences.d/whonix_qubes"
 
        # Install Whonix fix script
        echo "$WHONIX_FIX_SCRIPT" > "$INSTALLDIR/home/user/whonix_fix"
@@ -209,9 +248,9 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
        elif [ "${TEMPLATE_FLAVOR}" == "whonix-workstation" ]; then
            BUILD_TYPE="--torworkstation"
        else
-           echo "Incorrent Whonix type \"${TEMPLATE_FLAVOR}\" selected.  Not building Whonix modules"
-           echo "You need to set TEMPLATE_FLAVOR environment variable to either"
-           echo "whonix-gateway OR whonix-workstation"
+           error "Incorrent Whonix type \"${TEMPLATE_FLAVOR}\" selected.  Not building Whonix modules"
+           error "You need to set TEMPLATE_FLAVOR environment variable to either"
+           error "whonix-gateway OR whonix-workstation"
            exit 1
        fi
 

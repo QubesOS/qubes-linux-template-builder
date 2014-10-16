@@ -38,6 +38,7 @@ echo "-> Preparing instalation of $DIST template..."
 # Mount image and install core OS
 # ------------------------------------------------------------------------------
 export INSTALLDIR="$(readlink -m mnt)"
+mkdir -p "$INSTALLDIR"
 
 if [ -f "$IMG" ]; then
     echo "-> Image file already exists, assuming *update*..."
@@ -49,7 +50,6 @@ else
     mkfs.ext4 -q -F "$IMG" || exit 1
 fi
 
-mkdir -p "$INSTALLDIR"
 mount -o loop "$IMG" "$INSTALLDIR" || exit 1
 trap "umount_kill $(readlink -m $INSTALLDIR)" EXIT
 "$SCRIPTSDIR/01_install_core.sh"

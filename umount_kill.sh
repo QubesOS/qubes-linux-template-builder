@@ -23,6 +23,8 @@
 # ./umount_kill.sh chroot-jessie
 # 
 
+. ./functions.sh
+
 # $1 = full path to mount; 
 # $2 = if set will not umount; only kill processes in mount
 umount_kill() {
@@ -37,7 +39,7 @@ umount_kill() {
     # since we are doing an exact string match on the path
     MOUNTDIR=$(echo "$MOUNTDIR" | sed s#//*#/#g)
 
-    echo "-> Attempting to kill any processes still running in '$MOUNTDIR' before un-mounting"
+    debug "-> Attempting to kill any processes still running in '$MOUNTDIR' before un-mounting"
     for dir in $(sudo grep "$MOUNTDIR" /proc/mounts | cut -f2 -d" " | sort -r | grep "^$MOUNTDIR")
     do
         sudo lsof "$dir" 2> /dev/null | \
@@ -46,11 +48,21 @@ umount_kill() {
             awk '{print $2}' | \
             xargs --no-run-if-empty sudo kill -9
 
-        echo "un-mounting $dir"
         if ! [ "$2" ] && $(mountpoint -q "$dir"); then
+            debug "un-mounting $dir"
             sudo umount -n "$dir" 2> /dev/null || \
                 sudo umount -n -l "$dir" 2> /dev/null || \
-                echo "umount $dir unsuccessful!"
+                error "umount $dir unsuccessful!"
+       elif ! [ "$2" ]; then
+            # Look for (deleted) mountpoints
+            debug "not a regular mount point: $dir"
+            base=$(basename "$dir")
+            dir=$(dirname "$dir")
+            base=$(echo "$base" | sed 's/[\].*$//')
+            dir="$dir/$base"
+            sudo umount -v -f -n "$dir" 2> /dev/null || \
+                sudo umount -v -f -n -l "$dir" 2> /dev/null || \
+                error "umount $dir unsuccessful!"
         fi
     done
 }
