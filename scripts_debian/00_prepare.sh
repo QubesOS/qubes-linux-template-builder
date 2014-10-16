@@ -10,14 +10,14 @@
 # ------------------------------------------------------------------------------
 # Configurations
 # ------------------------------------------------------------------------------
-INSTALLDIR="$(readlink -m mnt)"
-umount_kill "$INSTALLDIR" || :
-
 if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
     set -x
 else
     set -e
 fi
+
+INSTALLDIR="$(readlink -m mnt)"
+umount_kill "$INSTALLDIR" || :
 
 # ------------------------------------------------------------------------------
 # Execute any custom pre configuration scripts

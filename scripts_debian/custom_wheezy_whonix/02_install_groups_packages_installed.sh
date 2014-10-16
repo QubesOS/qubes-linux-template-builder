@@ -17,6 +17,24 @@ else
 fi
 
 # ------------------------------------------------------------------------------
+# XXX: Create a snapshot - Only for DEBUGGING!
+# ------------------------------------------------------------------------------
+# Only execute if SNAPSHOT is set
+if [ "$SNAPSHOT" == "1" ]; then
+    splitPath "$IMG" path_parts
+    PREPARED_IMG="${path_parts[dir]}${path_parts[base]}-updated${path_parts[dotext]}"
+
+    if ! [ -f "$PREPARED_IMG" ]; then
+        umount_kill "$INSTALLDIR" || :
+        warn "Copying $IMG to $PREPARED_IMG"
+        cp -f "$IMG" "$PREPARED_IMG"
+        mount -o loop "$IMG" "$INSTALLDIR" || exit 1
+        for fs in /dev /dev/pts /proc /sys /run; do mount -B $fs "$INSTALLDIR/$fs"; done
+    fi
+fi
+
+
+# ------------------------------------------------------------------------------
 # chroot Whonix build script (Make sure set -e is not set)
 # ------------------------------------------------------------------------------
 read -r -d '' WHONIX_BUILD_SCRIPT <<'EOF'
@@ -166,13 +184,6 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
 
     # Patch anon-meta-packages to not depend on grub-pc
     # XXX: Seems like the error disappears, but then whonix updates to original code?
-    pushd "$WHONIX_DIR/packages/anon-meta-packages/debian"
-    {
-        sed -i 's/ grub-pc,//g' control || :;
-        su $USER -c "git commit -am 'removed grub-pc depend'" || :;
-    }
-    popd
-
     pushd "$WHONIX_DIR"
     {
         sed -i 's/grub-pc//g' grml_packages || :;
@@ -180,9 +191,18 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     }
     popd
 
+    pushd "$WHONIX_DIR/packages/anon-meta-packages/debian"
+    {
+        sed -i 's/ grub-pc,//g' control || :;
+        su $USER -c "dpkg-source --commit" || :;
+        su $USER -c "git commit -am 'removed grub-pc depend'" || :;
+    }
+    popd
+
     pushd "$WHONIX_DIR/packages/anon-shared-build-fix-grub/usr/lib/anon-dist/chroot-scripts-post.d"
     {
         sed -i 's/update-grub/:/g' 85_update_grub || :;
+        su $USER -c "dpkg-source --commit" || :;
         su $USER -c "git commit -am 'removed grub-pc depend'" || :;
     }
     popd

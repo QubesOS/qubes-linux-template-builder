@@ -13,10 +13,10 @@
 ################################################################################
 
 # ------------------------------------------------------------------------------
-# Return if DEBUG is not "1"
+# Return if SNAPSHOT is not "1"
 # ------------------------------------------------------------------------------
-# This script is only used if DEBUG is set
-if [ ! "$DEBUG" == "1" ]; then
+# This script is only used if SNAPSHOT is set
+if [ ! "$SNAPSHOT" == "1" ]; then
     exit 0
 fi
 
@@ -39,10 +39,10 @@ INSTALLDIR="$(readlink -m mnt)"
 umount_kill "$INSTALLDIR" || :
 
 # ------------------------------------------------------------------------------
-# Use an already prepared debian image to install Whonix (for DEBUGGING)
+# Use a snapshot of the debootstraped debian image to install Whonix (for DEBUGGING)
 # ------------------------------------------------------------------------------
 splitPath "$IMG" path_parts
-PREPARED_IMG="${path_parts[dir]}${path_parts[base]}-prepared${path_parts[dotext]}"
+PREPARED_IMG="${path_parts[dir]}${path_parts[base]}-debootstrap${path_parts[dotext]}"
 
 if [ -f "$PREPARED_IMG" ]; then
     warn "Copying $PREPARED_IMG to $IMG"

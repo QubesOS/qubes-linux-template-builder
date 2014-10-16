@@ -2,10 +2,10 @@
 # vim: set ts=4 sw=4 sts=4 et :
 
 # ------------------------------------------------------------------------------
-# Return if DEBUG is not "1"
+# Return if SNAPSHOT is not "1"
 # ------------------------------------------------------------------------------
-# This script is only used if DEBUG is set
-if [ ! "$DEBUG" == "1" ]; then
+# This script is only used if SNAPSHOT is set
+if [ ! "$SNAPSHOT" == "1" ]; then
     exit 0
 fi
 
@@ -25,10 +25,10 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# Create a copy of an already prepared bootstraped image if it does not exist
+# Create a snapshot of the already debootstraped image
 # ------------------------------------------------------------------------------
 splitPath "$IMG" path_parts
-PREPARED_IMG="${path_parts[dir]}${path_parts[base]}-prepared${path_parts[dotext]}"
+PREPARED_IMG="${path_parts[dir]}${path_parts[base]}-debootstrap${path_parts[dotext]}"
 
 if ! [ -f "$PREPARED_IMG" ]; then
     umount_kill "$INSTALLDIR" || :
