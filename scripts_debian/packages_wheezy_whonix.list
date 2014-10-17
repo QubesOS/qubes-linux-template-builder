@@ -7,6 +7,7 @@ ncurses-term
 xserver-xorg-core
 x11-xserver-utils
 xinit
+
 git
 curl
 sudo
@@ -27,3 +28,8 @@ usbutils
 lsb-release
 acpi-support-base
 haveged
+
+build-essential:native
+gcc
+fakeroot
+lintian

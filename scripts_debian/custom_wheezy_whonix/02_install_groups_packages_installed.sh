@@ -180,37 +180,46 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     # --------------------------------------------------------------------------
     # Patch Whonix submodules
     # --------------------------------------------------------------------------
-
+    
     # Patch anon-meta-packages to not depend on grub-pc
-    # XXX: Seems like the error disappears, but then whonix updates to original code?
     pushd "$WHONIX_DIR"
     {
+        #su user -c "git branch qubes 9.2" || :;
+        #su user -c "git checkout qubes" || :;
         sed -i 's/grub-pc//g' grml_packages || :;
-        su user -c "git commit -am 'removed grub-pc depend'" || :;
+        #su user -c "git commit -am 'removed grub-pc depend'" || :;
     }
     popd
 
     pushd "$WHONIX_DIR/packages/anon-meta-packages/debian"
     {
+        #su user -c "git branch qubes" || :;
+        #su user -c "git checkout qubes" || :;
         sed -i 's/ grub-pc,//g' control || :;
-        su user -c "dpkg-source --commit" || :;
-        su user -c "git commit -am 'removed grub-pc depend'" || :;
+        cd ..;
+        su user -c "dpkg-source -q --commit . no_grub" || :;
+        #git add .
+        #su user -c "git commit -am 'removed grub-pc depend'" || :;
     }
     popd
 
     pushd "$WHONIX_DIR/packages/anon-shared-build-fix-grub/usr/lib/anon-dist/chroot-scripts-post.d"
     {
+        #su user -c "git branch qubes" || :;
+        #su user -c "git checkout qubes" || :;
         sed -i 's/update-grub/:/g' 85_update_grub || :;
-        su user -c "dpkg-source --commit" || :;
-        su user -c "git commit -am 'removed grub-pc depend'" || :;
+        cd ../../../..;
+        su user -c "dpkg-source -q --commit . no_grub" || :;
+        #git add .
+        #su user -c "git commit -am 'removed grub-pc depend'" || :;
     }
     popd
 
-    #pushd "$WHONIX_DIR/build-steps.d"
-    #{
-    #    sed -i 's/   check_for_uncommited_changes/   #check_for_uncommited_changes/g' 1200_create-debian-packages;
-    #}
-    #popd
+    pushd "$WHONIX_DIR/build-steps.d"
+    {
+        sed -i 's/   check_for_uncommited_changes/   #check_for_uncommited_changes/g' 1200_create-debian-packages;
+    }
+    popd
 
     # --------------------------------------------------------------------------
     # Whonix system config dependancies
@@ -246,9 +255,11 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
         debug "Building Whonix..."
         mount --bind "../Whonix" "$INSTALLDIR/home/user/Whonix"
 
+       # This breaks whonix depends since it must just rely on recommended
+       # packages since it seems to install just about everything :)
        # Install apt-get preferences
-       echo "$WHONIX_APT_PREFERENCE" > "$INSTALLDIR/etc/apt/apt.conf.d/99whonix"
-       chmod 0644 "$INSTALLDIR/etc/apt/apt.conf.d/99whonix"
+       #echo "$WHONIX_APT_PREFERENCES" > "$INSTALLDIR/etc/apt/apt.conf.d/99whonix"
+       #chmod 0644 "$INSTALLDIR/etc/apt/apt.conf.d/99whonix"
 
        # Pin grub packages so they will not install
        echo "$WHONIX_APT_PIN" > "$INSTALLDIR/etc/apt/preferences.d/whonix_qubes"

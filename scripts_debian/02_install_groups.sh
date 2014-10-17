@@ -142,6 +142,15 @@ EOF
     debug "Preventing sysvinit re-installation"
     chroot "$INSTALLDIR" apt-mark hold sysvinit
 
+    # Pin sysvinit to prevent being re-installed 
+    read -r -d '' SYSVINIT_APT_PIN <<'EOF'
+Package: sysvinit
+Pin: version *
+Pin-Priority: -100
+EOF
+    echo "$SYSVINIT_APT_PIN" > "$INSTALLDIR/etc/apt/preferences.d/qubes_sysvinit"
+    chmod 0644 "$INSTALLDIR/etc/apt/preferences.d/qubes_sysvinit"
+
     chroot "$INSTALLDIR" apt-get update
     DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
         chroot "$INSTALLDIR" apt-get -y --force-yes install systemd-sysv
