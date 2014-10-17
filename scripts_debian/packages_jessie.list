@@ -1,0 +1,9 @@
+gnome-terminal
+locales
+sudo
+dmsetup
+psmisc
+ncurses-term
+xserver-xorg-core
+x11-xserver-utils
+xinit

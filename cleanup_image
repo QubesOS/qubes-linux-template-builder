@@ -20,6 +20,7 @@ ls -als $IMG
 mount -o loop $IMG mnt || exit 1
 export INSTALLDIR=`pwd`/mnt/
 
+echo "--> Cleaning up image file..."
 $SCRIPTSDIR/09_cleanup.sh
 
 echo "--> Compacting image file..."

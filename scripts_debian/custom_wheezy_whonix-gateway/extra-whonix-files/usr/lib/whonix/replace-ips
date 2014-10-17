@@ -1,0 +1,60 @@
+#!/bin/bash
+
+# Search though files and updates IP address to current qubes-netvm-gateway address on startup
+# of eth0
+
+
+DIRS="/usr/lib/leaktest-workstation/simple_ping.py \
+    /usr/lib/whonixcheck/preparation \
+    /usr/share/anon-kde-streamiso/share/config/kioslaverc \
+    /usr/bin/whonix_firewall \
+    /etc/whonix_firewall.d/30_default \
+    /usr/lib/anon-shared-helper-scripts/tor_bootstrap_check.bsh \
+    /usr/bin/uwt \
+    /etc/uwt.d/30_uwt_default \
+    /usr/share/tor/tor-service-defaults-torrc.anondist \
+    /usr/bin/update-torbrowser \
+    /etc/network/interfaces.whonix \
+    /etc/resolv.conf.anondist \
+    /etc/sdwdate.d/31_anon_dist_stream_isolation_plugin \
+    /etc/rinetd.conf.anondist \
+    /etc/network/interfaces.whonix \
+    /usr/share/anon-torchat/.torchat/torchat.ini"
+
+# $1 = space delimited files
+function replace_ips()
+{
+    IP=$2
+    LAST_IP=$3
+
+    if ! [ "$LAST_IP" == "$IP" ]; then
+        for file in $1; do
+            if [ -f "$file" ]; then
+                #find / -xdev -type f -print0 | xargs -0r file | grep 'ASCII text' | awk -F: '{print $1}' | \
+                #    xargs -d'\n' -r sed -i "s/$LAST_IP/$IP/g"
+                #find / -xdev -type f -print0 | xargs -0r file | grep 'ASCII text' | awk -F: '{print $1}' | \
+                #    xargs -d'\n' -r sed -i "s/$LAST_IP_PART./$IP_PART./g"
+                sed -i "s/$LAST_IP/$IP/g" "$file"
+            fi
+        done
+	echo "$IP" > /etc/whonix-netvm-gateway
+    	service tor restart
+    fi
+}
+
+IP=`xenstore-read qubes-netvm-gateway`
+IP_PART=$(echo $IP | cut -f 1,2,3 -d".")
+LAST_IP="$(cat /etc/whonix-netvm-gateway)"
+LAST_IP_PART=$(echo $LAST_IP | cut -f 1,2,3 -d".")
+replace_ips "$DIRS" $IP $LAST_IP
+
+# Do again; checking for original 10.152.152.10 incase of update
+LAST_IP=10.152.152.10
+LAST_IP_PART=$(echo $LAST_IP | cut -f 1,2,3 -d".")
+replace_ips "$DIRS" $IP $LAST_IP
+
+# Do again; checking for original 10.152.152.11 incase of update
+LAST_IP=10.152.152.11
+LAST_IP_PART=$(echo $LAST_IP | cut -f 1,2,3 -d".")
+replace_ips "$DIRS" $IP $LAST_IP
+
