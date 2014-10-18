@@ -6,14 +6,9 @@
 
 TEMPLATES="./rpm/install-templates.sh"
 
-TEMPLATES="$(readlink -m $TEMPLATES)"
-touch "$TEMPLATES"
 write() {
     echo "$1" >> "$TEMPLATES"
 }
-
-write "#!/bin/bash"
-write ""
 
 if [ -x /usr/sbin/xenstore-read ]; then
         XENSTORE_READ="/usr/sbin/xenstore-read"
@@ -21,10 +16,18 @@ else
         XENSTORE_READ="/usr/bin/xenstore-read"
 fi
 
+TEMPLATES="$(readlink -m $TEMPLATES)"
 VERSION="-$(cat ./version)"
 name=$($XENSTORE_READ name)
 path="$(readlink -m .)"
 files=$(ls rpm/noarch)
+
+#
+# Write to install-templates
+#
+
+echo "#!/bin/bash" > "$TEMPLATES"
+write ""
 
 for file in ${files[@]}; do
     write "qvm-run --pass-io development-qubes 'cat ${path}/rpm/noarch/${file}' > ${file}"

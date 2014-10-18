@@ -25,7 +25,7 @@ rpms:
 	sudo -E ./prepare_image prepared_images/$(TEMPLATE_NAME).img && \
 	sudo -E ./qubeize_image prepared_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME) && \
 	./build_template_rpm $(TEMPLATE_NAME) || exit 1; \
-	./create-template-list.sh || : \
+	./create_template_list.sh || : \
 
 update-repo-installer:	
 	[ -z "$$UPDATE_REPO" ] && UPDATE_REPO=../installer/yum/qubes-dom0;\
