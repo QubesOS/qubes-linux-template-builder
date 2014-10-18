@@ -180,44 +180,75 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     # --------------------------------------------------------------------------
     # Patch Whonix submodules
     # --------------------------------------------------------------------------
-    
+
+    # Chekout a branch; create a branch first if it does not exist
+    checkout_branch() {
+        branch=$(git symbolic-ref --short -q HEAD)
+        if ! [ "$branch" == "$1" ]; then
+            su user -c git checkout "$1" >/dev/null 2>&1 || \
+            { 
+                su user -c git branch "$1"
+                su user -c git checkout "$1"
+            }
+        fi
+    }
+
+    # sed search and replace. return 0 if replace happened, otherwise 1 
+    search_replace() {
+        local search="$1"
+        local replace="$2"
+        local file="$3"
+        sed -i.bak '/'"$search"'/,${s//'"$replace"'/;b};$q1' "$file"
+    }
+
     # Patch anon-meta-packages to not depend on grub-pc
     pushd "$WHONIX_DIR"
     {
-        #su user -c "git branch qubes 9.2" || :;
-        #su user -c "git checkout qubes" || :;
-        sed -i 's/grub-pc//g' grml_packages || :;
-        #su user -c "git commit -am 'removed grub-pc depend'" || :;
+        search_replace "grub-pc" "" "grml_packages" || :
     }
     popd
 
     pushd "$WHONIX_DIR/packages/anon-meta-packages/debian"
     {
-        #su user -c "git branch qubes" || :;
-        #su user -c "git checkout qubes" || :;
-        sed -i 's/ grub-pc,//g' control || :;
-        cd ..;
-        su user -c "dpkg-source -q --commit . no_grub" || :;
-        #git add .
-        #su user -c "git commit -am 'removed grub-pc depend'" || :;
+        search1=" grub-pc,"
+        replace=""
+
+        #checkout_branch qubes
+        search_replace "$search1" "$replace" control && \
+        {
+            cd "$WHONIX_DIR/packages/anon-meta-packages"
+            :
+            #sudo -E -u user make deb-pkg || :
+            #su user -c "dpkg-source --commit" || :
+            #git add .
+            #su user -c "git commit -am 'removed grub-pc depend'"
+        } || :
     }
     popd
 
     pushd "$WHONIX_DIR/packages/anon-shared-build-fix-grub/usr/lib/anon-dist/chroot-scripts-post.d"
     {
-        #su user -c "git branch qubes" || :;
-        #su user -c "git checkout qubes" || :;
-        sed -i 's/update-grub/:/g' 85_update_grub || :;
-        cd ../../../..;
-        su user -c "dpkg-source -q --commit . no_grub" || :;
-        #git add .
-        #su user -c "git commit -am 'removed grub-pc depend'" || :;
+        search1="update-grub"
+        replace=":"
+
+        #checkout_branch qubes
+        search_replace "$search1" "$replace" 85_update_grub && \
+        {
+            cd "$WHONIX_DIR/packages/anon-shared-build-fix-grub"
+            sudo -E -u user make deb-pkg || :
+            su user -c "EDITOR=/bin/true dpkg-source -q --commit . no_grub"
+            #git add .
+            #su user -c "git commit -am 'removed grub-pc depend'"
+        } || :
     }
     popd
 
     pushd "$WHONIX_DIR/build-steps.d"
     {
-        sed -i 's/   check_for_uncommited_changes/   #check_for_uncommited_changes/g' 1200_create-debian-packages;
+        search1="   check_for_uncommited_changes" 
+        replace="   #check_for_uncommited_changes" 
+
+        search_replace "$search1" "$replace" 1200_create-debian-packages || :
     }
     popd
 
@@ -228,14 +259,15 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     #cannot stat `/boot/grub/grub.cfg': No such file or directory
 
     # Qubes needs a user named 'user'
-    if chroot "$INSTALLDIR" id -u 'user' >/dev/null 2>&1; then
-        :
-    else
+    debug "Whonix Add user"
+    chroot "$INSTALLDIR" id -u 'user' >/dev/null 2>&1 || \
+    {
         chroot "$INSTALLDIR" groupadd -f user
         chroot "$INSTALLDIR" useradd -g user -G dialout,cdrom,floppy,sudo,audio,dip,video,plugdev -m -s /bin/bash user
-    fi
+    }
 
     # Change hostname to 'host'
+    debug "Whonix change host"
     echo "host" > "$INSTALLDIR/etc/hostname"
     chroot "$INSTALLDIR" sed -i "s/localhost/host/g" /etc/hosts
 
@@ -255,36 +287,38 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
         debug "Building Whonix..."
         mount --bind "../Whonix" "$INSTALLDIR/home/user/Whonix"
 
-       # This breaks whonix depends since it must just rely on recommended
-       # packages since it seems to install just about everything :)
-       # Install apt-get preferences
-       #echo "$WHONIX_APT_PREFERENCES" > "$INSTALLDIR/etc/apt/apt.conf.d/99whonix"
-       #chmod 0644 "$INSTALLDIR/etc/apt/apt.conf.d/99whonix"
+        # XXX: Does this break Whonix build?
+        # Install apt-get preferences
+        #echo "$WHONIX_APT_PREFERENCES" > "$INSTALLDIR/etc/apt/apt.conf.d/99whonix"
+        #chmod 0644 "$INSTALLDIR/etc/apt/apt.conf.d/99whonix"
 
-       # Pin grub packages so they will not install
-       echo "$WHONIX_APT_PIN" > "$INSTALLDIR/etc/apt/preferences.d/whonix_qubes"
-       chmod 0644 "$INSTALLDIR/etc/apt/preferences.d/whonix_qubes"
+        # Pin grub packages so they will not install
+        echo "$WHONIX_APT_PIN" > "$INSTALLDIR/etc/apt/preferences.d/whonix_qubes"
+        chmod 0644 "$INSTALLDIR/etc/apt/preferences.d/whonix_qubes"
 
-       # Install Whonix fix script
-       echo "$WHONIX_FIX_SCRIPT" > "$INSTALLDIR/home/user/whonix_fix"
-       chmod 0755 "$INSTALLDIR/home/user/whonix_fix"
+        # Install Whonix fix script
+        echo "$WHONIX_FIX_SCRIPT" > "$INSTALLDIR/home/user/whonix_fix"
+        chmod 0755 "$INSTALLDIR/home/user/whonix_fix"
 
-       # Install Whonix build scripts
-       echo "$WHONIX_BUILD_SCRIPT" > "$INSTALLDIR/home/user/whonix_build"
-       chmod 0755 "$INSTALLDIR/home/user/whonix_build"
+        # Install Whonix build scripts
+        echo "$WHONIX_BUILD_SCRIPT" > "$INSTALLDIR/home/user/whonix_build"
+        chmod 0755 "$INSTALLDIR/home/user/whonix_build"
 
-       if [ "${TEMPLATE_FLAVOR}" == "whonix-gateway" ]; then
-           BUILD_TYPE="--torgateway"
-       elif [ "${TEMPLATE_FLAVOR}" == "whonix-workstation" ]; then
-           BUILD_TYPE="--torworkstation"
-       else
-           error "Incorrent Whonix type \"${TEMPLATE_FLAVOR}\" selected.  Not building Whonix modules"
-           error "You need to set TEMPLATE_FLAVOR environment variable to either"
-           error "whonix-gateway OR whonix-workstation"
-           exit 1
-       fi
+        if [ "${TEMPLATE_FLAVOR}" == "whonix-gateway" ]; then
+            BUILD_TYPE="--torgateway"
+        elif [ "${TEMPLATE_FLAVOR}" == "whonix-workstation" ]; then
+            BUILD_TYPE="--torworkstation"
+        else
+            error "Incorrent Whonix type \"${TEMPLATE_FLAVOR}\" selected.  Not building Whonix modules"
+            error "You need to set TEMPLATE_FLAVOR environment variable to either"
+            error "whonix-gateway OR whonix-workstation"
+            exit 1
+        fi
 
-       chroot "$INSTALLDIR" su user -c "cd ~; ./whonix_build $BUILD_TYPE $DIST" || { exit 1; }
+        chroot "$INSTALLDIR" su user -c "cd ~; ./whonix_build $BUILD_TYPE $DIST" || { exit 1; }
+    else
+        error "chroot /home/user/Whonix directory does not exist... exiting!"
+        exit 
     fi
 fi
 

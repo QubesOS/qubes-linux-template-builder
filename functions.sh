@@ -55,12 +55,22 @@ if [ ! "$build_already_defined_colors" = "true" ]; then
    colors
 fi
 
+if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+    chroot() {
+        local retval
+        true ${blue}
+        /usr/sbin/chroot "$@"
+        retval=$?
+        true ${reset}
+        return $retval
+    }
+fi
 
 # ------------------------------------------------------------------------------
 # Display messages in color
 # ------------------------------------------------------------------------------
 info() {
-    echo "${bold}${cyan}INFO: ${1}${reset}"
+    echo "${bold}${blue}INFO: ${1}${reset}"
 }
 
 debug() {
