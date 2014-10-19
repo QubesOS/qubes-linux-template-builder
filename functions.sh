@@ -1,3 +1,6 @@
+#!/bin/bash
+# vim: set ts=4 sw=4 sts=4 et :
+
 ################################################################################
 # Global functions
 ################################################################################
@@ -168,24 +171,50 @@ customStep() {
 
 # ------------------------------------------------------------------------------
 # Copy extra file tree to $INSTALLDIR 
+#
+# To set file permissions is a PITA since git won't save them and will
+# complain heavily if they are set to root only read, so this is the procdure:
+#
+# 1. Change to the directory that you want to have file permissions retained
+# 2. Change all the file permissions / ownership as you want
+# 3. Change back to the root of the exta directory (IE: extra-qubes-files)
+# 4. getfacl -R . > ".facl"
+# 5. If git complains; reset file ownership back to user.  The .facl file stored
+#    the file permissions and will be used to reset the file permissions after
+#    they get copied over to $INSTALLDIR
+# NOTE: Don't forget to redo this process if you add -OR- remove files
 # ------------------------------------------------------------------------------
 copy_dirs() {
-    DIR="$1"
-    info "Entering Copy extra file tree to $INSTALLDIR..."
+    dir="$1"
+    install_dir="$(readlink -m ${INSTALLDIR})"
+
+    info "copy_dirs(): ${install_dir}"
     if [ -n "${TEMPLATE_FLAVOR}" ]; then
-        CUSTOMDIR="$SCRIPTSDIR/custom_${DIST}_${TEMPLATE_FLAVOR}/${DIR}"
+        custom_dir="${SCRIPTSDIR}/custom_${DIST}_${TEMPLATE_FLAVOR}/${dir}"
     else
-        CUSTOMDIR="$SCRIPTSDIR/custom_${DIST}/${DIR}"
+        custom_dir="${SCRIPTSDIR}/custom_${DIST}/${dir}"
     fi
 
-    if [ -d "$CUSTOMDIR" ]; then
-        debug "Copying $CUSTOMDIR/* $INSTALLDIR..."
-        cp -rp "$CUSTOMDIR/"* "$INSTALLDIR"
-    elif [ -d "$SCRIPTSDIR/${DIR}" ]; then
-        debug "Copying $SCRIPTSDIR/${DIR}/* $INSTALLDIR"
-        cp -rp "$SCRIPTSDIR/${DIR}/"* "$INSTALLDIR"
+    if [ -d "${custom_dir}" ]; then
+        dir="${custom_dir}/"
+    elif [ -d "${SCRIPTSDIR}/${dir}" ]; then
+        dir="${SCRIPTSDIR}/${dir}/"
     else
-        debug "No extra files to copy"
+        debug "No extra files to copy for ${dir}"
+	return 0
+    fi
+
+    dir="$(readlink -m $dir)"
+    debug "Copying ${dir}/* ${install_dir}"
+    cp -rp "${dir}/"* "${install_dir}"
+
+    if [ -f "${dir}/.facl" ]; then
+        debug "Restoring file permissions..."
+        pushd "$install_dir"
+        {
+            setfacl --restore="${dir}/.facl" 2>/dev/null ||:
+        }
+        popd
     fi
 }
 
