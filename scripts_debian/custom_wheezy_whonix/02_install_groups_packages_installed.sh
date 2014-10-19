@@ -24,7 +24,7 @@ if [ "$SNAPSHOT" == "1" ]; then
     splitPath "$IMG" path_parts
     PREPARED_IMG="${path_parts[dir]}${path_parts[base]}-updated${path_parts[dotext]}"
 
-    if ! [ -f "$PREPARED_IMG" ]; then
+    if ! [ -f "$PREPARED_IMG" ] && ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
         umount_kill "$INSTALLDIR" || :
         warn "Copying $IMG to $PREPARED_IMG"
         cp -f "$IMG" "$PREPARED_IMG"
