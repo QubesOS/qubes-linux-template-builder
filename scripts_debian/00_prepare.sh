@@ -15,7 +15,6 @@ if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
 else
     set -e
 fi
-
 INSTALLDIR="$(readlink -m mnt)"
 umount_kill "$INSTALLDIR" || :
 
@@ -29,15 +28,11 @@ customStep "$0" "pre"
 # ------------------------------------------------------------------------------
 debug "Determine if $IMG should be reused or deleted..."
 if [ -f "$IMG" ]; then
-    mount -o loop "$IMG" "$INSTALLDIR" || exit 1
-
     # Assume a failed debootstrap installation if .prepare_debootstrap does not exist
+    mount -o loop "$IMG" "$INSTALLDIR" || exit 1
     if ! [ -f "$INSTALLDIR/tmp/.prepared_debootstrap" ]; then
-        warn "Failed Image file $IMG already exists, deleting..."
+        warn "Last build failed. Deleting $IMG"
         rm -f "$IMG"
-    # Allow qubes to be updated
-    elif [ -f "$INSTALLDIR/tmp/.prepared_qubes" ]; then
-        rm "$INSTALLDIR/tmp/.prepared_qubes"
     fi
 
     # Umount image; don't fail if its already umounted

@@ -53,20 +53,10 @@ trap cleanup ERR
 # ------------------------------------------------------------------------------
 # Mount qubeized_image
 # ------------------------------------------------------------------------------
-# NEW: continue installation from last point if UPDATE="false"
-#      if UPDATE does not exist (keep it backwards compatible for fedora script)
-#      - OR - 
-#      update="true", copy over prepared image as normal
-
 export IMG="qubeized_images/$NAME-root.img"
 
-[ "$UPDATE" ] && UPDATE=$(echo $UPDATE | awk '{print tolower($0)}')
-if [ "$IMG" -nt "$CLEANIMG" -a "$UPDATE" == "false" ]; then
-    echo "--> Using original $IMG... (UPDATE=false and qubized_image is newer than prepared_image)"
-else
-    echo "--> Copying $CLEANIMG to $IMG..."
-    cp "$CLEANIMG" "$IMG" || exit 1
-fi
+echo "--> Copying $CLEANIMG to $IMG..."
+cp "$CLEANIMG" "$IMG" || exit 1
 
 echo "--> Mounting $IMG"
 mkdir -p mnt
