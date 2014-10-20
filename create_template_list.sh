@@ -32,9 +32,9 @@ write ""
 for file in ${files[@]}; do
     write "qvm-run --pass-io development-qubes 'cat ${path}/rpm/noarch/${file}' > ${file}"
     write ""
-    write "yum erase $(echo "$file" | sed -r "s/($VERSION).+$//")"
+    write "sudo yum erase $(echo "$file" | sed -r "s/($VERSION).+$//")"
     write ""
-    write "yum install ${file}"
+    write "sudo yum install ${file}"
     write ""
     write ""
 done
