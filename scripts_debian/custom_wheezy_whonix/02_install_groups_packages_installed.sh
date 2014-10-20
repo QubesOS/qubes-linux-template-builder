@@ -173,7 +173,7 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     # --------------------------------------------------------------------------
     pushd "$WHONIX_DIR"
     {
-        su user -c "git submodule update --init --recursive"
+        su $(logname) -c "git submodule update --init --recursive"
     }
     popd
 
@@ -185,10 +185,10 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     checkout_branch() {
         branch=$(git symbolic-ref --short -q HEAD)
         if ! [ "$branch" == "$1" ]; then
-            su user -c git checkout "$1" >/dev/null 2>&1 || \
+            su $(logname) -c git checkout "$1" >/dev/null 2>&1 || \
             { 
-                su user -c git branch "$1"
-                su user -c git checkout "$1"
+                su $(logname) -c git branch "$1"
+                su $(logname) -c git checkout "$1"
             }
         fi
     }
@@ -218,10 +218,10 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
         {
             cd "$WHONIX_DIR/packages/anon-meta-packages"
             :
-            #sudo -E -u user make deb-pkg || :
-            #su user -c "dpkg-source --commit" || :
+            #sudo -E -u $(logname) make deb-pkg || :
+            #su $(logname) -c "dpkg-source --commit" || :
             #git add .
-            #su user -c "git commit -am 'removed grub-pc depend'"
+            #su $(logname) -c "git commit -am 'removed grub-pc depend'"
         } || :
     }
     popd
@@ -235,10 +235,10 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
         search_replace "$search1" "$replace" 85_update_grub && \
         {
             cd "$WHONIX_DIR/packages/anon-shared-build-fix-grub"
-            sudo -E -u user make deb-pkg || :
-            su user -c "EDITOR=/bin/true dpkg-source -q --commit . no_grub"
+            sudo -E -u $(logname) make deb-pkg || :
+            su $(logname) -c "EDITOR=/bin/true dpkg-source -q --commit . no_grub"
             #git add .
-            #su user -c "git commit -am 'removed grub-pc depend'"
+            #su $(logname) -c "git commit -am 'removed grub-pc depend'"
         } || :
     }
     popd
