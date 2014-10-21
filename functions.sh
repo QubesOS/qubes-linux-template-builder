@@ -148,11 +148,11 @@ customStepExec() {
     local template_flavor_dir="$4"
     local template_flavor_prefix="$5"
 
-    [[ -z $TEST ]] && echo "Calling script:  ${calling_script}" || :
-    [[ -z $TEST ]] && echo "Step:            ${step}" || :
-    [[ -z $TEST ]] && echo "Template Flavor: ${template_flavor}" || :
-    [[ -z $TEST ]] && echo "Template Dir:    ${template_flavor_dir}" || :
-    [[ -z $TEST ]] && echo "Template Prefix: ${template_flavor_prefix}" || :
+    [[ -z $TEST ]] && debug "Calling script:  ${calling_script}" || :
+    [[ -z $TEST ]] && debug "Step:            ${step}" || :
+    [[ -z $TEST ]] && debug "Template Flavor: ${template_flavor}" || :
+    [[ -z $TEST ]] && debug "Template Dir:    ${template_flavor_dir}" || :
+    [[ -z $TEST ]] && debug "Template Prefix: ${template_flavor_prefix}" || :
 
     splitPath "${calling_script}" path_parts
 
@@ -216,10 +216,7 @@ customCopy() {
 }
 
 templateFlavor() {
-    local template=${TEMPLATE_FLAVOR}
-    local default="${SCRIPTSDIR}"
-
-    echo ${template:-${default}}
+    echo ${TEMPLATE_FLAVOR}
 }
 
 templateFlavorPrefix() {
@@ -245,7 +242,7 @@ templateFlavorDir() {
         fi
     done
 
-    echo "${SCRIPTDIR}"
+    echo "${SCRIPTSDIR}"
 }
 
 customParse() {

@@ -47,7 +47,7 @@ assertEnd() {
 }
 
 # Defaults
-export SCRIPTDIR="tests/template-flavors"
+export SCRIPTSDIR="tests/template-flavors"
 export DIST="wheezy"
 export TEMPLATE_FLAVOR="whonix-gateway"
 
@@ -56,7 +56,7 @@ export TEMPLATE_FLAVOR_PREFIX=""
 
 # Just use error to show text in red
 head "=== Globals ==="
-debug 'export SCRIPTDIR="tests/template-flavors"'
+debug 'export SCRIPTSDIR="tests/template-flavors"'
 debug 'export DIST="wheezy"'
 debug 'export TEMPLATE_FLAVOR="whonix-gateway"'
 debug 'export TEMPLATE_FLAVOR_PREFIX=""'
@@ -147,7 +147,7 @@ assertTest "customStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/tes
 assertEnd "Test 7"
 
 # ------------------------------------------------------------------------------
-export INSTALLDIR="${SCRIPTDIR}/test_copy_location"
+export INSTALLDIR="${SCRIPTSDIR}/test_copy_location"
 head " 8. Copy files
     \n    Just test copying from here to ${INSTALLDIR}"
 TEMPLATE_FLAVOR_DIR=""
