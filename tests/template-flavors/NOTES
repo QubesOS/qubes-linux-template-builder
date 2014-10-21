@@ -17,13 +17,13 @@ TODO:
 
 # - Would use the prefix of 'debian' which would allow same script to be used for
 #   all 'debian' based builds, or it could have been set as 
-#   'wheezy+whonix-gateway::' to use a script destined for any distro
-TEMPLATE_FLAVOR_PREFIX = wheezy+whonix-gateway::debian \
-                         wheezy+whonix-workstation::debian
+#   'wheezy+whonix-gateway;' to use a script destined for any distro
+TEMPLATE_FLAVOR_PREFIX = wheezy+whonix-gateway;debian \
+                         wheezy+whonix-workstation;debian
 
 # Alternate location for template flavor scripts
-TEMPLATE_FLAVOR_DIR = wheezy+whonix-gateway::/home/user/whonix/gateway \
-                      wheezy+whonix-workstation::/home/usr/whonix/workstation
+TEMPLATE_FLAVOR_DIR = wheezy+whonix-gateway;/home/user/whonix/gateway \
+                      wheezy+whonix-workstation;/home/usr/whonix/workstation
 
 - allow access to multiple flavor options .. say gnome for whonix-workstation
   wheezy+whonix-workstation+gnome+more
@@ -34,9 +34,9 @@ TEMPLATE_FLAVOR_DIR = wheezy+whonix-gateway::/home/user/whonix/gateway \
 # ------------------------------------------------------------------------------
 
 # Would use same FLAVOR for all distros for whonix-workstation+gnome
-TEMPLATE_FLAVOR_PREFIX = wheezy+whonix-workstation+gnome::
+TEMPLATE_FLAVOR_PREFIX = wheezy+whonix-workstation+gnome;
 
 # - Template Flavors are in /home/user/whoix/gnome for wheezy+whonix-workstation+gnome
 # - DISTS_VM is still lists all OPTIONAL flavors though
-TEMPLATE_FLAVOR_DIR = wheezy+whonix-workstation+gnome::/home/usr/whonix/gnome
+TEMPLATE_FLAVOR_DIR = wheezy+whonix-workstation+gnome;/home/usr/whonix/gnome
 

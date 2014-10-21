@@ -73,21 +73,20 @@ fi
 # Display messages in color
 # ------------------------------------------------------------------------------
 info() {
-    echo "${bold}${blue}INFO: ${1}${reset}"
+    [[ -z $TEST ]] && echo -e "${bold}${blue}INFO: ${1}${reset}" || :
 }
 
 debug() {
-    echo "${bold}${green}DEBUG: ${1}${reset}"
+    [[ -z $TEST ]] && echo -e "${bold}${green}DEBUG: ${1}${reset}" || :
 }
 
 warn() {
-    echo "${stout}${yellow}WARNING: ${1}${reset}"
+    [[ -z $TEST ]] && echo -e "${stout}${yellow}WARNING: ${1}${reset}" || :
 }
 
 error() {
-    echo "${bold}${red}ERROR: ${1}${reset}"
+    [[ -z $TEST ]] && echo -e "${bold}${red}ERROR: ${1}${reset}" || :
 }
-
 
 # ------------------------------------------------------------------------------
 # Takes an array and exports it a global variable
@@ -141,64 +140,62 @@ splitPath() {
     setArrayAsGlobal PARTS $return_global_var
 }
 
- 
-# ------------------------------------------------------------------------------
-# Executes any additional optional configuration steps if the configuration
-# scripts exist
-# ------------------------------------------------------------------------------
-customStep() {
-    info "Checking for any custom $2 configuration scripts for $1..."
-    splitPath "$1" path_parts
 
-    if [ "$2" ]; then
-        script_name="${path_parts[base]}_$2${path_parts[dotext]}"
+customStepExec() {
+    local calling_script="$1"
+    local step="$2"
+    local template_flavor="$3"
+    local template_flavor_dir="$4"
+    local template_flavor_prefix="$5"
+
+    [[ -z $TEST ]] && echo "Calling script:  ${calling_script}" || :
+    [[ -z $TEST ]] && echo "Step:            ${step}" || :
+    [[ -z $TEST ]] && echo "Template Flavor: ${template_flavor}" || :
+    [[ -z $TEST ]] && echo "Template Dir:    ${template_flavor_dir}" || :
+    [[ -z $TEST ]] && echo "Template Prefix: ${template_flavor_prefix}" || :
+
+    splitPath "${calling_script}" path_parts
+
+    # Step: [pre] | [post] (or custom inserted step)
+    if [ "${step}" ]; then
+        script_name="${path_parts[base]}_${step}${path_parts[dotext]}"
     else
         script_name="${path_parts[base]}${path_parts[dotext]}"
     fi
 
-    if [ -n "${TEMPLATE_FLAVOR}" ]; then
-        script="$SCRIPTSDIR/custom_${DIST}_${TEMPLATE_FLAVOR}/${script_name}"
+    if [ -n "${template_flavor}" ]; then
+        script="${template_flavor_dir}/${template_flavor_prefix}${template_flavor}/${script_name}"
     else
-        script="$SCRIPTSDIR/custom_${DIST}/${script_name}"
+        script="${template_flavor_dir}/${template_flavor_prefix}/${script_name}"
     fi
 
     if [ -f "$script" ]; then
-        echo "${bold}${under}INFO: Currently running script: ${script}${reset}"
+        [[ -n $TEST ]] && echo "${script}" || echo "${bold}${under}INFO: Currently running script: ${script}${reset}"
         "$script"
+    else
+        [[ -z $TEST ]] && debug "${bold}INFO: No CustomStep found for: ${script}${reset}" || :
     fi
 }
 
-
-# ------------------------------------------------------------------------------
-# Copy extra file tree to $INSTALLDIR 
-#
-# To set file permissions is a PITA since git won't save them and will
-# complain heavily if they are set to root only read, so this is the procdure:
-#
-# 1. Change to the directory that you want to have file permissions retained
-# 2. Change all the file permissions / ownership as you want
-# 3. Change back to the root of the exta directory (IE: extra-qubes-files)
-# 4. getfacl -R . > ".facl"
-# 5. If git complains; reset file ownership back to user.  The .facl file stored
-#    the file permissions and will be used to reset the file permissions after
-#    they get copied over to $INSTALLDIR
-# NOTE: Don't forget to redo this process if you add -OR- remove files
-# ------------------------------------------------------------------------------
-copy_dirs() {
-    dir="$1"
-    install_dir="$(readlink -m ${INSTALLDIR})"
+customCopy() {
+    local calling_script="$1"
+    local dir="$2"
+    local template_flavor="$3"
+    local template_flavor_dir="$4"
+    local template_flavor_prefix="$5"
+    local install_dir="$(readlink -m ${INSTALLDIR})"
 
     info "copy_dirs(): ${install_dir}"
-    if [ -n "${TEMPLATE_FLAVOR}" ]; then
-        custom_dir="${SCRIPTSDIR}/custom_${DIST}_${TEMPLATE_FLAVOR}/${dir}"
+    if [ -n "${template_flavor}" ]; then
+        custom_dir="${template_flavor_dir}/${template_flavor_prefix}${template_flavor}/${dir}"
     else
-        custom_dir="${SCRIPTSDIR}/custom_${DIST}/${dir}"
+        custom_dir="${template_flavor_dir}/${template_flavor_prefix}/${dir}"
     fi
 
     if [ -d "${custom_dir}" ]; then
         dir="${custom_dir}/"
-    elif [ -d "${SCRIPTSDIR}/${dir}" ]; then
-        dir="${SCRIPTSDIR}/${dir}/"
+    elif [ -d "${template_flavor_dir}/${dir}" ]; then
+        dir="${template_flavor_dir}/${dir}/"
     else
         debug "No extra files to copy for ${dir}"
 	return 0
@@ -216,6 +213,96 @@ copy_dirs() {
         }
         popd
     fi
+}
+
+templateFlavor() {
+    local template=${TEMPLATE_FLAVOR}
+    local default="${SCRIPTSDIR}"
+
+    echo ${template:-${default}}
+}
+
+templateFlavorPrefix() {
+    local template=${1-${TEMPLATE_FLAVOR}}
+    for element in "${TEMPLATE_FLAVOR_PREFIX[@]}"
+    do 
+        if [ "${element%;*}" == "${DIST}+${template}" ]; then
+            echo ${element#*;}
+            return
+        fi
+    done
+    
+    echo "${DIST}${TEMPLATE_FLAVOR:++}"
+}
+
+templateFlavorDir() {
+    local template=${1-${TEMPLATE_FLAVOR}}
+    for element in "${TEMPLATE_FLAVOR_DIR[@]}"
+    do 
+        if [ "${element%;*}" == "${DIST}+${template}" ]; then
+            echo ${element#*;}
+            return
+        fi
+    done
+
+    echo "${SCRIPTDIR}"
+}
+
+customParse() {
+    local calling_script="$1"
+    local step="$2"
+    local functionExec="$3"
+    local template_flavor="$(templateFlavor)"
+    local template_flavor_dir="$(templateFlavorDir ${template_flavor})"
+    local template_flavor_prefix="$(templateFlavorPrefix ${template_flavor})"
+
+    ${functionExec} "${calling_script}" \
+                    "${step}" \
+                    "${template_flavor}" \
+                    "${template_flavor_dir}" \
+                    "${template_flavor_prefix}"
+    
+
+    for template in ${TEMPLATE_OPTIONS[@]}
+    do
+        template_flavor="$(templateFlavor)+${template}"
+        template_flavor_dir="$(templateFlavorDir ${template_flavor})"
+        template_flavor_prefix="$(templateFlavorPrefix ${template_flavor})"
+
+        ${functionExec} "${calling_script}" \
+                        "${step}" \
+                        "${template_flavor}" \
+                        "${template_flavor_dir}" \
+                        "${template_flavor_prefix}"
+    done
+}
+
+# ------------------------------------------------------------------------------
+# Executes any additional optional configuration steps if the configuration
+# scripts exist
+# ------------------------------------------------------------------------------
+customStep() {
+    customParse "$1" "$2" "customStepExec"
+}
+
+# ------------------------------------------------------------------------------
+# Copy extra file tree to $INSTALLDIR 
+# TODO:  Allow copy per step (04_install_qubes.sh-files)
+#
+# To set file permissions is a PITA since git won't save them and will
+# complain heavily if they are set to root only read, so this is the procdure:
+#
+# 1. Change to the directory that you want to have file permissions retained
+# 2. Change all the file permissions / ownership as you want
+# 3. Change back to the root of the exta directory (IE: extra-qubes-files)
+# 4. getfacl -R . > ".facl"
+# 5. If git complains; reset file ownership back to user.  The .facl file stored
+#    the file permissions and will be used to reset the file permissions after
+#    they get copied over to $INSTALLDIR
+# NOTE: Don't forget to redo this process if you add -OR- remove files
+# ------------------------------------------------------------------------------
+copy_dirs() {
+    customParse "" "$1" "customCopy"
 }
 
 # $0 is module that sourced vars.sh

@@ -1,0 +1,1 @@
+../wheezy+whonix/01_install_core_post.sh
