@@ -1,0 +1,42 @@
+TODO:
+-----
+
+- Move template flavors into own directories so scripts_dir wont be polluted
+  ../scripts_flavors/wheezy-whonix-gateway/
+
+  ../${TEMPLATE_FLAVOR_DIR}/${TEMPLATE_FLAVOR_PREFIX}[-]whonix-gateway/
+
+# ------------------------------------------------------------------------------
+# - Make flavor directory have $DIST in name - to prevent it from bwing built
+#   incorrectly
+# - Configuration option to choose alternate location of flavor directory 
+# - Configuration option to use custom $DIST- prefix  (for generic flavors)
+# - Take into consideration that multiple templates will build at once so we 
+#   need to set a custom prefix like this:
+# ------------------------------------------------------------------------------
+
+# - Would use the prefix of 'debian' which would allow same script to be used for
+#   all 'debian' based builds, or it could have been set as 
+#   'wheezy+whonix-gateway::' to use a script destined for any distro
+TEMPLATE_FLAVOR_PREFIX = wheezy+whonix-gateway::debian \
+                         wheezy+whonix-workstation::debian
+
+# Alternate location for template flavor scripts
+TEMPLATE_FLAVOR_DIR = wheezy+whonix-gateway::/home/user/whonix/gateway \
+                      wheezy+whonix-workstation::/home/usr/whonix/workstation
+
+- allow access to multiple flavor options .. say gnome for whonix-workstation
+  wheezy+whonix-workstation+gnome+more
+
+# ------------------------------------------------------------------------------
+# - TEMPLATE_OPTIONS will be iterated and each entry treated as if it was its 
+#   own flavor, but to override you must include base flavor name:
+# ------------------------------------------------------------------------------
+
+# Would use same FLAVOR for all distros for whonix-workstation+gnome
+TEMPLATE_FLAVOR_PREFIX = wheezy+whonix-workstation+gnome::
+
+# - Template Flavors are in /home/user/whoix/gnome for wheezy+whonix-workstation+gnome
+# - DISTS_VM is still lists all OPTIONAL flavors though
+TEMPLATE_FLAVOR_DIR = wheezy+whonix-workstation+gnome::/home/usr/whonix/gnome
+
