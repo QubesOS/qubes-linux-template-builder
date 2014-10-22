@@ -7,5 +7,5 @@ if [ "$TEMPLATE_FLAVOR" == "fullyloaded" ]; then
     rpm --import --root=$INSTALLDIR mnt/etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux
     yum install -c $PWD/yum.conf $YUM_OPTS -y --installroot=$INSTALLDIR flash-plugin || exit 1
 else
-    yum-config-manager --installroot=$INSTALLDIR --disable adobe-linux-x86_64 > /dev/null
+    yum-config-manager -c $PWD/yum.conf --installroot=$INSTALLDIR --disable adobe-linux-x86_64 > /dev/null
 fi
