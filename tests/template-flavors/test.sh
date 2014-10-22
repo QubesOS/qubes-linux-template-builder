@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # vim: set ts=4 sw=4 sts=4 et :
 
 VERBOSE=2
@@ -42,7 +42,7 @@ assertTest(){
 
 assertEnd() {
     printf "${bold}${red}"
-    assert_end "$1"
+    [[ -n "$1" ]] && assert_end "$1" || assert_end
     printf "${reset}"
 }
 
@@ -60,22 +60,24 @@ debug 'export SCRIPTSDIR="tests/template-flavors"'
 debug 'export DIST="wheezy"'
 debug 'export TEMPLATE_FLAVOR="whonix-gateway"'
 debug 'export TEMPLATE_FLAVOR_PREFIX=""'
-#debug "TEST=\"${TEST}\""
 
 # ------------------------------------------------------------------------------
-head " 1. With TEMPLATE_FOLDER
-    \n    tests/template-flavors/wheezy+whonix-gateway/test_pre.sh"
-customStep "$0" "pre"
-assertTest "customStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh"
-assertEnd "Test 1"
+head " 1. With TEMPLATE_FLAVOR
+    \n    export SCRIPTSDIR=tests/template-flavors \
+    \n    export DIST=wheezy \
+    \n    export TEMPLATE_FLAVOR=whonix-gateway \
+    \n    export TEMPLATE_FLAVOR_PREFIX="
+buildStep "$0" "pre"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh"
+assertEnd
 
 # ------------------------------------------------------------------------------
-head " 2. Without TEMPLATE_FOLDER 
-    \n    tests/template-flavors/wheezy/test_pre.sh"
+head " 2. Without TEMPLATE_FLAVOR 
+    \n    export TEMPLATE_FLAVOR= "
 export TEMPLATE_FLAVOR=""
-customStep "$0" "pre"
-assertTest "customStep $0 pre" "tests/template-flavors/wheezy/test_pre.sh"
-assertEnd "Test 2"
+buildStep "$0" "pre"
+assertTest "buildStep $0 pre" "tests/template-flavors/test_pre.sh"
+assertEnd
 
 # ------------------------------------------------------------------------------
 head " 3. Template Options
@@ -85,10 +87,10 @@ head " 3. Template Options
 #
 export TEMPLATE_FLAVOR="whonix-gateway"
 export TEMPLATE_OPTIONS=('gnome' 'kde')
-customStep "$0" "pre"
+buildStep "$0" "pre"
 debug "Not supposed to find wheezy+whonix-gateway+kde"
-assertTest "customStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh"
-assertEnd "Test 3"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh"
+assertEnd
 
 # ------------------------------------------------------------------------------
 head " 4. Template Options with custom prefix
@@ -101,10 +103,10 @@ export TEMPLATE_FLAVOR_PREFIX=(
     'wheezy+whonix-gateway;debian+'
     'wheezy+whonix-workstation;debian+'
 )
-customStep "$0" "pre"
+buildStep "$0" "pre"
 debug "Not supposed to find debian+whonix-gateway+kde"
-assertTest "customStep $0 pre" "tests/template-flavors/debian+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh"
-assertEnd "Test 4"
+assertTest "buildStep $0 pre" "tests/template-flavors/debian+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh"
+assertEnd
 
 # ------------------------------------------------------------------------------
 head " 5. Template Options with NO prefix
@@ -117,46 +119,95 @@ export TEMPLATE_FLAVOR_PREFIX=(
     'wheezy+whonix-gateway;'
     'wheezy+whonix-workstation;'
 )
-customStep "$0" "pre"
+buildStep "$0" "pre"
 debug "Not supposed to find whonix-gateway+kde"
-assertTest "customStep $0 pre" "tests/template-flavors/whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh"
-assertEnd "Test 5"
+assertTest "buildStep $0 pre" "tests/template-flavors/whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh"
+assertEnd
 
 # ------------------------------------------------------------------------------
 head " 6. Custom template directory
     \n    unset TEMPLATE_FLAVOR_PREFIX \
     \n    unset TEMPLATE_OPTIONS \
-    \n    TEMPLATE_FLAVOR_DIR=wheezy+whonix-gateway;tests/template-flavors/another_location"
+    \n    TEMPLATE_FLAVOR_DIR=wheezy+whonix-gateway;tests/template-flavors/another_location/whonix-gw"
 unset TEMPLATE_FLAVOR_PREFIX
 unset TEMPLATE_OPTIONS
-TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway;tests/template-flavors/another_location"
-customStep "$0" "pre"
-assertTest "customStep $0 pre" "tests/template-flavors/another_location/wheezy+whonix-gateway/test_pre.sh"
-assertEnd "Test 6"
+TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway;tests/template-flavors/another_location/whonix-gw"
+buildStep "$0" "pre"
+assertTest "buildStep $0 pre" "tests/template-flavors/another_location/whonix-gw/test_pre.sh"
+assertEnd
 
 # ------------------------------------------------------------------------------
-head " 7. Custom template directory for options
+head " 7. Custom template directory with space in name
     \n    unset TEMPLATE_FLAVOR_PREFIX \
     \n    unset TEMPLATE_OPTIONS \
-    \n    TEMPLATE_FLAVOR_DIR=wheezy+whonix-gateway+gnome;tests/template-flavors/another_location"
+    \n    TEMPLATE_FLAVOR_DIR=wheezy+whonix-gateway;tests/template-flavors/another_location/whonix gw"
+TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway;tests/template-flavors/another_location/whonix gw"
+buildStep "$0" "pre"
+assertTest "buildStep $0 pre" "tests/template-flavors/another_location/whonix gw/test_pre.sh"
+assertEnd
+
+# ------------------------------------------------------------------------------
+head " 8. Custom template directory for options
+    \n    unset TEMPLATE_FLAVOR_PREFIX \
+    \n    unset TEMPLATE_OPTIONS \
+    \n    TEMPLATE_FLAVOR_DIR=wheezy+whonix-gateway+gnome;tests/template-flavors/another_location/whonix_gnome"
 unset TEMPLATE_FLAVOR_PREFIX
 export TEMPLATE_OPTIONS=('gnome')
-TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway+gnome;tests/template-flavors/another_location"
-customStep "$0" "pre"
-assertTest "customStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/another_location/wheezy+whonix-gateway+gnome/test_pre.sh"
-assertEnd "Test 7"
+TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway+gnome;tests/template-flavors/another_location/whonix_gnome"
+buildStep "$0" "pre"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/another_location/whonix_gnome/test_pre.sh"
+assertEnd
+
+# ------------------------------------------------------------------------------
+head " 9. Configuration Files
+    \n    Find packages.list for every template available" 
+TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway;tests/template-flavors/another_location/whonix gw"
+getFileLocations filelist 'packages.list'
+for file in "${filelist[@]}"; do
+    echo "Configuration: ${file}"
+done
+result="$(echo $(printf "'%s' " "${filelist[@]}"))"
+assertTest "echo ${result}" "tests/template-flavors/another_location/whonix gw/packages.list tests/template-flavors/wheezy+whonix-gateway+gnome/packages.list"
+assertEnd
+
+# ------------------------------------------------------------------------------
+head "10. Configuration Files - No Template
+    \n    Find packages.list for every template available" 
+TEMPLATE_FLAVOR=
+TEMPLATE_FLAVOR_DIR=
+getFileLocations filelist 'packages.list'
+for file in "${filelist[@]}"; do
+    echo "Configuration: ${file}"
+done
+result="$(echo $(printf "'%s' " "${filelist[@]}"))"
+assertTest "echo ${result}" "tests/template-flavors/packages.list"
+assertEnd
+
+# ------------------------------------------------------------------------------
+head "11. Configuration Files - No Template - with suffix
+    \n    Find packages.list for every template available" 
+TEMPLATE_FLAVOR=
+TEMPLATE_FLAVOR_DIR=
+getFileLocations filelist 'packages.list' 'wheezy'
+for file in "${filelist[@]}"; do
+    echo "Configuration: ${file}"
+done
+result="$(echo $(printf "'%s' " "${filelist[@]}"))"
+assertTest "echo ${result}" "tests/template-flavors/packages_wheezy.list"
+assertEnd
 
 # ------------------------------------------------------------------------------
 export INSTALLDIR="${SCRIPTSDIR}/test_copy_location"
-head " 8. Copy files
+head "12. Copy files
     \n    Just test copying from here to ${INSTALLDIR}"
+TEMPLATE_FLAVOR="whonix-gateway"
 TEMPLATE_FLAVOR_DIR=""
 TEMPLATE_OPTIONS=""
 rm -rf "$INSTALLDIR"/*
-copy_dirs "files"
+copyTree "files"
 ls -l "$INSTALLDIR"
 assertTest "ls $INSTALLDIR" "test1\ntest2\ntest3"
-assertEnd "Test 8"
+assertEnd
 
 # Done
 popd

@@ -323,9 +323,9 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
 fi
 
 # ------------------------------------------------------------------------------
-# Execute any custom configuration scripts
+# Execute any template flavor or sub flavor scripts
 # ------------------------------------------------------------------------------
-customStep "99_custom_configuration.sh"
+buildStep "99_custom_configuration.sh"
 
 # XXX: Why do I need to move them out of the way?  Lets try keeping them
 # in place (modify post script too)

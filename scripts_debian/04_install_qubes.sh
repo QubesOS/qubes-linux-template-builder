@@ -30,9 +30,9 @@ fi
 for fs in /dev /dev/pts /proc /sys /run; do mount -B $fs "$INSTALLDIR/$fs"; done
 
 # ------------------------------------------------------------------------------
-# Execute any custom pre configuration scripts
+# Execute any template flavor or sub flavor 'pre' scripts
 # ------------------------------------------------------------------------------
-customStep "$0" "pre"
+buildStep "$0" "pre"
 
 # ------------------------------------------------------------------------------
 # Install Qubes Packages
@@ -188,15 +188,15 @@ EOF
     # $SCRIPT_DIR/extra-qubes-files
     # --------------------------------------------------------------------------
     debug "Copy extra files..." 
-    copy_dirs "extra-qubes-files"
+    copyTree "extra-qubes-files"
 
     touch "$INSTALLDIR/tmp/.prepared_qubes"
 fi
 
 # ------------------------------------------------------------------------------
-# Execute any custom post configuration scripts
+# Execute any template flavor or sub flavor 'post' scripts
 # ------------------------------------------------------------------------------
-customStep "$0" "post"
+buildStep "$0" "post"
 
 # ------------------------------------------------------------------------------
 # Kill all processes and umount all mounts within $INSTALLDIR, but not 

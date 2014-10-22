@@ -140,146 +140,148 @@ splitPath() {
     setArrayAsGlobal PARTS $return_global_var
 }
 
-
-customStepExec() {
-    local calling_script="$1"
-    local step="$2"
-    local template_flavor="$3"
-    local template_flavor_dir="$4"
-    local template_flavor_prefix="$5"
-
-    [[ -z $TEST ]] && debug "Calling script:  ${calling_script}" || :
-    [[ -z $TEST ]] && debug "Step:            ${step}" || :
-    [[ -z $TEST ]] && debug "Template Flavor: ${template_flavor}" || :
-    [[ -z $TEST ]] && debug "Template Dir:    ${template_flavor_dir}" || :
-    [[ -z $TEST ]] && debug "Template Prefix: ${template_flavor_prefix}" || :
-
-    splitPath "${calling_script}" path_parts
-
-    # Step: [pre] | [post] (or custom inserted step)
-    if [ "${step}" ]; then
-        script_name="${path_parts[base]}_${step}${path_parts[dotext]}"
-    else
-        script_name="${path_parts[base]}${path_parts[dotext]}"
-    fi
-
-    if [ -n "${template_flavor}" ]; then
-        script="${template_flavor_dir}/${template_flavor_prefix}${template_flavor}/${script_name}"
-    else
-        script="${template_flavor_dir}/${template_flavor_prefix}/${script_name}"
-    fi
-
-    if [ -f "$script" ]; then
-        [[ -n $TEST ]] && echo "${script}" || echo "${bold}${under}INFO: Currently running script: ${script}${reset}"
-        "$script"
-    else
-        [[ -z $TEST ]] && debug "${bold}INFO: No CustomStep found for: ${script}${reset}" || :
-    fi
-}
-
-customCopy() {
-    local calling_script="$1"
-    local dir="$2"
-    local template_flavor="$3"
-    local template_flavor_dir="$4"
-    local template_flavor_prefix="$5"
-    local install_dir="$(readlink -m ${INSTALLDIR})"
-
-    info "copy_dirs(): ${install_dir}"
-    if [ -n "${template_flavor}" ]; then
-        custom_dir="${template_flavor_dir}/${template_flavor_prefix}${template_flavor}/${dir}"
-    else
-        custom_dir="${template_flavor_dir}/${template_flavor_prefix}/${dir}"
-    fi
-
-    if [ -d "${custom_dir}" ]; then
-        dir="${custom_dir}/"
-    elif [ -d "${template_flavor_dir}/${dir}" ]; then
-        dir="${template_flavor_dir}/${dir}/"
-    else
-        debug "No extra files to copy for ${dir}"
-	return 0
-    fi
-
-    dir="$(readlink -m $dir)"
-    debug "Copying ${dir}/* ${install_dir}"
-    cp -rp "${dir}/"* "${install_dir}"
-
-    if [ -f "${dir}/.facl" ]; then
-        debug "Restoring file permissions..."
-        pushd "$install_dir"
-        {
-            setfacl --restore="${dir}/.facl" 2>/dev/null ||:
-        }
-        popd
-    fi
-}
-
 templateFlavor() {
     echo ${TEMPLATE_FLAVOR}
 }
 
 templateFlavorPrefix() {
-    local template=${1-${TEMPLATE_FLAVOR}}
+    local template_flavor=${1-$(templateFlavor)}
     for element in "${TEMPLATE_FLAVOR_PREFIX[@]}"
     do 
-        if [ "${element%;*}" == "${DIST}+${template}" ]; then
+        if [ "${element%;*}" == "${DIST}+${template_flavor}" ]; then
             echo ${element#*;}
             return
         fi
     done
     
-    echo "${DIST}${TEMPLATE_FLAVOR:++}"
+    echo "${DIST}${template_flavor:++}"
 }
 
-templateFlavorDir() {
-    local template=${1-${TEMPLATE_FLAVOR}}
+templateDir() {
+    local template_flavor=${1-$(templateFlavor)}
     for element in "${TEMPLATE_FLAVOR_DIR[@]}"
     do 
-        if [ "${element%;*}" == "${DIST}+${template}" ]; then
+        if [ "${element%;*}" == "$(templateFlavorPrefix ${template_flavor})${template_flavor}" ]; then
             echo ${element#*;}
             return
         fi
     done
 
-    echo "${SCRIPTSDIR}"
+    if [ -n "${template_flavor}" ]; then
+        local template_flavor_prefix="$(templateFlavorPrefix ${template_flavor})"
+        local dir="${SCRIPTSDIR}/${template_flavor_prefix}${template_flavor}"
+    else
+        local dir="${SCRIPTSDIR}"
+    fi
+
+    echo "${dir}"
 }
 
-customParse() {
+templateFile() {
+    local file="$1"
+    local suffix="$2"
+    local template_flavor="$3"
+    local template_dir="$(templateDir ${template_flavor})"
+
+    splitPath "${file}" path_parts
+
+    # Append suffix to filename (before extension)
+    if [ "${suffix}" ]; then
+        file="${template_dir}/${path_parts[base]}_${suffix}${path_parts[dotext]}"
+    else
+        file="${template_dir}/${path_parts[base]}${path_parts[dotext]}"
+    fi
+
+    if [ -f "${file}" ]; then
+        echo "${file}"
+    fi
+}
+
+buildStepExec() {
+    local filename="$1"
+    local suffix="$2"
+    local template_flavor="$3"
+
+    script="$(templateFile "${filename}" "${suffix}" "${template_flavor}")"
+
+    if [ -f "${script}" ]; then
+        [[ -n $TEST ]] && echo "${script}" || echo "${bold}${under}INFO: Currently running script: ${script}${reset}"
+        # Execute $script
+        "${script}"
+    fi
+}
+
+copyTreeExec() {
     local calling_script="$1"
-    local step="$2"
+    local dir="$2"
+    local template_flavor="$3"
+
+    local template_dir="$(templateDir ${template_flavor})"
+    local source_dir="$(readlink -m ${template_dir}/${dir})"
+    local install_dir="$(readlink -m ${INSTALLDIR})"
+
+    if ! [ -d "${source_dir}" ]; then
+        debug "No extra files to copy for ${dir}"
+	    return 0
+    fi
+
+    debug "Copying ${source_dir}/* ${install_dir}"
+    cp -rp "${source_dir}/"* "${install_dir}"
+
+    if [ -f "${source_dir}/.facl" ]; then
+        debug "Restoring file permissions..."
+        pushd "$install_dir"
+        {
+            setfacl --restore="${source_dir}/.facl" 2>/dev/null ||:
+        }
+        popd
+    fi
+}
+
+callTemplateFunction() {
+    local calling_script="$1"
+    local calling_arg="$2"
     local functionExec="$3"
     local template_flavor="$(templateFlavor)"
-    local template_flavor_dir="$(templateFlavorDir ${template_flavor})"
-    local template_flavor_prefix="$(templateFlavorPrefix ${template_flavor})"
 
     ${functionExec} "${calling_script}" \
-                    "${step}" \
-                    "${template_flavor}" \
-                    "${template_flavor_dir}" \
-                    "${template_flavor_prefix}"
-    
+                    "${calling_arg}" \
+                    "${template_flavor}"
 
-    for template in ${TEMPLATE_OPTIONS[@]}
+    for option in ${TEMPLATE_OPTIONS[@]}
     do
-        template_flavor="$(templateFlavor)+${template}"
-        template_flavor_dir="$(templateFlavorDir ${template_flavor})"
-        template_flavor_prefix="$(templateFlavorPrefix ${template_flavor})"
-
         ${functionExec} "${calling_script}" \
-                        "${step}" \
-                        "${template_flavor}" \
-                        "${template_flavor_dir}" \
-                        "${template_flavor_prefix}"
+                        "${calling_arg}" \
+                        "$(templateFlavor)+${option}"
     done
+}
+
+# ------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+getFileLocations() {
+    local return_global_var=$1
+    local filename="$2"
+    local suffix="$3"
+    local function="templateFile"
+
+
+    IFS_orig="${IFS}}"; IFS=$'\n'
+    files=( $(callTemplateFunction "${filename}" "${suffix}" "${function}") )
+    setArrayAsGlobal files $return_global_var
+
+    IFS="${IFS_orig}"
 }
 
 # ------------------------------------------------------------------------------
 # Executes any additional optional configuration steps if the configuration
 # scripts exist
 # ------------------------------------------------------------------------------
-customStep() {
-    customParse "$1" "$2" "customStepExec"
+buildStep() {
+    local filename="$1"
+    local suffix="$2"
+    local function="buildStepExec"
+
+    callTemplateFunction "${filename}" "${suffix}" "${function}"
 }
 
 # ------------------------------------------------------------------------------
@@ -298,8 +300,12 @@ customStep() {
 #    they get copied over to $INSTALLDIR
 # NOTE: Don't forget to redo this process if you add -OR- remove files
 # ------------------------------------------------------------------------------
-copy_dirs() {
-    customParse "" "$1" "customCopy"
+copyTree() {
+    local not_used=""
+    local dir="$1"
+    local function="copyTreeExec"
+
+    callTemplateFunction "${not_used}" "${dir}" "${function}"
 }
 
 # $0 is module that sourced vars.sh

@@ -19,9 +19,9 @@ INSTALLDIR="$(readlink -m mnt)"
 umount_kill "$INSTALLDIR" || :
 
 # ------------------------------------------------------------------------------
-# Execute any custom pre configuration scripts
+# Execute any template flavor or sub flavor 'pre' scripts
 # ------------------------------------------------------------------------------
-customStep "$0" "pre"
+buildStep "$0" "pre"
 
 # ------------------------------------------------------------------------------
 # Force overwrite of an existing image for now if debootstrap did not seem to complete...
@@ -40,7 +40,7 @@ if [ -f "$IMG" ]; then
 fi
 
 # ------------------------------------------------------------------------------
-# Execute any custom post configuration scripts
+# Execute any template flavor or sub flavor 'post' scripts
 # ------------------------------------------------------------------------------
-customStep "$0" "post"
+buildStep "$0" "post"
 

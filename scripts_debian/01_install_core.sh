@@ -16,9 +16,9 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# Execute any custom pre configuration scripts
+# Execute any template flavor or sub flavor 'pre' scripts
 # ------------------------------------------------------------------------------
-customStep "$0" "pre"
+buildStep "$0" "pre"
 
 # ------------------------------------------------------------------------------
 # Install base debian system
@@ -33,6 +33,6 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_debootstrap" ]; then
 fi
 
 # ------------------------------------------------------------------------------
-# Execute any custom post configuration scripts
+# Execute any template flavor or sub flavor 'post' scripts
 # ------------------------------------------------------------------------------
-customStep "$0" "post"
+buildStep "$0" "post"

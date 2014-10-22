@@ -31,9 +31,9 @@ fi
 for fs in /dev /dev/pts /proc /sys /run; do mount -B $fs "$INSTALLDIR/$fs"; done
 
 # ------------------------------------------------------------------------------
-# Execute any custom pre configuration scripts
+# Execute any template flavor or sub flavor 'pre' scripts
 # ------------------------------------------------------------------------------
-customStep "$0" "pre"
+buildStep "$0" "pre"
 
 if ! [ -f "$INSTALLDIR/tmp/.prepared_groups" ]; then
     # ------------------------------------------------------------------------------
@@ -98,29 +98,26 @@ EOF
 
     # ------------------------------------------------------------------------------
     # Install extra packages in script_$DEBIANVERSION/packages.list file
+    # -and / or- TEMPLATE_FLAVOR directories
     # ------------------------------------------------------------------------------
-    if [ -n "${TEMPLATE_FLAVOR}" ]; then
-        PKGLISTFILE="$SCRIPTSDIR/packages_${DIST}_${TEMPLATE_FLAVOR}.list"
-        if ! [ -r "${PKGLISTFILE}" ]; then
-            error "ERROR: ${PKGLISTFILE} does not exists!"
-            umount_kill "$INSTALLDIR" || :
-            exit 1
-        fi
-    elif [ -r "$SCRIPTSDIR/packages_${DIST}.list" ]; then
-        PKGLISTFILE="$SCRIPTSDIR/packages_${DIST}.list"
-    else
-        PKGLISTFILE="$SCRIPTSDIR/packages.list"
+    getFileLocations packages_list "packages.list" "${DIST}"
+    if [ -z "${packages_list}" ]; then
+        error "Can not locate a package.list file!"
+        umount_kill "$INSTALLDIR" || :
+        exit 1
     fi
 
-    debug "Installing extra packages"
-    DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-        xargs chroot $INSTALLDIR apt-get -y --force-yes install < "$PKGLISTFILE"
+    for package_list in "${packages_list[@]}"; do
+        debug "Installing extra packages from: ${package_list}"
+        DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
+            xargs chroot $INSTALLDIR apt-get -y --force-yes install < "$package_list"
+    done
 
     # ------------------------------------------------------------------------------
-    # Execute any custom configuration scripts after file packages installed
+    # Execute any template flavor or sub flavor scripts after packages are installed
     # (Whonix needs dependancies installed before installation)
     # ------------------------------------------------------------------------------
-    customStep "$0" "packages_installed"
+    buildStep "$0" "packages_installed"
 
     # ------------------------------------------------------------------------------
     # Install systemd
@@ -194,7 +191,7 @@ EOF
 fi
 
 # ------------------------------------------------------------------------------
-# Execute any custom post configuration scripts
+# Execute any template flavor or sub flavor 'post' scripts
 # ------------------------------------------------------------------------------
-customStep "$0" "post"
+buildStep "$0" "post"
 
