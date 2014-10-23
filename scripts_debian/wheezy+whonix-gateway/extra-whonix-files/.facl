@@ -12,6 +12,13 @@ user::rwx
 group::r-x
 other::r-x
 
+# file: etc/hosts
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
 # file: etc/udev
 # owner: root
 # group: root
@@ -32,6 +39,27 @@ other::r-x
 user::rw-
 group::r--
 other::r--
+
+# file: etc/hostname
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: etc/sudoers.d
+# owner: root
+# group: user
+user::rwx
+group::r-x
+other::r-x
+
+# file: etc/sudoers.d/qubes
+# owner: root
+# group: root
+user::r--
+group::r--
+other::---
 
 # file: .facl
 # owner: root

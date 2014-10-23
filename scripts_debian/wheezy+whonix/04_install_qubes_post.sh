@@ -47,8 +47,9 @@ fi
 
 # ------------------------------------------------------------------------------
 # Copy over any extra files
+# XXX: Moved to 02_install_groups_packages_installed.sh
 # ------------------------------------------------------------------------------
-copyTree "extra-whonix-files"
+#copyTree "extra-whonix-files"
 
 # ------------------------------------------------------------------------------
 # Cleanup Whonix Installation

@@ -267,13 +267,22 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     }
 
     # Change hostname to 'host'
-    debug "Whonix change host"
-    echo "host" > "$INSTALLDIR/etc/hostname"
-    chroot "$INSTALLDIR" sed -i "s/localhost/host/g" /etc/hosts
+    #debug "Whonix change host"
+    #echo "host" > "$INSTALLDIR/etc/hostname"
+    #chroot "$INSTALLDIR" sed -i "s/localhost/host/g" /etc/hosts
 
-    if ! [ -f "$INSTALLDIR/etc/sudoers.d/qubes" ]; then
-        cp -p /etc/sudoers.d/qubes "$INSTALLDIR/etc/sudoers.d/qubes"
-    fi
+    #if ! [ -f "$INSTALLDIR/etc/sudoers.d/qubes" ]; then
+    #    cp -p /etc/sudoers.d/qubes "$INSTALLDIR/etc/sudoers.d/qubes"
+    #fi
+
+    # ------------------------------------------------------------------------------
+    # Copy over any extra files
+    # XXX: Moved to 02_install_groups_packages_installed.sh
+    # ------------------------------------------------------------------------------
+    copyTree "extra-whonix-files"
+
+    # XXX: Temp debug to see if it copied over files okay
+    #exit 1
 
     # --------------------------------------------------------------------------
     # Install Whonix system

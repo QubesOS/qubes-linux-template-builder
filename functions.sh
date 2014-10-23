@@ -294,8 +294,9 @@ buildStep() {
 # 1. Change to the directory that you want to have file permissions retained
 # 2. Change all the file permissions / ownership as you want
 # 3. Change back to the root of the exta directory (IE: extra-qubes-files)
-# 4. getfacl -R . > ".facl"
-# 5. If git complains; reset file ownership back to user.  The .facl file stored
+# 4. Manually restore facl's: setfacl --restore=.facl
+# 5. Manually create facl backup used after copying: getfacl -R . > .facl
+# 6. If git complains; reset file ownership back to user.  The .facl file stored
 #    the file permissions and will be used to reset the file permissions after
 #    they get copied over to $INSTALLDIR
 # NOTE: Don't forget to redo this process if you add -OR- remove files
