@@ -141,7 +141,7 @@ EOF
     # Install Qubes packages
     # --------------------------------------------------------------------------
     DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-        chroot "$INSTALLDIR" apt-get -y --force-yes install `cat $SCRIPTSDIR/packages_qubes.list` || \
+        chroot "$INSTALLDIR" apt-get -y --force-yes install $(cat $SCRIPTSDIR/packages_qubes.list) || \
         { umount_kill "$INSTALLDIR"; exit 1; }
 
     # --------------------------------------------------------------------------

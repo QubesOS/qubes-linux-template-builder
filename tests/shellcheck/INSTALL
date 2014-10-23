@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# https://github.com/koalaman/shellcheck
+
+sudo yum install cabal-install
+
+# Let cabal update itself, incase your distro is outdated
+sudo cabal update
+cabel install cabal-install
+
+# Clone shellcheck and build
+git clone https://github.com/koalaman/shellcheck.git
+cd shellcheck
+
+# With cabel installed, cd to source direstory and:
+sudo cabal install
+
+# Add cabal directory to bash path
+source='export PATH=$HOME/.cabal/bin:$PATH'
+file=~/.bash_profile
+if ! grep -r -q "$source" "${file}"; then
+    touch $file
+    echo "$source" >> $file
+fi
+
+# You now need to manually source .bash_profile
+echo "You now need to manually source .bash_profile"
+echo "source ~/.bash_profile"
+
+# Then verify PATH is set correctly
+echo
+echo
+echo "Then verify PATH is set correctly"
+echo "which shellcheck"
+echo "~/.cabal/bin/shellcheck"
+
+
+# To run the unit test suite:
+#
+# cabal configure --enable-tests
+# cabal build
+# cabal test

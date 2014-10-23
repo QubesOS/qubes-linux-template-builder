@@ -281,9 +281,6 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     # ------------------------------------------------------------------------------
     copyTree "extra-whonix-files"
 
-    # XXX: Temp debug to see if it copied over files okay
-    #exit 1
-
     # --------------------------------------------------------------------------
     # Install Whonix system
     # --------------------------------------------------------------------------
@@ -354,6 +351,16 @@ if [ -L "$INSTALLDIR/usr/bin/apt-get" ]; then
     rm "$INSTALLDIR/usr/bin/apt-get"
     chroot "$INSTALLDIR" su -c "cd /usr/bin/; ln -s apt-get.anondist-orig apt-get"
 fi
+
+# ------------------------------------------------------------------------------
+# Make sure the temporary policy-rc.d to prevent apt from starting services
+# on package installation is still active; Whonix may have reset it
+# ------------------------------------------------------------------------------
+cat > "$INSTALLDIR/usr/sbin/policy-rc.d" <<EOF
+#!/bin/sh
+return 101 # Action forbidden by policy
+EOF
+chmod 755 "$INSTALLDIR/usr/sbin/policy-rc.d"
 
 # ------------------------------------------------------------------------------
 # Leave cleanup to calling function
