@@ -279,7 +279,7 @@ if ! [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
     # Copy over any extra files
     # XXX: Moved to 02_install_groups_packages_installed.sh
     # ------------------------------------------------------------------------------
-    copyTree "extra-whonix-files"
+    copyTree "files"
 
     # --------------------------------------------------------------------------
     # Install Whonix system

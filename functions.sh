@@ -148,8 +148,8 @@ templateFlavorPrefix() {
     local template_flavor=${1-$(templateFlavor)}
     for element in "${TEMPLATE_FLAVOR_PREFIX[@]}"
     do 
-        if [ "${element%;*}" == "${DIST}+${template_flavor}" ]; then
-            echo ${element#*;}
+        if [ "${element%:*}" == "${DIST}+${template_flavor}" ]; then
+            echo ${element#*:}
             return
         fi
     done
@@ -159,10 +159,16 @@ templateFlavorPrefix() {
 
 templateDir() {
     local template_flavor=${1-$(templateFlavor)}
+
     for element in "${TEMPLATE_FLAVOR_DIR[@]}"
     do 
-        if [ "${element%;*}" == "$(templateFlavorPrefix ${template_flavor})${template_flavor}" ]; then
-            echo ${element#*;}
+        # (wheezy+whonix-gateway / wheezy+whonix-gateway+gnome[+++] / wheezy+gnome )
+        if [ "${element%:*}" == "$(templateFlavorPrefix ${template_flavor})${template_flavor}" ]; then
+            eval echo -e ${element#*:}
+            return
+        # Very short name compare (+proxy)
+        elif [ "${element:0:1}" == "+" -a "${element%:*}" == "+${template_flavor}" ]; then
+            eval echo -e ${element#*:}
             return
         fi
     done
@@ -206,6 +212,7 @@ buildStepExec() {
 
     if [ -f "${script}" ]; then
         [[ -n $TEST ]] && echo "${script}" || echo "${bold}${under}INFO: Currently running script: ${script}${reset}"
+
         # Execute $script
         "${script}"
     fi
@@ -250,9 +257,15 @@ callTemplateFunction() {
 
     for option in ${TEMPLATE_OPTIONS[@]}
     do
+        # Long name (wheezy+whonix-gateway+proxy)
         ${functionExec} "${calling_script}" \
                         "${calling_arg}" \
                         "$(templateFlavor)+${option}"
+
+        # Short name (wheezy+proxy)
+        ${functionExec} "${calling_script}" \
+                        "${calling_arg}" \
+                        "${option}"
     done
 }
 

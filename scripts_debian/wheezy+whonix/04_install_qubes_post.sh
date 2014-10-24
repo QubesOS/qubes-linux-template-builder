@@ -45,11 +45,13 @@ if [ -L "$INSTALLDIR/etc/resolv.conf" ]; then
     popd
 fi
 
-# ------------------------------------------------------------------------------
-# Copy over any extra files
-# XXX: Moved to 02_install_groups_packages_installed.sh
-# ------------------------------------------------------------------------------
-#copyTree "extra-whonix-files"
+# --------------------------------------------------------------------------
+# Copy over any extra files that may be needed that are located in
+# --------------------------------------------------------------------------
+debug "Copy extra Qubes related files..." 
+copyTree "extra-qubes-files"
+
+touch "$INSTALLDIR/tmp/.prepared_qubes"
 
 # ------------------------------------------------------------------------------
 # Cleanup Whonix Installation

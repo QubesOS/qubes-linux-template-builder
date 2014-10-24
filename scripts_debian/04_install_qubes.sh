@@ -182,15 +182,6 @@ EOF
     # Need a xen log directory or xen scripts will fail
     # --------------------------------------------------------------------------
     mkdir -p -m 0700 "$INSTALLDIR/var/log/xen"
-
-    # --------------------------------------------------------------------------
-    # Copy over any extra files that may be needed that are located in
-    # $SCRIPT_DIR/extra-qubes-files
-    # --------------------------------------------------------------------------
-    debug "Copy extra files..." 
-    copyTree "extra-qubes-files"
-
-    touch "$INSTALLDIR/tmp/.prepared_qubes"
 fi
 
 # ------------------------------------------------------------------------------
