@@ -6,10 +6,19 @@ export DIST
 dist_ver := $(shell DIST=$(DIST) ./builder_setup)
 DISTRIBUTION := $(word 1,$(dist_ver))
 DIST_VERSION := $(word 2,$(dist_ver))
+TEMPLATE_NAME := $(word 3,$(dist_ver))
+
+ifeq (,$(TEMPLATE_NAME))
 TEMPLATE_NAME := $(DISTRIBUTION)-$(DIST_VERSION)-x64
 ifdef TEMPLATE_FLAVOR
 TEMPLATE_NAME := $(TEMPLATE_NAME)-$(TEMPLATE_FLAVOR)
 endif
+endif
+
+# Make sure names are < 32 characters
+fix_up := $(shell TEMPLATE_NAME=$(TEMPLATE_NAME) ./builder_fix_filenames)
+TEMPLATE_NAME := $(word 1,$(fix_up))
+
 VERSION := $(shell cat version)
 TIMESTAMP := $(shell date -u +%Y%m%d%H%M)
 

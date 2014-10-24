@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Check template name length and fix if not under 32 characters
+# Return the result 
+
+. ./functions.sh > /dev/null
+
+# Check for custom template name
+templateNameDist "${TEMPLATE_NAME}"

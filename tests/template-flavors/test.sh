@@ -55,6 +55,7 @@ values() {
         else
             printf "    ${bold}${black}%-22s = ${value}${reset}\n" "${label}" || :
         fi
+        #printf "${bold}${black}%s=\"${value}\"${reset}\n" "${label}" || :
         VALUES[$label]="${value}"
     }
 }
@@ -86,8 +87,11 @@ assertEnd() {
 # ------------------------------------------------------------------------------
 SCRIPTSDIR="tests/template-flavors"
 DIST="wheezy"
+DISTS_VM=""
 TEMPLATE_FLAVOR="whonix-gateway"
 TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR=""
+TEMPLATE_OPTIONS=""
 
 header <<EOF
  1. With TEMPLATE_FLAVOR
@@ -100,7 +104,13 @@ assertEnd
 # ------------------------------------------------------------------------------
 # 2. Without TEMPLATE_FLAVOR 
 # ------------------------------------------------------------------------------
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
 TEMPLATE_FLAVOR=""
+TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR=""
+TEMPLATE_OPTIONS=""
 
 header <<EOF
  2. Without TEMPLATE_FLAVOR 
@@ -113,7 +123,12 @@ assertEnd
 # ------------------------------------------------------------------------------
 # 3. Template Options
 # ------------------------------------------------------------------------------
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
 TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR=""
 TEMPLATE_OPTIONS=('gnome' 'kde')
 
 header <<EOF
@@ -129,11 +144,16 @@ assertEnd
 # ------------------------------------------------------------------------------
 # 4. Template Options with custom prefix
 # ------------------------------------------------------------------------------
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_DIR=""
+TEMPLATE_OPTIONS=('gnome' 'kde')
 TEMPLATE_FLAVOR_PREFIX=( 
     'wheezy+whonix-gateway:debian+'
     'wheezy+whonix-workstation:debian+'
 )
-
 header <<EOF
  4. Template Options with custom prefix
 EOF
@@ -146,11 +166,16 @@ assertEnd
 # ------------------------------------------------------------------------------
 # 5. Template Options with NO prefix
 # ------------------------------------------------------------------------------
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_DIR=""
+TEMPLATE_OPTIONS=('gnome' 'kde')
 TEMPLATE_FLAVOR_PREFIX=( 
     'wheezy+whonix-gateway:'
     'wheezy+whonix-workstation:'
 )
-
 header <<EOF
  5. Template Options with NO prefix
 EOF
@@ -163,9 +188,13 @@ assertEnd
 # ------------------------------------------------------------------------------
 # 6. Custom template directory for options within \${SCRIPTSDIR}
 # ------------------------------------------------------------------------------
-unset TEMPLATE_FLAVOR_PREFIX
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway+gnome:${SCRIPTSDIR}/another_location/whonix_gnome"
 TEMPLATE_OPTIONS=('gnome')
-TEMPLATE_FLAVOR_DIR='wheezy+whonix-gateway+gnome:${SCRIPTSDIR}/another_location/whonix_gnome'
 
 header <<EOF
  6. Custom template directory for options within \${SCRIPTSDIR}
@@ -180,9 +209,13 @@ assertEnd
 # ------------------------------------------------------------------------------
 # 7. Custom template directory
 # ------------------------------------------------------------------------------
-unset TEMPLATE_FLAVOR_PREFIX
-unset TEMPLATE_OPTIONS
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
 TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway:tests/template-flavors/another_location/whonix-gw"
+TEMPLATE_OPTIONS=""
 
 header <<EOF
  7. Custom template directory
@@ -195,7 +228,13 @@ assertEnd
 # ------------------------------------------------------------------------------
 # 8. Custom template directory with space in name
 # ------------------------------------------------------------------------------
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
 TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway:tests/template-flavors/another_location/whonix gw"
+TEMPLATE_OPTIONS=""
 
 header <<EOF
  8. Custom template directory with space in name
@@ -208,9 +247,13 @@ assertEnd
 # ------------------------------------------------------------------------------
 # 9. Custom template directory for options
 # ------------------------------------------------------------------------------
-unset TEMPLATE_FLAVOR_PREFIX
-TEMPLATE_OPTIONS=('gnome')
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
 TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway+gnome:tests/template-flavors/another_location/whonix_gnome"
+TEMPLATE_OPTIONS=('gnome')
 
 header <<EOF
  9. Custom template directory for options
@@ -223,10 +266,13 @@ assertEnd
 # ------------------------------------------------------------------------------
 # 10. Template directory for options within $SCRIPTSDIR using short name filter
 # ------------------------------------------------------------------------------
-unset TEMPLATE_FLAVOR_PREFIX
-unset TEMPLATE_FLAVOR_DIR
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR="wheezy+proxy:${SCRIPTSDIR}/proxy"
 TEMPLATE_OPTIONS=('proxy')
-TEMPLATE_FLAVOR_DIR='wheezy+proxy:${SCRIPTSDIR}/proxy'
 
 header <<EOF
 10. Template directory for options within $SCRIPTSDIR using short name filter
@@ -239,10 +285,13 @@ assertEnd
 # ------------------------------------------------------------------------------
 # 11. Template directory for options within using VERY short name filter (+proxy)
 # ------------------------------------------------------------------------------
-unset TEMPLATE_FLAVOR_PREFIX
-unset TEMPLATE_FLAVOR_DIR
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR="+proxy:${SCRIPTSDIR}/proxy"
 TEMPLATE_OPTIONS=('proxy')
-TEMPLATE_FLAVOR_DIR='+proxy:${SCRIPTSDIR}/proxy'
 
 header <<EOF
 11. Template directory for options within using VERY short name filter (+proxy)
@@ -253,13 +302,81 @@ assertEnd
 
 
 # ------------------------------------------------------------------------------
-# 12. Configuration Files
+# 12. Template Name - Custom
 # ------------------------------------------------------------------------------
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR=""
+TEMPLATE_OPTIONS=""
+TEMPLATE_LABEL="wheezy+whonix-gateway:whonix-gateway"
+
+header <<EOF
+12. Template Name - Custom
+    TEMPLATE_LABEL         = wheezy+whonix-gateway:whonix-gateway
+EOF
+info "Template name: $(templateName)"
+assertTest "templateName" "whonix-gateway"
+assertEnd
+
+
+# ------------------------------------------------------------------------------
+# 13. Template Name - Custom with sub-options
+# ------------------------------------------------------------------------------
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR=""
+TEMPLATE_OPTIONS=('proxy')
+TEMPLATE_LABEL="wheezy+whonix-gateway+proxy:whonix-gateway"
+
+header <<EOF
+13. Template Name - Custom with sub-options
+    TEMPLATE_LABEL         = wheezy+whonix-gateway+proxy:whonix-gateway
+EOF
+info "Template name: $(templateName)"
+assertTest "templateName" "whonix-gateway"
+assertEnd
+
+
+# ------------------------------------------------------------------------------
+# 14. Template Name - NO template
+# ------------------------------------------------------------------------------
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR=""
+TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR=""
+TEMPLATE_OPTIONS=""
+TEMPLATE_LABEL="wheezy:debian-7"
+
+header <<EOF
+14. Template Name - NO template
+    TEMPLATE_LABEL         = wheezy:debian-7
+EOF
+info "Template name: $(templateName)"
+assertTest "templateName" "debian-7"
+assertEnd
+
+
+# ------------------------------------------------------------------------------
+# 15. Configuration Files
+# ------------------------------------------------------------------------------
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
 TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway:tests/template-flavors/another_location/whonix gw"
 TEMPLATE_OPTIONS=('gnome')
 
 header <<EOF
-12. Configuration Files
+15. Configuration Files
     Find packages.list for every template available
 EOF
 getFileLocations filelist 'packages.list'
@@ -272,13 +389,18 @@ assertEnd
 
 
 # ------------------------------------------------------------------------------
-# 13. Configuration Files - No Template
+# 16. Configuration Files - No Template
 # ------------------------------------------------------------------------------
-TEMPLATE_FLAVOR=
-TEMPLATE_FLAVOR_DIR=
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR=""
+TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR=""
+TEMPLATE_OPTIONS=('gnome')
 
 header <<EOF
-13. Configuration Files - No Template
+16. Configuration Files - No Template
     Find packages.list for every template available
 EOF
 getFileLocations filelist 'packages.list'
@@ -291,13 +413,18 @@ assertEnd
 
 
 # ------------------------------------------------------------------------------
-# 14. Configuration Files - No Template - with suffix
+# 17. Configuration Files - No Template - with suffix
 # ------------------------------------------------------------------------------
-TEMPLATE_FLAVOR=
-TEMPLATE_FLAVOR_DIR=
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR=""
+TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR=""
+TEMPLATE_OPTIONS=('gnome')
 
 header <<EOF
-14. Configuration Files - No Template - with suffix
+17. Configuration Files - No Template - with suffix
      Find packages.list for every template available
 EOF
 getFileLocations filelist 'packages.list' 'wheezy'
@@ -309,19 +436,25 @@ assertTest "echo ${result}" "tests/template-flavors/packages_wheezy.list"
 assertEnd
 
 # ------------------------------------------------------------------------------
-# 14. Copy files
+# 18. Copy files
 # ------------------------------------------------------------------------------
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
 TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
 TEMPLATE_FLAVOR_DIR=""
 TEMPLATE_OPTIONS=""
 INSTALLDIR="${SCRIPTSDIR}/test_copy_location"
 
 header <<EOF 
-14. Copy files
+18. Copy files
     Just test copying from here to ${INSTALLDIR}
     INSTALLDIR="${SCRIPTSDIR}/test_copy_location"
 EOF
-rm -rf "$INSTALLDIR"/*
+rm -f "$INSTALLDIR"/test1
+rm -f "$INSTALLDIR"/test2
+rm -f "$INSTALLDIR"/test3
 copyTree "files"
 ls -l "$INSTALLDIR"
 assertTest "ls $INSTALLDIR" "test1\ntest2\ntest3"

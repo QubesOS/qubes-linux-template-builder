@@ -157,13 +157,61 @@ templateFlavorPrefix() {
     echo "${DIST}${template_flavor:++}"
 }
 
+templateNameDist() {
+    local dist_name="${1}"
+    template_name="$(templateName)" && dist_name="${template_name}"
+
+    # XXX: Temp hack to shorten name
+    if [ ${#dist_name} -ge 32 ]; then
+        if [ ${#template_name} -lt 32 ]; then
+            dist_name="${template_name}"
+        else
+            dist_name="${dist_name:0:31}"
+        fi
+    fi
+    echo ${dist_name}
+}
+
+templateName() {
+    local template_flavor=${1-$(templateFlavor)}
+    retval=1 # Default is 1; mean no replace happened
+
+    # Only apply options if $1 was not passed
+    if [ -n "${1}" ]; then
+        local template_options=
+    else
+        local template_options="${TEMPLATE_OPTIONS// /+}"
+    fi
+
+    local template_name="$(templateFlavorPrefix ${template_flavor})${template_flavor}${template_options:++}${template_options}"
+
+    for element in "${TEMPLATE_LABEL[@]}"; do
+        if [ "${element%:*}" == "${template_name}" ]; then
+            template_name="${element#*:}"
+            retval=0
+            break
+        fi
+    done
+
+    if [ ${#template_name} -ge 32 ]; then
+        error "Template name is greater than 31 characters: ${template_name}"
+        error "Please set an alias"
+        error "Exiting!!!"
+        exit 1
+    fi
+
+    echo ${template_name}
+    return $retval
+}
+
 templateDir() {
     local template_flavor=${1-$(templateFlavor)}
 
     for element in "${TEMPLATE_FLAVOR_DIR[@]}"
     do 
         # (wheezy+whonix-gateway / wheezy+whonix-gateway+gnome[+++] / wheezy+gnome )
-        if [ "${element%:*}" == "$(templateFlavorPrefix ${template_flavor})${template_flavor}" ]; then
+        #if [ "${element%:*}" == "$(templateFlavorPrefix ${template_flavor})${template_flavor}" ]; then
+        if [ "${element%:*}" == "$(templateName ${template_flavor})" ]; then
             eval echo -e ${element#*:}
             return
         # Very short name compare (+proxy)
