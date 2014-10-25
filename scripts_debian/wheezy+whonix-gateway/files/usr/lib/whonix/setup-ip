@@ -1,33 +1,93 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ -x /usr/sbin/xenstore-read ]; then
 	XENSTORE_READ="/usr/sbin/xenstore-read"
 else
 	XENSTORE_READ="/usr/bin/xenstore-read"
 fi
+ip=$(${XENSTORE_READ} qubes-netvm-gateway 2> /dev/null)
+
+INTERFACE="eth1"
 
 # Create a dummy eth1 interface so tor can bind to it if there
 # are no DOMU virtual machines connected at the moment
-INTERFACE="eth1"
-/sbin/ip link add $INTERFACE type dummy
+ip link show ${INTERFACE} >> /dev/null || {
+    /sbin/ip link add ${INTERFACE} type dummy
 
-# Now, assign it the netvm-gateway IP address
-ip=$($XENSTORE_READ qubes-netvm-gateway 2> /dev/null)
-if [ x$ip != x ]; then
-    netmask=$($XENSTORE_READ qubes-netvm-netmask)
-    gateway=$($XENSTORE_READ qubes-netvm-gateway)
-    /sbin/ifconfig $INTERFACE $ip netmask 255.255.255.255
-    /sbin/ifconfig $INTERFACE up
-    /sbin/ethtool -K $INTERFACE sg off
-    /sbin/ethtool -K $INTERFACE tx off
-fi
+    # Now, assign it the netvm-gateway IP address
+    if [ x${ip} != x ]; then
+        netmask=$(${XENSTORE_READ} qubes-netvm-netmask)
+        gateway=$(${XENSTORE_READ} qubes-netvm-gateway)
+        /sbin/ifconfig ${INTERFACE} ${ip} netmask 255.255.255.255
+        /sbin/ifconfig ${INTERFACE} up
+        /sbin/ethtool -K ${INTERFACE} sg off
+        /sbin/ethtool -K ${INTERFACE} tx off
+    fi
+}
+
+# Files that will have the immutable bit set 
+# since we don't want them modified by other programs
+IMMUTABLE_FILES=( 
+    '/etc/resolv.conf'
+    '/etc/hostname'
+    '/etc/hosts'
+)
+
+immutableFilesEnable() {
+    files="${1}"
+    suffix="${2}"
+
+    for file in "${files[@]}"; do
+        if [ -f "${file}" ] && ! [ -L "${file}" ]; then 
+            chattr +i "${file}${suffix}"
+        fi
+    done
+}
+
+immutableFilesDisable() {
+    files="${1}"
+    suffix="${2}"
+
+    for file in "${files[@]}"; do
+        if [ -f "${file}" ] && ! [ -L "${file}" ]; then 
+            chattr -i "${file}${suffix}"
+        fi
+    done
+}
+
+copyAnondist() {
+    file="${1}"
+    suffix="${2-.anondist}"
+
+    # Remove any softlinks first
+    if [ -L "${file}" ]; then 
+        rm -f "${file}"
+    fi
+
+    if [ -f "${file}" ] && [ -n "$(diff ${file} ${file}${suffix})" ]; then 
+        chattr -i "${file}"
+        rm -f "${file}"
+        cp -p "${file}${suffix}" "${file}"
+        chattr +i "${file}"
+    elif ! [ -f "${file}" ]; then 
+        cp -p "${file}${suffix}" "${file}"
+        chattr +i "${file}"
+    fi
+}
+
+# Make sure all .anondist files in list are immutable
+immutableFilesEnable "${IMMUTABLE_FILES}"
+immutableFilesEnable "${IMMUTABLE_FILES}" ".anondist"
+
+# Make sure we are using a copy of the annondist file and if not
+# copy the annondist file and set it immutable
+copyAnondist "/etc/resolv.conf"
+copyAnondist "/etc/hosts"
+copyAnondist "/etc/hostname"
 
 # Replace IP addresses in known configuration files / scripts to 
 # currently discovered one
 /usr/lib/whonix/replace-ips
-
-# Make sure we have correct nameserver set
-echo "nameserver 127.0.0.1" > /etc/resolv.conf
 
 # Make sure hostname is correct
 /bin/hostname -b host
@@ -36,3 +96,7 @@ echo "nameserver 127.0.0.1" > /etc/resolv.conf
 export INT_IF="vif+"
 export INT_TIF="vif+"
 /usr/bin/whonix_firewall
+
+# Route any traffic FROM netvm TO netvm BACK-TO localhost
+# Allows localhost access to tor network
+iptables -t nat -A OUTPUT -s ${ip} -d ${ip} -j DNAT --to-destination 127.0.0.1

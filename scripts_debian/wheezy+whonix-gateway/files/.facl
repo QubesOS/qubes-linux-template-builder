@@ -103,3 +103,10 @@ user::rwx
 group::r-x
 other::r-x
 
+# file: usr/lib/whonix/enable-iptables-logging.sh
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+

@@ -1,2 +1,1 @@
 SUBSYSTEMS=="xen", KERNEL=="eth*", ACTION=="add", RUN+="/usr/lib/whonix/setup-ip"
-SUBSYSTEMS=="xen", KERNEL=="eth*", ACTION=="online", RUN+="/usr/lib/whonix/setup-ip"
