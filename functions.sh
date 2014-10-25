@@ -169,6 +169,9 @@ templateNameDist() {
             dist_name="${dist_name:0:31}"
         fi
     fi
+
+    # Remove and '+' characters from name since they are invalid for name
+    dist_name="${dist_name//+/-}"
     echo ${dist_name}
 }
 
@@ -185,6 +188,8 @@ templateName() {
 
     local template_name="$(templateFlavorPrefix ${template_flavor})${template_flavor}${template_options:++}${template_options}"
 
+    # Make sure TEMPLATE_LABEL is an array
+    TEMPLATE_LABEL=( ${TEMPLATE_LABEL} )
     for element in "${TEMPLATE_LABEL[@]}"; do
         if [ "${element%:*}" == "${template_name}" ]; then
             template_name="${element#*:}"

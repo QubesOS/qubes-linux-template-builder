@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# Files that will have the immutable bit set 
+# since we don't want them modified by other programs
+IMMUTABLE_FILES=( 
+    '/etc/resolv.conf'
+    '/etc/hostname'
+    '/etc/hosts'
+)
+
+immutableFilesEnable() {
+    files="${1}"
+    suffix="${2}"
+
+    for file in "${files[@]}"; do
+        if [ -f "${file}" ] && ! [ -L "${file}" ]; then 
+            chattr +i "${file}${suffix}"
+        fi
+    done
+}
+
+immutableFilesDisable() {
+    files="${1}"
+    suffix="${2}"
+
+    for file in "${files[@]}"; do
+        if [ -f "${file}" ] && ! [ -L "${file}" ]; then 
+            chattr -i "${file}${suffix}"
+        fi
+    done
+}
+
+copyAnondist() {
+    file="${1}"
+    suffix="${2-.anondist}"
+
+    # Remove any softlinks first
+    if [ -L "${file}" ]; then 
+        rm -f "${file}"
+    fi
+
+    if [ -f "${file}" ] && [ -n "$(diff ${file} ${file}${suffix})" ]; then 
+        chattr -i "${file}"
+        rm -f "${file}"
+        cp -p "${file}${suffix}" "${file}"
+        chattr +i "${file}"
+    elif ! [ -f "${file}" ]; then 
+        cp -p "${file}${suffix}" "${file}"
+        chattr +i "${file}"
+    fi
+}
+
+# Make sure all .anondist files in list are immutable
+immutableFilesEnable "${IMMUTABLE_FILES}"
+immutableFilesEnable "${IMMUTABLE_FILES}" ".anondist"
+
+# Make sure we are using a copy of the annondist file and if not
+# copy the annondist file and set it immutable
+copyAnondist "/etc/resolv.conf"
+copyAnondist "/etc/hosts"
+copyAnondist "/etc/hostname"
+
+# Replace IP addresses in known configuration files / scripts to 
+# currently discovered one
+/usr/lib/whonix/replace-ips
+
+# Make sure hostname is correct
+/bin/hostname -b host
+
+# Start Whonix Firewall
+/usr/bin/whonix_firewall

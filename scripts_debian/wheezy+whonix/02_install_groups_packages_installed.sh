@@ -75,6 +75,8 @@ popd
 ################################################################################
 # Post Fixups
 
+set -e
+
 pushd /etc/network
 sudo rm -f interfaces
 sudo ln -s interfaces.backup interfaces
@@ -86,7 +88,9 @@ sudo ln -s resolv.conf.backup resolv.conf
 popd
 
 # Enable Tor
-sudo sed -i 's/#DisableNetwork 0/DisableNetwork 0/g' /etc/tor/torrc
+if [ "${1}" == "whonix-gateway" ]; then
+    sudo sed -i 's/#DisableNetwork 0/DisableNetwork 0/g' /etc/tor/torrc
+fi
 
 # Fake that whonixsetup was already run
 sudo mkdir -p /var/lib/whonix/do_once
@@ -106,6 +110,14 @@ sudo update-rc.d network-manager disable
 sudo update-rc.d spice-vdagent disable
 sudo update-rc.d swap-file-creator disable
 sudo update-rc.d whonix-initializer disable
+
+# Remove original sources.list
+sudo rm -f /etc/apt/sources.list
+sudo apt-get.anondist-orig update
+
+# Remove apt-cacher-ng
+DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
+    sudo apt-get.anondist-orig -y --force-yes remove apt-cacher-ng
 
 sudo touch "/tmp/.prepared_whonix"
 
