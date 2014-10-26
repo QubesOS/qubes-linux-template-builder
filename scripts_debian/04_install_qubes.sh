@@ -188,6 +188,13 @@ EOF
     # - font fixes for display issues 
     # --------------------------------------------------------------------------
     copyTree "qubes-files" "${SCRIPTSDIR}" "${INSTALLDIR}"
+
+    # --------------------------------------------------------------------------
+    # Looks like hosts file may contain tabs and qubes will not parse it 
+    # correctly
+    # --------------------------------------------------------------------------
+    expand "${INSTALLDIR}/etc/hosts" > "${INSATLLDIR}/etc/hosts.dist"
+    mv "${INSTALLDIR}/etc/hosts.dist" "${INSATLLDIR}/etc/hosts"
 fi
 
 # ------------------------------------------------------------------------------
