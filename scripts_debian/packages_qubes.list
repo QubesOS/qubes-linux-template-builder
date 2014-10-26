@@ -1,2 +1,5 @@
 qubes-core-agent
 qubes-gui-agent
+xdg-user-dirs
+gnome-themes-standard
+xsettingsd

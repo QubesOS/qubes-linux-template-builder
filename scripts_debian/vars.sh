@@ -12,8 +12,8 @@ DEBIANVERSION=$DIST
 
 # Location to grab debian packages
 #DEBIAN_MIRROR=http://http.debian.net/debian
-#DEBIAN_MIRROR=http://mirror.csclub.uwaterloo.ca/debian/
 DEBIAN_MIRROR=http://ftp.ca.debian.org/debian/
+#DEBIAN_MIRROR=http://ftp.us.debian.org/debian/
 
 # XXX: Is this even used?
 EXTRAPKGS="openssh-clients,screen,vim-nox,less"

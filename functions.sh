@@ -272,25 +272,26 @@ buildStepExec() {
 }
 
 copyTreeExec() {
-    local calling_script="$1"
+    local source_dir="$1"
     local dir="$2"
     local template_flavor="$3"
+    local target_dir="$4"
 
     local template_dir="$(templateDir ${template_flavor})"
-    local source_dir="$(readlink -m ${template_dir}/${dir})"
-    local install_dir="$(readlink -m ${INSTALLDIR})"
+    local source_dir="$(readlink -m ${source_dir:-${template_dir}}/${dir})"
+    local target_dir="$(readlink -m ${target_dir:-${INSTALLDIR}})"
 
     if ! [ -d "${source_dir}" ]; then
         debug "No extra files to copy for ${dir}"
 	    return 0
     fi
 
-    debug "Copying ${source_dir}/* ${install_dir}"
-    cp -rp "${source_dir}/"* "${install_dir}"
+    debug "Copying ${source_dir}/* ${target_dir}"
+    cp -rp "${source_dir}/"* "${target_dir}"
 
     if [ -f "${source_dir}/.facl" ]; then
         debug "Restoring file permissions..."
-        pushd "$install_dir"
+        pushd "${target_dir}"
         {
             setfacl --restore="${source_dir}/.facl" 2>/dev/null ||:
         }
@@ -368,11 +369,16 @@ buildStep() {
 # NOTE: Don't forget to redo this process if you add -OR- remove files
 # ------------------------------------------------------------------------------
 copyTree() {
-    local not_used=""
     local dir="$1"
+    local source_dir="$2"
+    local target_dir="$3"
     local function="copyTreeExec"
 
-    callTemplateFunction "${not_used}" "${dir}" "${function}"
+    if [ "x${source_dir}" == "x" ]; then
+        callTemplateFunction "" "${dir}" "${function}"
+    else
+        copyTreeExec "${source_dir}" "${dir}" "" "${target_dir}"
+    fi
 }
 
 # $0 is module that sourced vars.sh
