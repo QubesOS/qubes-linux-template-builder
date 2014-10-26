@@ -193,8 +193,8 @@ EOF
     # Looks like hosts file may contain tabs and qubes will not parse it 
     # correctly
     # --------------------------------------------------------------------------
-    expand "${INSTALLDIR}/etc/hosts" > "${INSATLLDIR}/etc/hosts.dist"
-    mv "${INSTALLDIR}/etc/hosts.dist" "${INSATLLDIR}/etc/hosts"
+    expand "${INSTALLDIR}/etc/hosts" > "${INSTALLDIR}/etc/hosts.dist"
+    mv "${INSTALLDIR}/etc/hosts.dist" "${INSTALLDIR}/etc/hosts"
 fi
 
 # ------------------------------------------------------------------------------
