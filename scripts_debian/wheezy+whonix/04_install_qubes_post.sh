@@ -38,12 +38,12 @@ fi
 # ------------------------------------------------------------------------------
 # Restore whonix resolv.conf
 # ------------------------------------------------------------------------------
-if [ -L "$INSTALLDIR/etc/resolv.conf" ]; then
-    pushd "$INSTALLDIR/etc"
-    sudo rm -f resolv.conf
-    sudo ln -s resolv.conf.anondist resolv.conf
-    popd
-fi
+pushd "$INSTALLDIR/etc"
+{
+    rm -f resolv.conf
+    cp -p resolv.conf.anondist resolv.conf
+}
+popd
 
 # --------------------------------------------------------------------------
 # Copy over any extra files that may be needed that are located in

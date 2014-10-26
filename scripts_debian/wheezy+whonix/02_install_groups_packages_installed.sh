@@ -84,11 +84,11 @@ popd
 
 pushd /etc
 sudo rm -f resolv.conf
-sudo ln -s resolv.conf.backup resolv.conf
+sudo cp -p resolv.conf.backup resolv.conf
 popd
 
 # Enable Tor
-if [ "${1}" == "whonix-gateway" ]; then
+if [ "${1}" == "--torgateway" ]; then
     sudo sed -i 's/#DisableNetwork 0/DisableNetwork 0/g' /etc/tor/torrc
 fi
 
