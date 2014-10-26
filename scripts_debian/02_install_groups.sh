@@ -59,6 +59,11 @@ EOF
     chmod 755 "$INSTALLDIR/usr/sbin/policy-rc.d"
 
     # ------------------------------------------------------------------------------
+    # Ensure umask set in /etc/login.defs is used (022)
+    # ------------------------------------------------------------------------------
+    echo "session optional pam_umask.so" >> "${INSTALLDIR}/etc/pam.d/common-session"
+
+    # ------------------------------------------------------------------------------
     # Add debian security repository
     # ------------------------------------------------------------------------------
     debug "Adding debian-security repository."

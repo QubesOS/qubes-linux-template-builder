@@ -103,9 +103,6 @@ sudo touch /root/.whonix/first_run_initializer.done
 # Prevent whonixcheck error
 sudo su -c 'echo WHONIXCHECK_NO_EXIT_ON_UNSUPPORTED_VIRTUALIZER=\"1\" >> /etc/whonix.d/30_whonixcheck_default'
 
-# Ensure umask set in /etc/login.defs is used (022)
-sudo su -c 'echo "session optional pam_umask.so" >> /etc/pam.d/common-session'
-
 sudo update-rc.d network-manager disable
 sudo update-rc.d spice-vdagent disable
 sudo update-rc.d swap-file-creator disable
