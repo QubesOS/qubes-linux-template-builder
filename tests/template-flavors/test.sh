@@ -233,7 +233,7 @@ DIST="wheezy"
 DISTS_VM=""
 TEMPLATE_FLAVOR="whonix-gateway"
 TEMPLATE_FLAVOR_PREFIX=""
-TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway:tests/template-flavors/another_location/whonix gw"
+TEMPLATE_FLAVOR_DIR=("wheezy+whonix-gateway:tests/template-flavors/another_location/whonix gw")
 TEMPLATE_OPTIONS=""
 
 header <<EOF
@@ -372,7 +372,10 @@ DIST="wheezy"
 DISTS_VM=""
 TEMPLATE_FLAVOR="whonix-gateway"
 TEMPLATE_FLAVOR_PREFIX=""
-TEMPLATE_FLAVOR_DIR="wheezy+whonix-gateway:tests/template-flavors/another_location/whonix gw"
+TEMPLATE_FLAVOR_DIR=(
+    'wheezy+whonix-gateway:tests/template-flavors/another_location/whonix gw' 
+    '+gnome:$${SCRIPTSDIR}/gnome'
+)
 TEMPLATE_OPTIONS=('gnome')
 
 header <<EOF

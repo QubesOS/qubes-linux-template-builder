@@ -146,6 +146,12 @@ templateFlavor() {
 
 templateFlavorPrefix() {
     local template_flavor=${1-$(templateFlavor)}
+
+    # If TEMPLATE_FLAVOR_PREFIX is not already an array, make it one
+    if ! [[ "$(declare -p TEMPLATE_FLAVOR_PREFIX 2>/dev/null)" =~ ^declare\ -a.* ]] ; then 
+        TEMPLATE_FLAVOR_PREFIX=( ${TEMPLATE_FLAVOR_PREFIX} )
+    fi
+
     for element in "${TEMPLATE_FLAVOR_PREFIX[@]}"
     do 
         if [ "${element%:*}" == "${DIST}+${template_flavor}" ]; then
@@ -188,8 +194,11 @@ templateName() {
 
     local template_name="$(templateFlavorPrefix ${template_flavor})${template_flavor}${template_options:++}${template_options}"
 
-    # Make sure TEMPLATE_LABEL is an array
-    TEMPLATE_LABEL=( ${TEMPLATE_LABEL} )
+    # If TEMPLATE_LABEL is not already an array, make it one
+    if ! [[ "$(declare -p TEMPLATE_LABEL 2>/dev/null)" =~ ^declare\ -a.* ]] ; then 
+        TEMPLATE_LABEL=( ${TEMPLATE_LABEL} )
+    fi
+
     for element in "${TEMPLATE_LABEL[@]}"; do
         if [ "${element%:*}" == "${template_name}" ]; then
             template_name="${element#*:}"
@@ -211,6 +220,11 @@ templateName() {
 
 templateDir() {
     local template_flavor=${1-$(templateFlavor)}
+
+    # If TEMPLATE_FLAVOR_DIR is not already an array, make it one
+    if ! [[ "$(declare -p TEMPLATE_FLAVOR_DIR 2>/dev/null)" =~ ^declare\ -a.* ]] ; then 
+        TEMPLATE_FLAVOR_DIR=( ${TEMPLATE_FLAVOR_DIR} )
+    fi
 
     for element in "${TEMPLATE_FLAVOR_DIR[@]}"
     do 
@@ -332,8 +346,14 @@ getFileLocations() {
     local function="templateFile"
 
 
+    #IFS_orig="${IFS}}"; IFS=$'\n'
+    #files=( $(callTemplateFunction "${filename}" "${suffix}" "${function}") )
+    #setArrayAsGlobal files $return_global_var
+
+    files=$(callTemplateFunction "${filename}" "${suffix}" "${function}")
+
     IFS_orig="${IFS}}"; IFS=$'\n'
-    files=( $(callTemplateFunction "${filename}" "${suffix}" "${function}") )
+    files=( "${files}" )
     setArrayAsGlobal files $return_global_var
 
     IFS="${IFS_orig}"
