@@ -45,7 +45,7 @@ declare -A VALUES=(
 )
 
 values() {
-    [[ -z $TEST ]] && {
+    [[ -z ${TEST} ]] && {
         label=${1}
         value="${1}[@]"
         value="${!value}"
@@ -61,11 +61,11 @@ values() {
 }
 
 info() {
-    [[ -z $TEST ]] && echo "${bold}${blue}${1}${reset}" || :
+    [[ -z ${TEST} ]] && echo "${bold}${blue}${1}${reset}" || :
 }
 
 debug() {
-    [[ -z $TEST ]] && echo -e "${magenta}${1}${reset}" || :
+    [[ -z ${TEST} ]] && echo -e "${magenta}${1}${reset}" || :
 }
 
 assertTest(){
@@ -264,7 +264,7 @@ assertEnd
 
 
 # ------------------------------------------------------------------------------
-# 10. Template directory for options within $SCRIPTSDIR using short name filter
+# 10. Template directory for options within ${SCRIPTSDIR} using short name filter
 # ------------------------------------------------------------------------------
 SCRIPTSDIR="tests/template-flavors"
 DIST="wheezy"
@@ -275,7 +275,7 @@ TEMPLATE_FLAVOR_DIR="wheezy+proxy:${SCRIPTSDIR}/proxy"
 TEMPLATE_OPTIONS=('proxy')
 
 header <<EOF
-10. Template directory for options within $SCRIPTSDIR using short name filter
+10. Template directory for options within ${SCRIPTSDIR} using short name filter
 EOF
 buildStep "$0" "pre"
 assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/proxy/test_pre.sh"
@@ -455,12 +455,12 @@ header <<EOF
     Just test copying from here to ${INSTALLDIR}
     INSTALLDIR="${SCRIPTSDIR}/test_copy_location"
 EOF
-rm -f "$INSTALLDIR"/test1
-rm -f "$INSTALLDIR"/test2
-rm -f "$INSTALLDIR"/test3
+rm -f "${INSTALLDIR}"/test1
+rm -f "${INSTALLDIR}"/test2
+rm -f "${INSTALLDIR}"/test3
 copyTree "files"
-ls -l "$INSTALLDIR"
-assertTest "ls $INSTALLDIR" "test1\ntest2\ntest3"
+ls -l "${INSTALLDIR}"
+assertTest "ls ${INSTALLDIR}" "test1\ntest2\ntest3"
 assertEnd
 
 

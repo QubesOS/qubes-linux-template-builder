@@ -28,7 +28,7 @@ colors() {
        export blink=$(    tput blink  || tput mb      ) # Start blinking
        export italic=$(   tput sitm   || tput ZH      ) # Start italic
        export eitalic=$(  tput ritm   || tput ZR      ) # End   italic
-   [[ $TERM != *-m ]] && {
+   [[ ${TERM} != *-m ]] && {
        export red=$(      tput setaf 1|| tput AF 1    )
        export green=$(    tput setaf 2|| tput AF 2    )
        export yellow=$(   tput setaf 3|| tput AF 3    )
@@ -58,7 +58,7 @@ if [ ! "$build_already_defined_colors" = "true" ]; then
    colors
 fi
 
-if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
     chroot() {
         local retval
         true ${blue}
@@ -73,19 +73,19 @@ fi
 # Display messages in color
 # ------------------------------------------------------------------------------
 info() {
-    [[ -z $TEST ]] && echo -e "${bold}${blue}INFO: ${1}${reset}" || :
+    [[ -z ${TEST} ]] && echo -e "${bold}${blue}INFO: ${1}${reset}" || :
 }
 
 debug() {
-    [[ -z $TEST ]] && echo -e "${bold}${green}DEBUG: ${1}${reset}" || :
+    [[ -z ${TEST} ]] && echo -e "${bold}${green}DEBUG: ${1}${reset}" || :
 }
 
 warn() {
-    [[ -z $TEST ]] && echo -e "${stout}${yellow}WARNING: ${1}${reset}" || :
+    [[ -z ${TEST} ]] && echo -e "${stout}${yellow}WARNING: ${1}${reset}" || :
 }
 
 error() {
-    [[ -z $TEST ]] && echo -e "${bold}${red}ERROR: ${1}${reset}" || :
+    [[ -z ${TEST} ]] && echo -e "${bold}${red}ERROR: ${1}${reset}" || :
 }
 
 # ------------------------------------------------------------------------------
@@ -278,7 +278,7 @@ buildStepExec() {
     script="$(templateFile "${filename}" "${suffix}" "${template_flavor}")"
 
     if [ -f "${script}" ]; then
-        [[ -n $TEST ]] && echo "${script}" || echo "${bold}${under}INFO: Currently running script: ${script}${reset}"
+        [[ -n ${TEST} ]] && echo "${script}" || echo "${bold}${under}INFO: Currently running script: ${script}${reset}"
 
         # Execute $script
         "${script}"
@@ -372,7 +372,7 @@ buildStep() {
 }
 
 # ------------------------------------------------------------------------------
-# Copy extra file tree to $INSTALLDIR 
+# Copy extra file tree to ${INSTALLDIR} 
 # TODO:  Allow copy per step (04_install_qubes.sh-files)
 #
 # To set file permissions is a PITA since git won't save them and will
@@ -385,7 +385,7 @@ buildStep() {
 # 5. Manually create facl backup used after copying: getfacl -R . > .facl
 # 6. If git complains; reset file ownership back to user.  The .facl file stored
 #    the file permissions and will be used to reset the file permissions after
-#    they get copied over to $INSTALLDIR
+#    they get copied over to ${INSTALLDIR}
 # NOTE: Don't forget to redo this process if you add -OR- remove files
 # ------------------------------------------------------------------------------
 copyTree() {

@@ -4,12 +4,12 @@
 # ------------------------------------------------------------------------------
 # Source external scripts
 # ------------------------------------------------------------------------------
-. $SCRIPTSDIR/vars.sh
+. ${SCRIPTSDIR}/vars.sh
 
 # ------------------------------------------------------------------------------
 # Configurations
 # ------------------------------------------------------------------------------
-if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
     set -x
 else
     set -e
@@ -23,9 +23,9 @@ buildStep "$0" "pre"
 # ------------------------------------------------------------------------------
 # Cleanup any left over files from installation
 # ------------------------------------------------------------------------------
-rm -rf "INSTALLDIR/var/cache/apt/archives/*"
-rm -f "$INSTALLDIR/etc/apt/sources.list.d/qubes-builder.list"
-rm -f "$INSTALLDIR/etc/apt/trusted.gpg.d/qubes-builder.gpg"
+rm -rf "${INSTALLDIR}/var/cache/apt/archives/*"
+rm -f "${INSTALLDIR}/etc/apt/sources.list.d/qubes-builder.list"
+rm -f "${INSTALLDIR}/etc/apt/trusted.gpg.d/qubes-builder.gpg"
 
 # XXX: Whats this for?
 rm -rf buildchroot

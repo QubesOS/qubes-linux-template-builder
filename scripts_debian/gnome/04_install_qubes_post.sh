@@ -8,12 +8,12 @@
 # ------------------------------------------------------------------------------
 # Source external scripts
 # ------------------------------------------------------------------------------
-. $SCRIPTSDIR/vars.sh
+. ${SCRIPTSDIR}/vars.sh
 
 # ------------------------------------------------------------------------------
 # Configurations
 # ------------------------------------------------------------------------------
-if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
     set -x
 else
     set -e
@@ -23,4 +23,4 @@ fi
 # Disable gnome network-manager since it will prevent networking
 # ------------------------------------------------------------------------------
 debug "Disabling gnome network-manager"
-chroot "$INSTALLDIR" systemctl disable network-manager
+chroot "${INSTALLDIR}" systemctl disable network-manager

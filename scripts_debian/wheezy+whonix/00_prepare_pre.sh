@@ -16,20 +16,20 @@
 # Return if SNAPSHOT is not "1"
 # ------------------------------------------------------------------------------
 # This script is only used if SNAPSHOT is set
-if [ ! "$SNAPSHOT" == "1" ]; then
+if [ ! "${SNAPSHOT}" == "1" ]; then
     exit 0
 fi
 
 # ------------------------------------------------------------------------------
 # Source external scripts
 # ------------------------------------------------------------------------------
-. $SCRIPTSDIR/vars.sh
+. ${SCRIPTSDIR}/vars.sh
 . ./umount_kill.sh >/dev/null
 
 # ------------------------------------------------------------------------------
 # Configurations
 # ------------------------------------------------------------------------------
-if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
     set -x
 else
     set -e
@@ -42,26 +42,26 @@ INSTALLDIR="$(readlink -m mnt)"
 # ------------------------------------------------------------------------------
 
 manage_snapshot() {
-    umount_kill "$INSTALLDIR" || :
+    umount_kill "${INSTALLDIR}" || :
 
-    mount -o loop "$IMG" "$INSTALLDIR" || exit 1
+    mount -o loop "${IMG}" "${INSTALLDIR}" || exit 1
     # Remove old snapshots if whonix completed
-    if [ -f "$INSTALLDIR/tmp/.prepared_whonix" ]; then
+    if [ -f "${INSTALLDIR}/tmp/.whonix_post" ]; then
         warn "Removing stale snapshots"
-        umount_kill "$INSTALLDIR" || :
+        umount_kill "${INSTALLDIR}" || :
         rm -rf "$debootstrap_snapshot"
         rm -rf "$updated_snapshot"
         return
     fi
 
-    warn "Copying $1 to $IMG"
-    mount -o loop "$1" "$INSTALLDIR" || exit 1
-    rm -f "$INSTALLDIR/tmp/.prepared_groups"
-    umount_kill "$INSTALLDIR" || :
-    cp -f "$1" "$IMG"
+    warn "Copying $1 to ${IMG}"
+    mount -o loop "$1" "${INSTALLDIR}" || exit 1
+    rm -f "${INSTALLDIR}/tmp/.prepared_groups"
+    umount_kill "${INSTALLDIR}" || :
+    cp -f "$1" "${IMG}"
 }
 
-splitPath "$IMG" path_parts
+splitPath "${IMG}" path_parts
 debootstrap_snapshot="${path_parts[dir]}${path_parts[base]}-debootstrap${path_parts[dotext]}"
 updated_snapshot="${path_parts[dir]}${path_parts[base]}-updated${path_parts[dotext]}"
 

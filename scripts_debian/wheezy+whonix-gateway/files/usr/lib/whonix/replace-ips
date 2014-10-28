@@ -24,9 +24,9 @@ FILES=(
 
 # sed search and replace. return 0 if replace happened, otherwise 1
 search_replace() {
-    local search="$1"
-    local replace="$2"
-    local file="$3"
+    local search="${1}"
+    local replace="${2}"
+    local file="${3}"
     local retval=1
 
     if ! [ -L "${file}" ]; then 
@@ -36,7 +36,7 @@ search_replace() {
             chattr -i "${file}"
         fi
     fi
-
+    
     sed -i.bak '/'"${search}"'/,${s//'"${replace}"'/;b};$q1' "${file}"
     retval=$?
 
@@ -55,8 +55,8 @@ function replace_ips()
     local restart_tor=0
 
     # If IP is 10.152.152.10, network is 10.152.152.0
-    replace_network="${replace_ip%.*}.0"
-    search_network="${search_ip%.*}.0"
+    search_network="${search_ip%[.]*}.0"
+    replace_network="${replace_ip%[.]*}.0"
 
     if ! [ "${search_ip}" == "${replace_ip}" ]; then
         for file in "${files[@]}"; do
@@ -68,7 +68,10 @@ function replace_ips()
 
         if [ "${restart_tor}" == "1" ]; then
             echo "${replace_ip}" > /etc/whonix-netvm-gateway
-    	    service tor restart
+            grep "^DisableNetwork 0$" /etc/tor/torrc && {
+                service tor reload || true;
+                #sleep 1;
+            }
         fi
     fi
 }

@@ -31,16 +31,16 @@ umount_kill() {
     MOUNTDIR="$1"
 
     # We need absolute paths here so we don't kill everything
-    if ! [[ "$MOUNTDIR" = /* ]]; then
+    if ! [[ "${MOUNTDIR}" = /* ]]; then
         MOUNTDIR="${PWD}/${MOUNTDIR}"
     fi
 
     # Strip any extra trailing slashes ('/') from path if they exist
     # since we are doing an exact string match on the path
-    MOUNTDIR=$(echo "$MOUNTDIR" | sed s#//*#/#g)
+    MOUNTDIR=$(echo "${MOUNTDIR}" | sed s#//*#/#g)
 
-    warn "-> Attempting to kill any processes still running in '$MOUNTDIR' before un-mounting"
-    for dir in $(sudo grep "$MOUNTDIR" /proc/mounts | cut -f2 -d" " | sort -r | grep "^$MOUNTDIR")
+    warn "-> Attempting to kill any processes still running in '${MOUNTDIR}' before un-mounting"
+    for dir in $(sudo grep "${MOUNTDIR}" /proc/mounts | cut -f2 -d" " | sort -r | grep "^${MOUNTDIR}")
     do
         sudo lsof "$dir" 2> /dev/null | \
             grep "$dir" | \

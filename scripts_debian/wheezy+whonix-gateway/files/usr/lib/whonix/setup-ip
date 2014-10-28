@@ -5,9 +5,9 @@ if [ -x /usr/sbin/xenstore-read ]; then
 else
 	XENSTORE_READ="/usr/bin/xenstore-read"
 fi
-ip=$(${XENSTORE_READ} qubes-netvm-gateway 2> /dev/null)
 
 INTERFACE="eth1"
+ip=$(${XENSTORE_READ} qubes-netvm-gateway 2> /dev/null)
 
 # Create a dummy eth1 interface so tor can bind to it if there
 # are no DOMU virtual machines connected at the moment
@@ -100,3 +100,22 @@ export INT_TIF="vif+"
 # Route any traffic FROM netvm TO netvm BACK-TO localhost
 # Allows localhost access to tor network
 iptables -t nat -A OUTPUT -s ${ip} -d ${ip} -j DNAT --to-destination 127.0.0.1
+
+enable() {
+    servicename=${1}
+
+    grep "^DisableNetwork 0$" /etc/tor/torrc && {
+        # Check to see if the service is already enabled and if not, enable it
+        string="/etc/rc$(runlevel | awk '{ print $2 }').d/S[0-9][0-9]${servicename}"
+
+        if ! [ $(find $string 2>/dev/null | wc -l) -eq 1 ] ; then
+            echo "${1} is currently disabled; enabling it"
+            systemctl --quiet enable ${servicename}
+        fi
+    }
+}
+
+#enable tor
+#enable whonixcheck
+#enable sdwdate
+
