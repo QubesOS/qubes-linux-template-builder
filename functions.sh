@@ -301,7 +301,7 @@ copyTreeExec() {
     fi
 
     debug "Copying ${source_dir}/* ${target_dir}"
-    cp -rp "${source_dir}/"* "${target_dir}"
+    cp -rp "${source_dir}/." "${target_dir}"
 
     if [ -f "${source_dir}/.facl" ]; then
         debug "Restoring file permissions..."
