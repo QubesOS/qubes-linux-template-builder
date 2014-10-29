@@ -52,7 +52,7 @@ function replace_ips()
     local search_ip="${1}"
     local replace_ip="${2}"
     local files=("${!3}")
-    local restart_tor=0
+    local retval=1
 
     # If IP is 10.152.152.10, network is 10.152.152.0
     search_network="${search_ip%[.]*}.0"
@@ -61,29 +61,32 @@ function replace_ips()
     if ! [ "${search_ip}" == "${replace_ip}" ]; then
         for file in "${files[@]}"; do
             if [ -f "$file" ]; then
-                search_replace "${search_ip}" "${replace_ip}" "${file}" && restart_tor=1
-                search_replace "${search_network}" "${replace_network}" "${file}" && restart_tor=1
+                search_replace "${search_ip}" "${replace_ip}" "${file}" && retval=0
+                search_replace "${search_network}" "${replace_network}" "${file}" && retval=0
             fi
         done
-
-        if [ "${restart_tor}" == "1" ]; then
-            echo "${replace_ip}" > /etc/whonix-netvm-gateway
-            grep "^DisableNetwork 0$" /etc/tor/torrc && {
-                service tor reload || true;
-                #sleep 1;
-            }
-        fi
     fi
+
+    return $retval
+}
+
+update_ip() {
+    ip=${1}
+
+    echo "${ip}" > /etc/whonix-netvm-gateway
+    grep '^DisableNetwork 0$' /etc/tor/torrc && {
+        service tor reload || true;
+    }
 }
 
 ip="$(xenstore-read qubes-netvm-gateway)"
 
 # Compare to current IP address assiged by Qubes
-replace_ips "$(cat /etc/whonix-netvm-gateway)" "${ip}" FILES[@]
+replace_ips "$(cat /etc/whonix-netvm-gateway)" "${ip}" FILES[@] && update_ip "${ip}"
 
 # Do again; checking for original 10.152.152.10 incase of update
-replace_ips "10.152.152.10" "${ip}" FILES[@]
+replace_ips "10.152.152.10" "${ip}" FILES[@] && update_ip "${ip}"
 
 # Do again; checking for original 10.152.152.11 incase of update
-replace_ips "10.152.152.11" "${ip}" FILES[@]
+replace_ips "10.152.152.11" "${ip}" FILES[@] && update_ip "${ip}"
 

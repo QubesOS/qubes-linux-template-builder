@@ -23,6 +23,8 @@ ip link show ${INTERFACE} >> /dev/null || {
         /sbin/ethtool -K ${INTERFACE} sg off
         /sbin/ethtool -K ${INTERFACE} tx off
     fi
+
+    ip link set ${INTERFACE} up
 }
 
 # Files that will have the immutable bit set 
@@ -90,7 +92,7 @@ copyAnondist "/etc/hostname"
 /usr/lib/whonix/replace-ips
 
 # Make sure hostname is correct
-/bin/hostname -b host
+/bin/hostname host
 
 # Start Whonix Firewall
 export INT_IF="vif+"
@@ -101,21 +103,39 @@ export INT_TIF="vif+"
 # Allows localhost access to tor network
 iptables -t nat -A OUTPUT -s ${ip} -d ${ip} -j DNAT --to-destination 127.0.0.1
 
-enable() {
+# Will only enable / disable if service is not already in that state
+enable_sysv() {
     servicename=${1}
+    disable=${2-0}
 
-    grep "^DisableNetwork 0$" /etc/tor/torrc && {
-        # Check to see if the service is already enabled and if not, enable it
-        string="/etc/rc$(runlevel | awk '{ print $2 }').d/S[0-9][0-9]${servicename}"
+    # Check to see if the service is already enabled and if not, enable it
+    string="/etc/rc$(runlevel | awk '{ print $2 }').d/S[0-9][0-9]${servicename}"
 
-        if ! [ $(find $string 2>/dev/null | wc -l) -eq 1 ] ; then
-            echo "${1} is currently disabled; enabling it"
-            systemctl --quiet enable ${servicename}
-        fi
-    }
+    if [ $(find $string 2>/dev/null | wc -l) -eq ${disable} ] ; then
+        case ${disable} in
+            0)
+                echo "${1} is currently disabled; enabling it"
+                systemctl --quiet enable ${servicename}
+                ;;
+            1)
+                echo "${1} is currently enabled; disabling it"
+                systemctl --quiet disable ${servicename}
+                ;;
+        esac
+    fi
 }
 
-#enable tor
-#enable whonixcheck
-#enable sdwdate
+disable_sysv() {
+    enable_sysv ${1} 1
+}
 
+# This would be a really good place to apply any hacks required and remove them
+# from template build script
+grep "^DisableNetwork 0$" /etc/tor/torrc && {
+    #enable_sysv tor
+    #enable_sysv whonixcheck
+    #enable_sysv sdwdate
+    :
+} || {
+    :
+}

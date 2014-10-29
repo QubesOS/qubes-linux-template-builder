@@ -3,7 +3,6 @@
 # Files that will have the immutable bit set 
 # since we don't want them modified by other programs
 IMMUTABLE_FILES=( 
-    '/etc/resolv.conf'
     '/etc/hostname'
     '/etc/hosts'
 )
@@ -56,7 +55,6 @@ immutableFilesEnable "${IMMUTABLE_FILES}" ".anondist"
 
 # Make sure we are using a copy of the annondist file and if not
 # copy the annondist file and set it immutable
-copyAnondist "/etc/resolv.conf"
 copyAnondist "/etc/hosts"
 copyAnondist "/etc/hostname"
 
@@ -65,7 +63,8 @@ copyAnondist "/etc/hostname"
 /usr/lib/whonix/replace-ips
 
 # Make sure hostname is correct
-/bin/hostname -b host
+/bin/hostname host
 
 # Start Whonix Firewall
 /usr/bin/whonix_firewall
+

@@ -276,7 +276,7 @@ if [ -f "${INSTALLDIR}/tmp/.whonix_prepared" ] && ! [ -f "${INSTALLDIR}/tmp/.who
         exit 1
     fi
 
-    chroot "${INSTALLDIR}" su user -c "cd ~; ./whonix_build ${BUILD_TYPE} ${DIST}" || { exit 1; }
+    chroot "${INSTALLDIR}" su user -c "cd ~; ./whonix_build.sh ${BUILD_TYPE} ${DIST}" || { exit 1; }
 
     touch "${INSTALLDIR}/tmp/.whonix_installed"
 fi
@@ -302,13 +302,21 @@ if [ -f "${INSTALLDIR}/tmp/.whonix_installed" ] && ! [ -f "${INSTALLDIR}/tmp/.wh
     popd
 
     # Enable Tor
-    if [ "${TEMPLATE_FLAVOR}" == "whonix-gateway" ]; then
-        sed -i 's/#DisableNetwork 0/DisableNetwork 0/g' "${INSTALLDIR}/etc/tor/torrc"
-    fi
+    #if [ "${TEMPLATE_FLAVOR}" == "whonix-gateway" ]; then
+    #    sed -i 's/#DisableNetwork 0/DisableNetwork 0/g' "${INSTALLDIR}/etc/tor/torrc"
+    #fi
+
+    # Enable aliases in .bashrc
+    sed -i "s/^# export/export/g" "${INSTALLDIR}/root/.bashrc"
+    sed -i "s/^# eval/eval/g" "${INSTALLDIR}/root/.bashrc"
+    sed -i "s/^# alias/alias/g" "${INSTALLDIR}/root/.bashrc"
+    sed -i "s/^#force_color_prompt/force_color_prompt/g" "${INSTALLDIR}/home/user/.bashrc"
+    sed -i "s/#alias/alias/g" "${INSTALLDIR}/home/user/.bashrc"
+    sed -i "s/alias l='ls -CF'/alias l='ls -l'/g" "${INSTALLDIR}/home/user/.bashrc"
 
     # Fake that whonixsetup was already run
     mkdir -p "${INSTALLDIR}/var/lib/whonix/do_once"
-    touch "${INSTALLDIR}/var/lib/whonix/do_once/whonixsetup.done"
+    #touch "${INSTALLDIR}/var/lib/whonix/do_once/whonixsetup.done"
 
     # Fake that initializer was already run
     mkdir -p "${INSTALLDIR}/root/.whonix"
@@ -316,6 +324,10 @@ if [ -f "${INSTALLDIR}/tmp/.whonix_installed" ] && ! [ -f "${INSTALLDIR}/tmp/.wh
 
     # Prevent whonixcheck error
     echo 'WHONIXCHECK_NO_EXIT_ON_UNSUPPORTED_VIRTUALIZER="1"' >> "${INSTALLDIR}/etc/whonix.d/30_whonixcheck_default"
+
+    # Use gdialog as an alternative for dialog
+    mv -f "${INSTALLDIR}/usr/bin/dialog" "${INSTALLDIR}/usr/bin/dialog.dist"
+    chroot "${INSTALLDIR}" update-alternatives --force --install /usr/bin/dialog dialog /usr/bin/gdialog 999
 
     # Disable unwanted applications
     chroot "${INSTALLDIR}" update-rc.d network-manager disable || :

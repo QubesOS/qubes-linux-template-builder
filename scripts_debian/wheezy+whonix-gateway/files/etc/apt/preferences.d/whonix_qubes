@@ -1,0 +1,15 @@
+Package: grub-pc
+Pin: version *
+Pin-Priority: -100
+
+Package: grub-pc-bin
+Pin: version *
+Pin-Priority: -100
+
+Package: grub-common
+Pin: version *
+Pin-Priority: -100
+
+Package: grub2-common
+Pin: version *
+Pin-Priority: -100

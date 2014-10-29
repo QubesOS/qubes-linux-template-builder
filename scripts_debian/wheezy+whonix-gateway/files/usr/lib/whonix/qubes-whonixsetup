@@ -1,0 +1,23 @@
+#/bin/bash
+
+# XXX: TODO:
+# - Make sure we can't just run this from setup-ip
+# - Alternatives?  instead of deleting dialog?
+#
+# INSTALLATION NOTES:
+# - Make sure /etc/tor/torrc is disabled initially
+# - Make sure /var/lib/whonix/do_once/whonixsetup.done does not exist
+#   so repo questions will be asked
+# - /etc/xdg/autostart/qubes-whonixsetup must be in place
+# - this file must be in place
+# - gdialog must have over-written dialog
+# - patches to setup-ip:
+#     - bring eth1 up
+#     - remove old code that was trying to get setup working
+
+grep "^DisableNetwork 0$" /etc/tor/torrc || {
+    sudo systemctl stop whonixcheck
+    sudo systemctl stop tor
+    sudo /usr/lib/whonix/setup-ip
+    sudo /usr/bin/whonixsetup
+}
