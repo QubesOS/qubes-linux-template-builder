@@ -1,14 +1,5 @@
 ## Anonymity Distribution /etc/hosts
 
-## Defaults
-127.0.0.1       host
-::1             host ip6-host ip6-loopback
-fe00::0         ip6-localnet
-ff00::0         ip6-mcastprefix
-ff02::1         ip6-allnodes
-ff02::2         ip6-allrouters
-## End of defaults
-
 ## Anonymity Distribution specific
 127.0.0.1 host.localdomain host
 ## End of Anonymity Distribution specific

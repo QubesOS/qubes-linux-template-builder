@@ -45,4 +45,4 @@ popd
 rm -rf "${INSTALLDIR}"/home/user/Whonix
 rm -rf "${INSTALLDIR}"/home/user/whonix_binary
 rm -f "${INSTALLDIR}"/home/user/whonix_fix
-rm -f "${INSTALLDIR}"/home/user/whonix_build
+rm -f "${INSTALLDIR}"/home/user/whonix_build.sh

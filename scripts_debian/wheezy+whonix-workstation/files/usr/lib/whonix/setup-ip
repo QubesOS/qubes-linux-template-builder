@@ -1,70 +1,78 @@
 #!/bin/bash
 
-# Files that will have the immutable bit set 
-# since we don't want them modified by other programs
-IMMUTABLE_FILES=( 
-    '/etc/hostname'
-    '/etc/hosts'
-)
+. /usr/lib/whonix/utility_functions
 
-immutableFilesEnable() {
-    files="${1}"
-    suffix="${2}"
-
-    for file in "${files[@]}"; do
-        if [ -f "${file}" ] && ! [ -L "${file}" ]; then 
-            chattr +i "${file}${suffix}"
-        fi
-    done
-}
-
-immutableFilesDisable() {
-    files="${1}"
-    suffix="${2}"
-
-    for file in "${files[@]}"; do
-        if [ -f "${file}" ] && ! [ -L "${file}" ]; then 
-            chattr -i "${file}${suffix}"
-        fi
-    done
-}
-
-copyAnondist() {
-    file="${1}"
-    suffix="${2-.anondist}"
-
-    # Remove any softlinks first
-    if [ -L "${file}" ]; then 
-        rm -f "${file}"
+if [ "${WHONIX}" == "gateway" ]; then
+    if [ -x /usr/sbin/xenstore-read ]; then
+        XENSTORE_READ="/usr/sbin/xenstore-read"
+    else
+        XENSTORE_READ="/usr/bin/xenstore-read"
     fi
 
-    if [ -f "${file}" ] && [ -n "$(diff ${file} ${file}${suffix})" ]; then 
-        chattr -i "${file}"
-        rm -f "${file}"
-        cp -p "${file}${suffix}" "${file}"
-        chattr +i "${file}"
-    elif ! [ -f "${file}" ]; then 
-        cp -p "${file}${suffix}" "${file}"
-        chattr +i "${file}"
+    INTERFACE="eth1"
+    ip=$(${XENSTORE_READ} qubes-netvm-gateway 2> /dev/null)
+
+    # Create a dummy eth1 interface so tor can bind to it if there
+    # are no DOMU virtual machines connected at the moment
+    ip link show ${INTERFACE} >> /dev/null || {
+        /sbin/ip link add ${INTERFACE} type dummy
+
+        # Now, assign it the netvm-gateway IP address
+        if [ x${ip} != x ]; then
+            netmask=$(${XENSTORE_READ} qubes-netvm-netmask)
+            gateway=$(${XENSTORE_READ} qubes-netvm-gateway)
+            /sbin/ifconfig ${INTERFACE} ${ip} netmask 255.255.255.255
+            /sbin/ifconfig ${INTERFACE} up
+            /sbin/ethtool -K ${INTERFACE} sg off || true
+            /sbin/ethtool -K ${INTERFACE} tx off || true
+        fi
+
+        ip link set ${INTERFACE} up
+    }
+fi
+
+if [ "${WHONIX}" != "template" ]; then
+    # Files that will have the immutable bit set 
+    # since we don't want them modified by other programs
+    IMMUTABLE_FILES=( 
+        '/etc/resolv.conf'
+        '/etc/hostname'
+        '/etc/hosts'
+    )
+
+    # Make sure all .anondist files in list are immutable
+    immutableFilesEnable "${IMMUTABLE_FILES}"
+    immutableFilesEnable "${IMMUTABLE_FILES}" ".anondist"
+
+    # Make sure we are using a copy of the annondist file and if not
+    # copy the annondist file and set it immutable
+    copyAnondist "/etc/resolv.conf"
+    copyAnondist "/etc/hosts"
+    copyAnondist "/etc/hostname"
+
+    # Replace IP addresses in known configuration files / scripts to 
+    # currently discovered one
+    /usr/lib/whonix/replace-ips
+
+    # Make sure hostname is correct
+    /bin/hostname host
+
+    # Start Whonix Firewall
+    if [ "${WHONIX}" == "gateway" ]; then
+        export INT_IF="vif+"
+        export INT_TIF="vif+"
     fi
-}
+    /usr/bin/whonix_firewall
 
-# Make sure all .anondist files in list are immutable
-immutableFilesEnable "${IMMUTABLE_FILES}"
-immutableFilesEnable "${IMMUTABLE_FILES}" ".anondist"
+    if [ "${WHONIX}" == "gateway" ]; then
+        # Route any traffic FROM netvm TO netvm BACK-TO localhost
+        # Allows localhost access to tor network
+        iptables -t nat -A OUTPUT -s ${ip} -d ${ip} -j DNAT --to-destination 127.0.0.1
+    fi
 
-# Make sure we are using a copy of the annondist file and if not
-# copy the annondist file and set it immutable
-copyAnondist "/etc/hosts"
-copyAnondist "/etc/hostname"
-
-# Replace IP addresses in known configuration files / scripts to 
-# currently discovered one
-/usr/lib/whonix/replace-ips
-
-# Make sure hostname is correct
-/bin/hostname host
-
-# Start Whonix Firewall
-/usr/bin/whonix_firewall
-
+    # Make sure we remove whonixsetup.done if Tor is not enabled
+    # to allow choice of repo and prevent whonixcheck errors
+    grep "^DisableNetwork 0$" /etc/tor/torrc || {
+	rm -f /var/lib/whonix/do_once/whonixsetup.done
+    }
+fi

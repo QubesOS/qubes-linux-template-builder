@@ -1,7 +1,9 @@
 #!/bin/bash
 
+. /usr/lib/whonix/utility_functions
+
 # Search though files and updates IP address to the current 
-# 'qubes-netvm-gateway' IP address
+# IP address(es)
 
 FILES=(
     '/usr/lib/leaktest-workstation/simple_ping.py'
@@ -40,7 +42,7 @@ search_replace() {
     sed -i.bak '/'"${search}"'/,${s//'"${replace}"'/;b};$q1' "${file}"
     retval=$?
 
-    if [ "${ls_attrs}" == "i" ]; then
+    if [ "${ls_attrs}" = "i" ]; then
         chattr +i "${file}"
     fi
 
@@ -58,7 +60,7 @@ function replace_ips()
     search_network="${search_ip%[.]*}.0"
     replace_network="${replace_ip%[.]*}.0"
 
-    if ! [ "${search_ip}" == "${replace_ip}" ]; then
+    if ! [ "${search_ip}" = "${replace_ip}" ]; then
         for file in "${files[@]}"; do
             if [ -f "$file" ]; then
                 search_replace "${search_ip}" "${replace_ip}" "${file}" && retval=0
@@ -75,18 +77,42 @@ update_ip() {
 
     echo "${ip}" > /etc/whonix-netvm-gateway
     grep '^DisableNetwork 0$' /etc/tor/torrc && {
-        service tor reload || true;
+	service tor status && {
+            service tor reload || true;
+	}
     }
 }
 
-ip="$(xenstore-read qubes-netvm-gateway)"
+if [ "${WHONIX}" == "gateway" ]; then
+    ip="$(xenstore-read qubes-netvm-gateway)"
+    if [ x${ip} != x ]; then
+        # Compare to current IP address assiged by Qubes
+        replace_ips "$(cat /etc/whonix-netvm-gateway)" "${ip}" FILES[@] && update_ip "${ip}"
 
-# Compare to current IP address assiged by Qubes
-replace_ips "$(cat /etc/whonix-netvm-gateway)" "${ip}" FILES[@] && update_ip "${ip}"
+        # Do again; checking for original 10.152.152.10 incase of update
+        replace_ips "10.152.152.10" "${ip}" FILES[@] && update_ip "${ip}"
 
-# Do again; checking for original 10.152.152.10 incase of update
-replace_ips "10.152.152.10" "${ip}" FILES[@] && update_ip "${ip}"
+        # Do again; checking for original 10.152.152.11 incase of update
+        replace_ips "10.152.152.11" "${ip}" FILES[@] && update_ip "${ip}"
+    fi
 
-# Do again; checking for original 10.152.152.11 incase of update
-replace_ips "10.152.152.11" "${ip}" FILES[@] && update_ip "${ip}"
+elif [ "${WHONIX}" == "workstation" ]; then
+    ip="$(xenstore-read qubes-ip)"
+    gateway="$(xenstore-read qubes-gateway)"
 
+    if [ x${ip} != x ]; then
+        # Compare to current IP address assiged by Qubes
+        replace_ips "$(cat /etc/whonix-ip)" "${ip}" FILES[@] && echo "${ip}" > /etc/whonix-ip
+
+        # Do again; checking for original 10.152.152.11 incase of update
+        replace_ips "10.152.152.11" "${ip}" FILES[@] &&  echo "${ip}" > /etc/whonix-ip
+    fi
+
+    if [ x${gateway} != x ]; then
+        # Compare to current gateway IP address assiged by Qubes
+        replace_ips "$(cat /etc/whonix-netvm-gateway)" "${gateway}" FILES[@] && echo "${gateway}" > /etc/whonix-netvm-gateway
+
+        # Do again; checking for original 10.152.152.10 incase of update
+        replace_ips "10.152.152.10" "${gateway}" FILES[@] && echo "${gateway}" > /etc/whonix-netvm-gateway
+    fi
+fi

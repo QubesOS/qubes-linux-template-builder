@@ -55,6 +55,12 @@ sudo apt-mark hold grub-pc grub-pc-bin grub-common grub2-common
 # Whonix expects haveged to be started
 sudo /etc/init.d/haveged start
 
+# Whonix does not always fix permissions after writing as sudo, especially
+# when running whonixsetup so /var/lib/whonix/done_once is not readable by
+# user, so set defualt umask for sudo
+#sudo su -c 'echo "Defaults umask = 0002" >> /etc/sudoers'
+#sudo su -c 'echo "Defaults umask_override" >> /etc/sudoers'
+
 ################################################################################
 # Whonix installation
 export WHONIX_BUILD_UNATTENDED_PKG_INSTALL="1"
@@ -74,17 +80,8 @@ popd
 EOF
 
 # ------------------------------------------------------------------------------
-# chroot Whonix fix script (Make sure set -e is not set)
-# Run ../whonix_fix when whonix gives grub-pc error
+# Pin grub so it won't install
 # ------------------------------------------------------------------------------
-# TODO:  Do something in whonix build to automatically run fixups and 
-# ignore certain errors
-read -r -d '' WHONIX_FIX_SCRIPT <<'EOF'
-DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-    sudo apt-get -y --force-yes remove grub-pc grub-common grub-pc-bin grub2-common
-sudo apt-mark hold grub-common grub-pc-bin grub2-common
-EOF
-
 read -r -d '' WHONIX_APT_PIN <<'EOF'
 Package: grub-pc
 Pin: version *
@@ -230,13 +227,9 @@ if ! [ -f "${INSTALLDIR}/tmp/.whonix_prepared" ]; then
     echo "${WHONIX_APT_PIN}" > "${INSTALLDIR}/etc/apt/preferences.d/whonix_qubes"
     chmod 0644 "${INSTALLDIR}/etc/apt/preferences.d/whonix_qubes"
 
-    # Install Whonix fix script
-    echo "${WHONIX_FIX_SCRIPT}" > "${INSTALLDIR}/home/user/whonix_fix"
-    chmod 0755 "${INSTALLDIR}/home/user/whonix_fix"
-
     # Install Whonix build scripts
-    echo "${WHONIX_BUILD_SCRIPT}" > "${INSTALLDIR}/home/user/whonix_build"
-    chmod 0755 "${INSTALLDIR}/home/user/whonix_build"
+    echo "${WHONIX_BUILD_SCRIPT}" > "${INSTALLDIR}/home/user/whonix_build.sh"
+    chmod 0755 "${INSTALLDIR}/home/user/whonix_build.sh"
 
     # ------------------------------------------------------------------------------
     # Copy over any extra files
@@ -287,6 +280,7 @@ fi
 if [ -f "${INSTALLDIR}/tmp/.whonix_installed" ] && ! [ -f "${INSTALLDIR}/tmp/.whonix_post" ]; then
     info "Post Configuring Whonix System"
 
+    # Don't need Whonix interfaces; restore original
     pushd "${INSTALLDIR}/etc/network"
     {
         rm -f interfaces;
@@ -294,12 +288,25 @@ if [ -f "${INSTALLDIR}/tmp/.whonix_installed" ] && ! [ -f "${INSTALLDIR}/tmp/.wh
     }
     popd
 
+    # Qubes installation will need a normal resolv.conf; will be restored back
+    # in 04_qubes_install_post.sh within the wheezy+whonix-* directories
     pushd "${INSTALLDIR}/etc"
     {
         rm -f resolv.conf;
         cp -p resolv.conf.backup resolv.conf;
     }
     popd
+
+    # Remove link to hosts file and copy original back
+    # Will get set back to Whonix hosts file when the
+    # /usr/lib/whonix/setup-ip is run on startup
+    pushd "${INSTALLDIR}/etc"
+    {
+        rm -f hosts;
+        cp -p hosts.anondist-orig hosts;
+    }
+    popd
+
 
     # Enable Tor
     #if [ "${TEMPLATE_FLAVOR}" == "whonix-gateway" ]; then
@@ -315,7 +322,7 @@ if [ -f "${INSTALLDIR}/tmp/.whonix_installed" ] && ! [ -f "${INSTALLDIR}/tmp/.wh
     sed -i "s/alias l='ls -CF'/alias l='ls -l'/g" "${INSTALLDIR}/home/user/.bashrc"
 
     # Fake that whonixsetup was already run
-    mkdir -p "${INSTALLDIR}/var/lib/whonix/do_once"
+    #mkdir -p "${INSTALLDIR}/var/lib/whonix/do_once"
     #touch "${INSTALLDIR}/var/lib/whonix/do_once/whonixsetup.done"
 
     # Fake that initializer was already run
@@ -337,6 +344,10 @@ if [ -f "${INSTALLDIR}/tmp/.whonix_installed" ] && ! [ -f "${INSTALLDIR}/tmp/.wh
 
     chroot "${INSTALLDIR}" service apt-cacher-ng stop || :
     chroot "${INSTALLDIR}" update-rc.d apt-cacher-ng disable || :
+
+    # Tor will be re-enabled upon initial configuration
+    chroot "${INSTALLDIR}" update-rc.d tor disable || :
+    chroot "${INSTALLDIR}" update-rc.d sdwdate disable || :
 
     # Remove apt-cacher-ng
     DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
