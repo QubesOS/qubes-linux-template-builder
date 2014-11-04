@@ -33,6 +33,27 @@ user::rw-
 group::r--
 other::r--
 
+# file: etc/xdg
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: etc/xdg/autostart
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: etc/xdg/autostart/qubes-whonixsetup.desktop
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
 # file: etc/udev
 # owner: root
 # group: root
@@ -111,13 +132,6 @@ group::r-x
 other::r-x
 
 # file: usr/lib/whonix/setup-ip
-# owner: root
-# group: root
-user::rwx
-group::r-x
-other::r-x
-
-# file: usr/lib/whonix/tests.sh
 # owner: root
 # group: root
 user::rwx

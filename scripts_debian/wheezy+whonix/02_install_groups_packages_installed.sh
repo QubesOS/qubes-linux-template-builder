@@ -34,10 +34,9 @@ if [ "${SNAPSHOT}" == "1" ]; then
 fi
 
 # ------------------------------------------------------------------------------
-# chroot Whonix build script (Make sure set -e is not set)
+# chroot Whonix build script
 # ------------------------------------------------------------------------------
-read -r -d '' WHONIX_BUILD_SCRIPT <<'EOF'
-
+read -r -d '' WHONIX_BUILD_SCRIPT <<'EOF' || true
 ################################################################################
 # Pre Fixups
 sudo mkdir -p /boot/grub2
@@ -82,7 +81,7 @@ EOF
 # ------------------------------------------------------------------------------
 # Pin grub so it won't install
 # ------------------------------------------------------------------------------
-read -r -d '' WHONIX_APT_PIN <<'EOF'
+read -r -d '' WHONIX_APT_PIN <<'EOF' || true
 Package: grub-pc
 Pin: version *
 Pin-Priority: -100
@@ -103,7 +102,7 @@ EOF
 # ------------------------------------------------------------------------------
 # Set defualts for apt not to install recommended or extra packages
 # ------------------------------------------------------------------------------
-read -r -d '' WHONIX_APT_PREFERENCES <<'EOF'
+read -r -d '' WHONIX_APT_PREFERENCES <<'EOF' || true
 Acquire::Languages "none";
 APT::Install-Recommends "false";
 APT::Install-Suggests "false";

@@ -42,5 +42,5 @@ elif [ "${WHONIX}" == "workstation" ]; then
 
 elif [ "${WHONIX}" == "template" -a "${PROXY_SECURE}" == "0" ]; then
     /usr/lib/whonix/alert update /usr/lib/whonix/messages.yaml
-    sudo /sbin/poweroff 
+    #sudo /sbin/poweroff 
 fi
