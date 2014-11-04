@@ -33,6 +33,3 @@ CACHEDIR=cache_$DIST
 
 export SCRIPTSDIR CACHEDIR
 echo $DISTRIBUTION $VERSION
-
-# Check for custom template name
-#templateName > /dev/null && templateName
