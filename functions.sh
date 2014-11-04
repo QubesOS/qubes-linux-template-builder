@@ -1,7 +1,6 @@
 #!/bin/bash
 # vim: set ts=4 sw=4 sts=4 et :
 
-# XXX
 set -e
 
 ################################################################################
@@ -77,22 +76,10 @@ fi
 # ------------------------------------------------------------------------------
 # Only output text under certain conditions
 output() {
-    case ${VERBOSE} in
-        0)
-            true "${1}"
-            ;;
-        1)
-            echo -e "${1}"
-            ;;
-        2)
-            # Don't echo if -x is set since it will already be displayed via true
-            [[ ${-/x} != $- ]] || echo -e "${1}"
-            true "${1}"
-            ;;
-        *)
-            true "${1}"
-            ;;
-    esac
+    if [ "${VERBOSE}" -ge 1 ]; then
+        # Don't echo if -x is set since it will already be displayed via true
+        [[ ${-/x} != $- ]] || echo -e "${1}"
+    fi
 }
 
 info() {
@@ -252,7 +239,6 @@ templateDir() {
     for element in "${TEMPLATE_FLAVOR_DIR[@]}"
     do 
         # (wheezy+whonix-gateway / wheezy+whonix-gateway+gnome[+++] / wheezy+gnome )
-        #if [ "${element%:*}" == "$(templateFlavorPrefix ${template_flavor})${template_flavor}" ]; then
         if [ "${element%:*}" == "$(templateName ${template_flavor})" ]; then
             eval echo -e ${element#*:}
             return
@@ -300,8 +286,8 @@ buildStepExec() {
 
     script="$(templateFile "${filename}" "${suffix}" "${template_flavor}")"
 
-    #if [ -f "${script}" ]; then
     if [ -f "${script}" ] && [ ! ${GLOBAL_CACHE[$script]+_} ]; then
+
         # Test module expects raw  output back only used to asser test results
         if [[ -n ${TEST} ]]; then
             echo "${script}" 
@@ -387,13 +373,6 @@ getFileLocations() {
     local suffix="$3"
     local function="templateFile"
 
-
-    #IFS_orig="${IFS}}"; IFS=$'\n'
-    #files=( $(callTemplateFunction "${filename}" "${suffix}" "${function}") )
-    #setArrayAsGlobal files $return_global_var
-
-    # XXX
-    #files=$(callTemplateFunction "${filename}" "${suffix}" "${function}")
     files="$(callTemplateFunction "${filename}" "${suffix}" "${function}")"
 
     IFS_orig="${IFS}}"; IFS=$'\n'
