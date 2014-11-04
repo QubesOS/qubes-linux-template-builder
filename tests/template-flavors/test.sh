@@ -1,8 +1,7 @@
 #!/bin/bash
 # vim: set ts=4 sw=4 sts=4 et :
 
-VERBOSE=2
-DEBUG=1
+VERBOSE=1
 
 pushd ../..
 ROOT_DIR=$(readlink -m .)
@@ -45,27 +44,24 @@ declare -A VALUES=(
 )
 
 values() {
-    [[ -z ${TEST} ]] && {
-        label=${1}
-        value="${1}[@]"
-        value="${!value}"
+    label=${1}
+    value="${1}[@]"
+    value="${!value}"
 
-        if [ "${VALUES[$label]}" == "${value}" ]; then
-            printf "    ${bold}${magenta}%-22s = ${value}${reset}\n" "${label}" || :
-        else
-            printf "    ${bold}${black}%-22s = ${value}${reset}\n" "${label}" || :
-        fi
-        #printf "${bold}${black}%s=\"${value}\"${reset}\n" "${label}" || :
-        VALUES[$label]="${value}"
-    }
+    if [ "${VALUES[$label]}" == "${value}" ]; then
+        printf "    ${bold}${magenta}%-22s = ${value}${reset}\n" "${label}" || :
+    else
+        printf "    ${bold}${black}%-22s = ${value}${reset}\n" "${label}" || :
+    fi
+    VALUES[$label]="${value}"
 }
 
 info() {
-    [[ -z ${TEST} ]] && echo "${bold}${blue}${1}${reset}" || :
+    output "${bold}${blue}${1}${reset}" || :
 }
 
 debug() {
-    [[ -z ${TEST} ]] && echo -e "${magenta}${1}${reset}" || :
+    output "${magenta}${1}${reset}" || :
 }
 
 assertTest(){
@@ -97,7 +93,7 @@ header <<EOF
  1. With TEMPLATE_FLAVOR
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -137,7 +133,7 @@ header <<EOF
 EOF
 buildStep "$0" "pre"
 debug "Not supposed to find wheezy+whonix-gateway+kde"
-assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -159,7 +155,7 @@ header <<EOF
 EOF
 buildStep "$0" "pre"
 debug "Not supposed to find debian+whonix-gateway+kde"
-assertTest "buildStep $0 pre" "tests/template-flavors/debian+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/debian+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -181,7 +177,7 @@ header <<EOF
 EOF
 buildStep "$0" "pre"
 debug "Not supposed to find whonix-gateway+kde"
-assertTest "buildStep $0 pre" "tests/template-flavors/whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -278,7 +274,7 @@ header <<EOF
 10. Template directory for options within ${SCRIPTSDIR} using short name filter
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/proxy/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/proxy/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -297,7 +293,7 @@ header <<EOF
 11. Template directory for options within using VERY short name filter (+proxy)
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/proxy/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/proxy/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -387,7 +383,7 @@ for file in "${filelist[@]}"; do
     echo "Configuration: ${file}"
 done
 result="$(echo $(printf "'%s' " "${filelist[@]}"))"
-assertTest "echo ${result}" "tests/template-flavors/another_location/whonix gw/packages.list tests/template-flavors/wheezy+whonix-gateway+gnome/packages.list"
+assertTest "echo ${result}" "tests/template-flavors/another_location/whonix gw/packages.list tests/template-flavors/wheezy+whonix-gateway+gnome/packages.list tests/template-flavors/packages.list"
 assertEnd
 
 

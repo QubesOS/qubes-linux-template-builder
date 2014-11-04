@@ -1,6 +1,9 @@
 #!/bin/bash
 # vim: set ts=4 sw=4 sts=4 et :
 
+# XXX
+set -e
+
 ################################################################################
 # Global functions
 ################################################################################
@@ -72,20 +75,40 @@ fi
 # ------------------------------------------------------------------------------
 # Display messages in color
 # ------------------------------------------------------------------------------
+# Only output text under certain conditions
+output() {
+    case ${VERBOSE} in
+        0)
+            true "${1}"
+            ;;
+        1)
+            echo -e "${1}"
+            ;;
+        2)
+            # Don't echo if -x is set since it will already be displayed via true
+            [[ ${-/x} != $- ]] || echo -e "${1}"
+            true "${1}"
+            ;;
+        *)
+            true "${1}"
+            ;;
+    esac
+}
+
 info() {
-    [[ -z ${TEST} ]] && echo -e "${bold}${blue}INFO: ${1}${reset}" || :
+    output "${bold}${blue}INFO: ${1}${reset}" || :
 }
 
 debug() {
-    [[ -z ${TEST} ]] && echo -e "${bold}${green}DEBUG: ${1}${reset}" || :
+    output "${bold}${green}DEBUG: ${1}${reset}" || :
 }
 
 warn() {
-    [[ -z ${TEST} ]] && echo -e "${stout}${yellow}WARNING: ${1}${reset}" || :
+    output "${stout}${yellow}WARNING: ${1}${reset}" || :
 }
 
 error() {
-    [[ -z ${TEST} ]] && echo -e "${bold}${red}ERROR: ${1}${reset}" || :
+    output "${bold}${red}ERROR: ${1}${reset}" || :
 }
 
 # ------------------------------------------------------------------------------
@@ -254,7 +277,7 @@ templateFile() {
     local file="$1"
     local suffix="$2"
     local template_flavor="$3"
-    local template_dir="$(templateDir ${template_flavor})"
+    local template_dir="$(templateDir "${template_flavor}")"
 
     splitPath "${file}" path_parts
 
@@ -277,9 +300,17 @@ buildStepExec() {
 
     script="$(templateFile "${filename}" "${suffix}" "${template_flavor}")"
 
-    if [ -f "${script}" ]; then
-        [[ -n ${TEST} ]] && echo "${script}" || echo "${bold}${under}INFO: Currently running script: ${script}${reset}"
+    #if [ -f "${script}" ]; then
+    if [ -f "${script}" ] && [ ! ${GLOBAL_CACHE[$script]+_} ]; then
+        # Test module expects raw  output back only used to asser test results
+        if [[ -n ${TEST} ]]; then
+            echo "${script}" 
+        else
+            output "${bold}${under}INFO: Currently running script: ${script}${reset}"
+        fi
 
+        # Cache $script
+        GLOBAL_CACHE[$script]=1
         # Execute $script
         "${script}"
     fi
@@ -308,12 +339,17 @@ copyTreeExec() {
         pushd "${target_dir}"
         {
             setfacl --restore="${source_dir}/.facl" 2>/dev/null ||:
+            rm -f .facl
         }
         popd
     fi
 }
 
 callTemplateFunction() {
+    # Reset Cache
+    unset GLOBAL_CACHE
+    declare -A -g GLOBAL_CACHE
+
     local calling_script="$1"
     local calling_arg="$2"
     local functionExec="$3"
@@ -335,6 +371,12 @@ callTemplateFunction() {
                         "${calling_arg}" \
                         "${option}"
     done
+
+    # If template_flavor exists, also check on base distro
+    if [ -n "${template_flavor}" ]; then
+        ${functionExec} "${calling_script}" \
+                        "${calling_arg}"
+    fi
 }
 
 # ------------------------------------------------------------------------------
@@ -350,7 +392,9 @@ getFileLocations() {
     #files=( $(callTemplateFunction "${filename}" "${suffix}" "${function}") )
     #setArrayAsGlobal files $return_global_var
 
-    files=$(callTemplateFunction "${filename}" "${suffix}" "${function}")
+    # XXX
+    #files=$(callTemplateFunction "${filename}" "${suffix}" "${function}")
+    files="$(callTemplateFunction "${filename}" "${suffix}" "${function}")"
 
     IFS_orig="${IFS}}"; IFS=$'\n'
     files=( "${files}" )
@@ -402,4 +446,4 @@ copyTree() {
 }
 
 # $0 is module that sourced vars.sh
-echo "${bold}${under}INFO: Currently running script: ${0}${reset}"
+output "${bold}${under}INFO: Currently running script: ${0}${reset}"

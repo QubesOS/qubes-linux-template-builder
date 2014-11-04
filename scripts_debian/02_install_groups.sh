@@ -112,7 +112,7 @@ EOF
         exit 1
     fi
 
-    for package_list in "${packages_list[@]}"; do
+    for package_list in ${packages_list[@]}; do
         debug "Installing extra packages from: ${package_list}"
         DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
             xargs chroot ${INSTALLDIR} apt-get -y --force-yes install < "${package_list}"
