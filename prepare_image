@@ -32,13 +32,13 @@ fi
 # Prepare for mount
 # ------------------------------------------------------------------------------
 echo "-> Preparing instalation of $DIST template..."
+export INSTALLDIR="$(readlink -m mnt)"
+mkdir -p "$INSTALLDIR"
 "$SCRIPTSDIR/00_prepare.sh"
 
 # ------------------------------------------------------------------------------
 # Mount image and install core OS
 # ------------------------------------------------------------------------------
-export INSTALLDIR="$(readlink -m mnt)"
-mkdir -p "$INSTALLDIR"
 
 if [ -f "$IMG" ]; then
     echo "-> Image file already exists, assuming *update*..."
