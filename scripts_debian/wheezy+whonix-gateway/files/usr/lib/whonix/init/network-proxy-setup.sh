@@ -2,12 +2,6 @@
 
 . /usr/lib/whonix/utility_functions
 
-# Or just enable them :)
-#ln -s '/lib/systemd/system/qubes-whonix-network.service' '/etc/systemd/system/multi-user.target.wants/qubes-whonix-network.service'
-#ln -s '/lib/systemd/system/qubes-whonix-firewall.service' '/etc/systemd/system/multi-user.target.wants/qubes-whonix-firewall.service'
-#ln -s '/lib/systemd/system/qubes-whonix-init.service' '/etc/systemd/system/multi-user.target.wants/qubes-whonix-init.service'
-
-
 INTERFACE="eth1"
 
 if [ "${WHONIX}" == "gateway" ]; then
