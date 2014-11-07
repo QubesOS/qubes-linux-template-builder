@@ -58,37 +58,11 @@ EOF
     chroot "${INSTALLDIR}" locale-gen
     chroot "${INSTALLDIR}" update-locale LANG=en_US.UTF-8
 
-#    # --------------------------------------------------------------------------
-#    # Update /etc/fstab
-#    # --------------------------------------------------------------------------
-#    #debug "Updating template fstab file..."
-#    #cat >> "${INSTALLDIR}/etc/fstab" <<EOF
-#/dev/mapper/dmroot /         ext4 defaults,noatime 1 1
-#/dev/xvdc1 swap              swap    defaults 0 0
-#
-#/dev/xvdb /rw                ext4    noauto,defaults,discard 1 2
-#/rw/home /home               none    noauto,bind,defaults 0 0
-#
-#tmpfs /dev/shm               tmpfs   defaults 0 0
-#devpts /dev/pts              devpts  gid=5,mode=620 0 0
-#proc /proc                   proc    defaults 0 0
-#sysfs /sys                   sysfs   defaults 0 0
-#xen /proc/xen                xenfs   defaults 0 0
-#
-#/dev/xvdi /mnt/removable     auto    noauto,user,rw 0 0
-#/dev/xvdd /lib/modules       ext3    defaults 0 0
-#EOF
-
     # --------------------------------------------------------------------------
     # Link mtab
     # --------------------------------------------------------------------------
     rm -f "${INSTALLDIR}/etc/mtab"
     ln -s "../proc/self/mounts" "${INSTALLDIR}/etc/mtab"
-
-#    # --------------------------------------------------------------------------
-#    # Create modules directory
-#    # --------------------------------------------------------------------------
-#    mkdir -p "${INSTALLDIR}/lib/modules"
 
     # --------------------------------------------------------------------------
     # Start of Qubes package installation
@@ -141,7 +115,7 @@ EOF
     # Install Qubes packages
     # --------------------------------------------------------------------------
     DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-        chroot "${INSTALLDIR}" apt-get -y --force-yes install $(cat ${SCRIPTSDIR}/packages_qubes.list) || \
+        chroot "${INSTALLDIR}" apt-get ${APT_GET_OPTIONS} install $(cat ${SCRIPTSDIR}/packages_qubes.list) || \
         { umount_kill "${INSTALLDIR}"; exit 1; }
 
     # --------------------------------------------------------------------------
@@ -156,45 +130,13 @@ EOF
     # Remove temporary policy layer so services can start normally in the
     # deployed template.
     # --------------------------------------------------------------------------
-    rm -f "${BUILDCHROOT}/usr/sbin/policy-rc.d"
-
-#    # --------------------------------------------------------------------------
-#    # Qubes needs a user named 'user'
-#    # --------------------------------------------------------------------------
-#    if chroot "${INSTALLDIR}" id -u 'user' >/dev/null 2>&1; then
-#        :
-#    else
-#        chroot "${INSTALLDIR}" groupadd -f user
-#        chroot "${INSTALLDIR}" useradd -g user -G dialout,cdrom,floppy,sudo,audio,dip,video,plugdev -m -s /bin/bash user
-#    fi
-
-#    # --------------------------------------------------------------------------
-#    # Modules setup
-#    # --------------------------------------------------------------------------
-#    echo "xen_netfront" >> "${INSTALLDIR}/etc/modules"
-
-#    # --------------------------------------------------------------------------
-#    # Remove `mesg` from root/.profile?
-#    # --------------------------------------------------------------------------
-#    sed -i -e '/^mesg n/d' "${INSTALLDIR}/root/.profile"
-
-#    # --------------------------------------------------------------------------
-#    # Need a xen log directory or xen scripts will fail
-#    # --------------------------------------------------------------------------
-#    mkdir -p -m 0700 "${INSTALLDIR}/var/log/xen"
+    rm -f "${INSTALLDIR}/usr/sbin/policy-rc.d"
 
     # --------------------------------------------------------------------------
     # Copy extra files to installation directory.  Contains:
     # - font fixes for display issues 
     # --------------------------------------------------------------------------
     copyTree "qubes-files" "${SCRIPTSDIR}" "${INSTALLDIR}"
-
-#    # --------------------------------------------------------------------------
-#    # Looks like hosts file may contain tabs and qubes will not parse it 
-#    # correctly
-#    # --------------------------------------------------------------------------
-#    expand "${INSTALLDIR}/etc/hosts" > "${INSTALLDIR}/etc/hosts.dist"
-#    mv "${INSTALLDIR}/etc/hosts.dist" "${INSTALLDIR}/etc/hosts"
 
     touch "${INSTALLDIR}/tmp/.prepared_qubes"
 fi
