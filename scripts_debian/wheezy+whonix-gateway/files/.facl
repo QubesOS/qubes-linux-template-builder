@@ -5,6 +5,41 @@ user::rwx
 group::r-x
 other::r-x
 
+# file: lib
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: lib/systemd
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: lib/systemd/system
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: lib/systemd/system/qubes-whonix-firewall.service
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: lib/systemd/system/qubes-whonix-network.service
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
 # file: etc
 # owner: root
 # group: root
@@ -75,27 +110,6 @@ user::rw-
 group::r--
 other::r--
 
-# file: etc/udev
-# owner: root
-# group: root
-user::rwx
-group::r-x
-other::r-x
-
-# file: etc/udev/rules.d
-# owner: root
-# group: root
-user::rwx
-group::r-x
-other::r-x
-
-# file: etc/udev/rules.d/99-qubes-whonix.rules
-# owner: root
-# group: root
-user::rw-
-group::r--
-other::r--
-
 # file: etc/hostname
 # owner: root
 # group: root
@@ -152,14 +166,42 @@ user::rwx
 group::r-x
 other::r-x
 
-# file: usr/lib/whonix/setup-ip
+# file: usr/lib/whonix/whonix.sh
 # owner: root
 # group: root
 user::rwx
 group::r-x
 other::r-x
 
-# file: usr/lib/whonix/tests.sh
+# file: usr/lib/whonix/init
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/init/replace-ips
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/init/init.sh
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/init/network-proxy-setup.sh
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/init/qubes-firewall-user-script
 # owner: root
 # group: root
 user::rwx
@@ -172,13 +214,6 @@ other::r-x
 user::rw-
 group::r--
 other::r--
-
-# file: usr/lib/whonix/replace-ips
-# owner: root
-# group: root
-user::rwx
-group::r-x
-other::r-x
 
 # file: usr/lib/whonix/alert
 # owner: root
