@@ -4,3 +4,5 @@ xdg-user-dirs
 gnome-themes-standard
 xsettingsd
 gnome-packagekit
+chrony
+ntpdate
