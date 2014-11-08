@@ -1,5 +1,5 @@
 #!/bin/sh
-ISO_VERSION=2014.07.03
+ISO_VERSION=`date +%Y.%m`.01
 
 mkdir -p $CACHEDIR
 
