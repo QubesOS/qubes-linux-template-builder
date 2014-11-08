@@ -1,1 +1,0 @@
-SUBSYSTEMS=="xen", KERNEL=="eth*", ACTION=="add", RUN+="/usr/lib/whonix/setup-ip"

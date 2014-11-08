@@ -20,6 +20,12 @@ else
 fi
 
 # ------------------------------------------------------------------------------
+# Enable Qubes-Whonix services
+# ------------------------------------------------------------------------------
+chroot "${INSTALLDIR}" systemctl enable qubes-whonix-network.service || :
+chroot "${INSTALLDIR}" systemctl enable qubes-whonix-firewall || :
+
+# ------------------------------------------------------------------------------
 # Restore Whonix apt-get
 # ------------------------------------------------------------------------------
 pushd "${INSTALLDIR}/usr/bin" 

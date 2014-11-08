@@ -85,7 +85,7 @@ EOF
     chroot "${INSTALLDIR}" apt-get update
     true "${stout}"
     DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-        chroot "${INSTALLDIR}" apt-get -y --force-yes dist-upgrade
+        chroot "${INSTALLDIR}" apt-get ${APT_GET_OPTIONS} dist-upgrade
 
     # ------------------------------------------------------------------------------
     # Configure keyboard
@@ -115,7 +115,7 @@ EOF
     for package_list in ${packages_list[@]}; do
         debug "Installing extra packages from: ${package_list}"
         DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-            xargs chroot ${INSTALLDIR} apt-get -y --force-yes install < "${package_list}"
+            xargs chroot ${INSTALLDIR} apt-get ${APT_GET_OPTIONS} install < "${package_list}"
     done
 
     # ------------------------------------------------------------------------------
@@ -135,10 +135,10 @@ EOF
     debug "Installing systemd for debian (${DEBIANVERSION})"
     if [ "${DEBIANVERSION}" == "wheezy" ]; then
         echo 'Yes, do as I say!' | DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-            chroot "${INSTALLDIR}" apt-get -y --force-yes remove sysvinit
+            chroot "${INSTALLDIR}" apt-get ${APT_GET_OPTIONS} remove sysvinit
     else
         DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-            chroot "${INSTALLDIR}" apt-get -y --force-yes remove sysvinit
+            chroot "${INSTALLDIR}" apt-get ${APT_GET_OPTIONS} remove sysvinit
     fi
 
     # Prevent sysvinit from being re-installed
@@ -155,12 +155,11 @@ EOF
 
     chroot "${INSTALLDIR}" apt-get update
     DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-        chroot "${INSTALLDIR}" apt-get -y --force-yes install systemd-sysv
+        chroot "${INSTALLDIR}" apt-get ${APT_GET_OPTIONS} install systemd-sysv
 
     # ------------------------------------------------------------------------------
     # Set multu-user.target as the default target (runlevel 3)
     # ------------------------------------------------------------------------------
-    #chroot "${INSTALLDIR}" systemctl set-default multi-user.target
     chroot "${INSTALLDIR}" rm -f /etc/systemd/system/default.target
     chroot "${INSTALLDIR}" ln -sf /lib/systemd/system/multi-user.target /etc/systemd/system/default.target
     
@@ -176,7 +175,7 @@ EOF
         fi
         chroot ${INSTALLDIR} apt-get update
         DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-            chroot ${INSTALLDIR} apt-get -y --force-yes -t wheezy-backports install init-system-helpers
+            chroot ${INSTALLDIR} apt-get ${APT_GET_OPTIONS} -t wheezy-backports install init-system-helpers
     fi
 
     # ------------------------------------------------------------------------------
@@ -199,4 +198,3 @@ fi
 # Execute any template flavor or sub flavor 'post' scripts
 # ------------------------------------------------------------------------------
 buildStep "$0" "post"
-

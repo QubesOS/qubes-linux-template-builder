@@ -39,6 +39,9 @@ umount_kill() {
     # since we are doing an exact string match on the path
     MOUNTDIR=$(echo "${MOUNTDIR}" | sed s#//*#/#g)
 
+    # Sync the disk befoe un-mounting to be sure everything is written
+    sync
+
     warn "-> Attempting to kill any processes still running in '${MOUNTDIR}' before un-mounting"
     for dir in $(sudo grep "${MOUNTDIR}" /proc/mounts | cut -f2 -d" " | sort -r | grep "^${MOUNTDIR}")
     do
