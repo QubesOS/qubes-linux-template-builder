@@ -7,7 +7,7 @@
 
 template_dir="$(readlink -m ./rpm/install-templates.sh)"
 files=( $(ls rpm/noarch) )
-name=$($XENSTORE_READ name)
+name=$(xenstore-read name)
 
 # -----------------------------------------------------------------------------
 # Write $vars
