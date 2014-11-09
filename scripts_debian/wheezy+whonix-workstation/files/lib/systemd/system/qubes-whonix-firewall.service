@@ -4,11 +4,9 @@ After=qubes-whonix-network.service
 Before=network.target
 
 [Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStartPre=/usr/lib/whonix/init/init.sh
-ExecStart=/usr/lib/whonix/init/qubes-firewall-user-script
+ExecStart=/usr/lib/whonix/init/qubes-whonix-firewall.sh
 StandardOutput=syslog
 
 [Install]
 WantedBy=multi-user.target
+Alias=qubes-firewall.service

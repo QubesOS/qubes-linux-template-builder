@@ -22,8 +22,13 @@ fi
 # ------------------------------------------------------------------------------
 # Enable Qubes-Whonix services
 # ------------------------------------------------------------------------------
+chroot "${INSTALLDIR}" systemctl disable qubes-whonix-network.service || :
 chroot "${INSTALLDIR}" systemctl enable qubes-whonix-network.service || :
-chroot "${INSTALLDIR}" systemctl enable qubes-whonix-firewall || :
+
+chroot "${INSTALLDIR}" systemctl disable qubes-whonix-firewall.service || :
+chroot "${INSTALLDIR}" systemctl enable qubes-whonix-firewall.service || :
+
+chroot "${INSTALLDIR}" systemctl enable qubes-whonix-init.service || :
 
 # ------------------------------------------------------------------------------
 # Restore Whonix apt-get

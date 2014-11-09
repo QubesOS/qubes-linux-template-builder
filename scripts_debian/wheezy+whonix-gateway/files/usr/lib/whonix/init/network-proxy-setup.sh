@@ -53,9 +53,6 @@ if [ "${WHONIX}" == "gateway" ]; then
     # we can use to identify that its a tor proxy so updates are secure
     error_file="/usr/share/tinyproxy/default.html"
     grep -q "${PROXY_META}" "${error_file}" || {
-        sudo sed -i "s/<\/head>/${PROXY_META}\n<\/head>/" "${error_file}"
+        sed -i "s/<\/head>/${PROXY_META}\n<\/head>/" "${error_file}"
     }
 fi
-
-# Copy firewall script so Qubes will reload it when it reloads
-cp -pf /usr/lib/whonix/init/qubes-firewall-user-script /rw/config/qubes-firewall-user-script
