@@ -41,6 +41,19 @@ elif [ "${WHONIX}" == "workstation" ]; then
     fi
 
 elif [ "${WHONIX}" == "template" -a "${PROXY_SECURE}" == "0" ]; then
+    # Set secure defaults.
+    iptables -P INPUT DROP
+    iptables -P FORWARD DROP
+    iptables -P OUTPUT DROP
+
+    # Flush old rules.
+    iptables -F
+    iptables -X
+    iptables -t nat -F
+    iptables -t nat -X
+    iptables -t mangle -F
+    iptables -t mangle -X
+
+    # Display warning that netvm is not connected to a torvm
     /usr/lib/whonix/alert update /usr/lib/whonix/messages.yaml
-    #sudo /sbin/poweroff 
 fi
