@@ -24,6 +24,7 @@ $(printf "%s \n" ${files[@]})
 
 path="$(readlink -m .)/rpm/noarch"
 version="-$(cat ./version)"
+name="${name}"
 EOF
 
 # -----------------------------------------------------------------------------
@@ -33,6 +34,7 @@ cat << 'EOF' >> "${template_dir}"
 
 for file in ${files[@]}; do
     if [ ! -e ${file} ]; then
+        echo "Copying ${file} from ${name} to ${PWD}/${file}..."
         qvm-run --pass-io development-qubes "cat ${path}/${file}" > ${file}
     fi
 
