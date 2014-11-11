@@ -67,8 +67,7 @@ if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
     chroot() {
         local retval
         true ${blue}
-        /usr/sbin/chroot "$@"
-        retval=$?
+        /usr/sbin/chroot "$@" && { retval=$?; true; } || { retval=$?; true; }
         true ${reset}
         return $retval
     }

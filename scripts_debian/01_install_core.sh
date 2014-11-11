@@ -26,7 +26,7 @@ buildStep "$0" "pre"
 if ! [ -f "${INSTALLDIR}/tmp/.prepared_debootstrap" ]; then
     debug "Installing base ${DEBIANVERSION} system"
     COMPONENTS="" debootstrap --arch=amd64 --include=ncurses-term \
-        --components=main --keyring="${SCRIPTSDIR}/keys/debian-${DEBIANVERSION}-archive-keyring.gpg" \
+        --components=main --keyring="${SCRIPTSDIR}/keys/${DEBIANVERSION}-debian-archive-keyring.gpg" \
         "${DEBIANVERSION}" "${INSTALLDIR}" "${DEBIAN_MIRROR}" || { error "Debootstrap failed!"; exit 1; }
     chroot "${INSTALLDIR}" chmod 0666 "/dev/null"
     touch "${INSTALLDIR}/tmp/.prepared_debootstrap"

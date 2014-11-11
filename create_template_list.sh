@@ -1,48 +1,55 @@
 #!/bin/bash
+# vim: set ts=4 sw=4 sts=4 et :
 
 #
 # Creates a small script to copy to dom0 to retrieve the generated template rpm's
 #
 
-TEMPLATES="./rpm/install-templates.sh"
+template_dir="$(readlink -m ./rpm/install-templates.sh)"
+files=( $(ls rpm/noarch) )
+name=$(xenstore-read name)
 
-write() {
-    echo "$1" >> "$TEMPLATES"
-}
+# -----------------------------------------------------------------------------
+# Write $vars
+# -----------------------------------------------------------------------------
+cat << EOF > "${template_dir}"
+#!/bin/bash
 
-if [ -x /usr/sbin/xenstore-read ]; then
-        XENSTORE_READ="/usr/sbin/xenstore-read"
-else
-        XENSTORE_READ="/usr/bin/xenstore-read"
-fi
+# Use the following command in DOM0 to retreive this file:
+# qvm-run --pass-io ${name} 'cat ${template_dir}' > install-templates.sh
 
-TEMPLATES="$(readlink -m $TEMPLATES)"
-VERSION="-$(cat ./version)"
-name=$($XENSTORE_READ name)
-path="$(readlink -m .)"
-files=$(ls rpm/noarch)
+files="
+$(printf "%s \n" ${files[@]})
+"
 
-#
-# Write to install-templates
-#
+path="$(readlink -m .)/rpm/noarch"
+version="-$(cat ./version)"
+name="${name}"
+EOF
 
-echo "#!/bin/bash" > "$TEMPLATES"
-write ""
+# -----------------------------------------------------------------------------
+# Write installation function
+# -----------------------------------------------------------------------------
+cat << 'EOF' >> "${template_dir}"
 
 for file in ${files[@]}; do
-    write "qvm-run --pass-io development-qubes 'cat ${path}/rpm/noarch/${file}' > ${file}"
-    write ""
-    write "sudo yum erase $(echo "$file" | sed -r "s/($VERSION).+$//")"
-    write ""
-    write "sudo yum install ${file}"
-    write ""
-    write ""
+    if [ ! -e ${file} ]; then
+        echo "Copying ${file} from ${name} to ${PWD}/${file}..."
+        qvm-run --pass-io development-qubes "cat ${path}/${file}" > ${file}
+    fi
+
+    sudo yum erase $(echo "${file}" | sed -r "s/(${version}).+$//") && {
+        sudo yum install ${file} && {
+            rm -f ${file}
+        }
+    }
 done
-
-write "# Use the following command in DOM0 to retreive this file:"
-write "# qvm-run --pass-io $name 'cat ${TEMPLATES}' > install-templates.sh"
-
+EOF
+ 
+# -----------------------------------------------------------------------------
+# Display instructions
+# -----------------------------------------------------------------------------
 echo "Use the following command in DOM0 to retreive this file:"
-echo "qvm-run --pass-io $name 'cat ${TEMPLATES}' > install-templates.sh"
+echo "qvm-run --pass-io ${name} 'cat ${template_dir}' > install-templates.sh"
 
 
