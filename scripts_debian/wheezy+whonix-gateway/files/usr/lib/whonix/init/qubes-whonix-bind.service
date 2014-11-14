@@ -1,0 +1,14 @@
+[Unit]
+Description=Qubes Whonix bind /rw to ro dirs script
+DefaultDependencies=no
+Before=sysinit.target
+After=qubes-sysinit.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/lib/whonix/init/bind-dirs.sh
+StandardOutput=syslog
+
+[Install]
+WantedBy=sysinit.target

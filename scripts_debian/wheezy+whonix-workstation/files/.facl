@@ -152,6 +152,13 @@ user::rwx
 group::r-x
 other::r-x
 
+# file: usr/lib/whonix/bind-dirs.sh
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
 # file: usr/lib/whonix/init
 # owner: root
 # group: root

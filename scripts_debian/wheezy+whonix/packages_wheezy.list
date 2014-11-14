@@ -23,3 +23,6 @@ build-essential:native
 gcc
 fakeroot
 lintian
+
+rsync
+grub-pc
