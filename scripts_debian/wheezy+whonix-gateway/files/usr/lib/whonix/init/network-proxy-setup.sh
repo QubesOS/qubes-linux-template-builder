@@ -47,7 +47,6 @@ if [ "${WHONIX}" == "gateway" ]; then
 
     # Allow whonix-gateway to act as an update-proxy
     touch /var/run/qubes-service/qubes-updates-proxy
-    #systemctl stop qubes-updates-proxy.service
 
     # Search and replace tinyproxy error files so we can inject code that
     # we can use to identify that its a tor proxy so updates are secure
