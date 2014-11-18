@@ -100,6 +100,8 @@ if ! [ -f "${INSTALLDIR}/tmp/.whonix_prepared" ]; then
     # --------------------------------------------------------------------------
     pushd "${WHONIX_DIR}"
     {
+        git add Makefile || true
+        git commit Makefile -m 'Added Makefile' || true
         su $(logname) -c "git submodule update --init --recursive";
     }
     popd
