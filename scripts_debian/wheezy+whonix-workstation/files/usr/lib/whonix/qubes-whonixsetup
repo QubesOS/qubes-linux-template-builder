@@ -2,57 +2,39 @@
 
 . /usr/lib/whonix/utility_functions
 
+if ! [ "${WHONIX}" == "template" ]; then
+    sudo /usr/lib/whonix/bind-dirs.sh
+fi
+
 if [ "${WHONIX}" == "gateway" ]; then
-    grep "^DisableNetwork 0$" /etc/tor/torrc || {
+    if grep "^DisableNetwork 0$" /etc/tor/torrc ;then
+        sudo service sdwdate restart
+        sudo service tor restart 
+    else
         sudo service sdwdate restart
         sudo service tor stop
-        sudo /usr/bin/whonixsetup && {
-            enable_sysv tor
-            sleep 1
-            enable_sysv sdwdate
-        } || {
-            sed -i 's/^DisableNetwork 0/#DisableNetwork 0/g' "/etc/tor/torrc"
-            disable_sysv tor
-            disable_sysv sdwdate
-            sudo /sbin/poweroff
-        }
-    }
-
-    # Allow whonix-gateway to act as an update-proxy
-    sudo systemctl status qubes-updates-proxy.service || {
-        error_file="/usr/share/tinyproxy/default.html"
-
-        # Search and replace tinyproxy error files so we can inject code that
-        # we can use to identify that its a tor proxy so updates are secure
-        grep -q "${PROXY_META}" "${error_file}" || {
-            sudo sed -i "s/<\/head>/${PROXY_META}\n<\/head>/" "${error_file}"
-        }
-
-        sudo touch /var/run/qubes-service/qubes-updates-proxy
-        sudo iptables -t nat -N PR-QBS-SERVICES
-        sudo systemctl start qubes-updates-proxy.service
-    }
+        sudo /usr/bin/whonixsetup
+    fi
 
 elif [ "${WHONIX}" == "workstation" ]; then
+    sudo service sdwdate restart
     if ! [ -f "/var/lib/whonix/do_once/whonixsetup.done" ]; then
-        enable_sysv sdwdate
-        sudo service sdwdate restart
         sudo /usr/bin/whonixsetup
     fi
 
 elif [ "${WHONIX}" == "template" -a "${PROXY_SECURE}" == "0" ]; then
     # Set secure defaults.
-    iptables -P INPUT DROP
-    iptables -P FORWARD DROP
-    iptables -P OUTPUT DROP
+    sudo iptables -P INPUT DROP
+    sudo iptables -P FORWARD DROP
+    sudo iptables -P OUTPUT DROP
 
     # Flush old rules.
-    iptables -F
-    iptables -X
-    iptables -t nat -F
-    iptables -t nat -X
-    iptables -t mangle -F
-    iptables -t mangle -X
+    sudo iptables -F
+    sudo iptables -X
+    sudo iptables -t nat -F
+    sudo iptables -t nat -X
+    sudo iptables -t mangle -F
+    sudo iptables -t mangle -X
 
     # Display warning that netvm is not connected to a torvm
     /usr/lib/whonix/alert update /usr/lib/whonix/messages.yaml

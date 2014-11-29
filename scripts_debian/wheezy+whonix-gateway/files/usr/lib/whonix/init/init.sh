@@ -27,12 +27,4 @@ if [ "${WHONIX}" != "template" ]; then
 
     # Make sure hostname is correct
     /bin/hostname host
-
-    if [ "${WHONIX}" == "gateway" ]; then
-        # Make sure we remove whonixsetup.done if Tor is not enabled
-        # to allow choice of repo and prevent whonixcheck errors
-        grep "^DisableNetwork 0$" /etc/tor/torrc || {
-            rm -f /var/lib/whonix/do_once/whonixsetup.done
-        }
-    fi
 fi

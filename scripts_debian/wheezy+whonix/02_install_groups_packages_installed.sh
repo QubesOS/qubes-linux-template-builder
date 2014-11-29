@@ -79,37 +79,6 @@ popd
 EOF
 
 # ------------------------------------------------------------------------------
-# Pin grub so it won't install
-# ------------------------------------------------------------------------------
-read -r -d '' WHONIX_APT_PIN <<'EOF' || true
-Package: grub-pc
-Pin: version *
-Pin-Priority: -100
-
-Package: grub-pc-bin
-Pin: version *
-Pin-Priority: -100
-
-Package: grub-common
-Pin: version *
-Pin-Priority: -100
-
-Package: grub2-common
-Pin: version *
-Pin-Priority: -100
-EOF
-
-# ------------------------------------------------------------------------------
-# Set defualts for apt not to install recommended or extra packages
-# ------------------------------------------------------------------------------
-read -r -d '' WHONIX_APT_PREFERENCES <<'EOF' || true
-Acquire::Languages "none";
-APT::Install-Recommends "false";
-APT::Install-Suggests "false";
-Dpkg::Options "--force-confold";
-EOF
-
-# ------------------------------------------------------------------------------
 # Cleanup function
 # ------------------------------------------------------------------------------
 function cleanup() {
@@ -131,84 +100,29 @@ if ! [ -f "${INSTALLDIR}/tmp/.whonix_prepared" ]; then
     # --------------------------------------------------------------------------
     pushd "${WHONIX_DIR}"
     {
+        git add Makefile || true
+        git commit Makefile -m 'Added Makefile' || true
         su $(logname) -c "git submodule update --init --recursive";
     }
     popd
 
     # --------------------------------------------------------------------------
-    # Patch Whonix submodules
+    # Fake grub installation since Whonix has depends on grub-pc
     # --------------------------------------------------------------------------
+    mkdir -p "${INSTALLDIR}/boot/grub"
+    cp "${INSTALLDIR}/usr/lib/grub/i386-pc/"* "${INSTALLDIR}/boot/grub"
+    rm -f "${INSTALLDIR}/usr/sbin/update-grub"
+    chroot "${INSTALLDIR}" ln -s /bin/true /usr/sbin/update-grub
 
-    # Chekout a branch; create a branch first if it does not exist
-    checkout_branch() {
-        branch=$(git symbolic-ref --short -q HEAD)
-        if ! [ "$branch" == "$1" ]; then
-            su $(logname) -c git checkout "$1" >/dev/null 2>&1 || \
-            { 
-                su $(logname) -c git branch "$1"
-                su $(logname) -c git checkout "$1"
-            }
-        fi
-    }
-
+    # --------------------------------------------------------------------------
     # sed search and replace. return 0 if replace happened, otherwise 1 
+    # --------------------------------------------------------------------------
     search_replace() {
         local search="$1"
         local replace="$2"
         local file="$3"
         sed -i.bak '/'"$search"'/,${s//'"$replace"'/;b};$q1' "$file"
     }
-
-    # Patch anon-meta-packages to not depend on grub-pc
-    pushd "${WHONIX_DIR}"
-    {
-        search_replace "grub-pc" "" "grml_packages" || :
-    }
-    popd
-
-    pushd "${WHONIX_DIR}/packages/anon-meta-packages/debian"
-    {
-        search1=" grub-pc,";
-        replace="";
-
-        #checkout_branch qubes
-        search_replace "$search1" "$replace" control && \
-        {
-            cd "${WHONIX_DIR}/packages/anon-meta-packages";
-            :
-            #sudo -E -u $(logname) make deb-pkg || :
-            #su $(logname) -c "dpkg-source --commit" || :
-            #git add .
-            #su $(logname) -c "git commit -am 'removed grub-pc depend'"
-        } || :
-    }
-    popd
-
-    pushd "${WHONIX_DIR}/packages/anon-shared-build-fix-grub/usr/lib/anon-dist/chroot-scripts-post.d"
-    {
-        search1="update-grub";
-        replace=":";
-
-        #checkout_branch qubes
-        search_replace "$search1" "$replace" 85_update_grub && \
-        {
-            cd "${WHONIX_DIR}/packages/anon-shared-build-fix-grub";
-            sudo -E -u $(logname) make deb-pkg || :
-            su $(logname) -c "EDITOR=/bin/true dpkg-source -q --commit . no_grub";
-            #git add . ;
-            #su $(logname) -c "git commit -am 'removed grub-pc depend'"
-        } || :
-    }
-    popd
-
-    pushd "${WHONIX_DIR}/build-steps.d"
-    {
-        search1="   check_for_uncommited_changes";
-        replace="   #check_for_uncommited_changes";
-
-        search_replace "$search1" "$replace" 1200_create-debian-packages || :
-    }
-    popd
 
     # --------------------------------------------------------------------------
     # Whonix system config dependancies
@@ -221,10 +135,6 @@ if ! [ -f "${INSTALLDIR}/tmp/.whonix_prepared" ]; then
         chroot "${INSTALLDIR}" groupadd -f user
         chroot "${INSTALLDIR}" useradd -g user -G dialout,cdrom,floppy,sudo,audio,dip,video,plugdev -m -s /bin/bash user
     }
-
-    # Pin grub packages so they will not install
-    echo "${WHONIX_APT_PIN}" > "${INSTALLDIR}/etc/apt/preferences.d/whonix_qubes"
-    chmod 0644 "${INSTALLDIR}/etc/apt/preferences.d/whonix_qubes"
 
     # Install Whonix build scripts
     echo "${WHONIX_BUILD_SCRIPT}" > "${INSTALLDIR}/home/user/whonix_build.sh"
@@ -319,10 +229,6 @@ if [ -f "${INSTALLDIR}/tmp/.whonix_installed" ] && ! [ -f "${INSTALLDIR}/tmp/.wh
     sed -i "s/^#force_color_prompt/force_color_prompt/g" "${INSTALLDIR}/home/user/.bashrc"
     sed -i "s/#alias/alias/g" "${INSTALLDIR}/home/user/.bashrc"
     sed -i "s/alias l='ls -CF'/alias l='ls -l'/g" "${INSTALLDIR}/home/user/.bashrc"
-
-    # Fake that whonixsetup was already run
-    #mkdir -p "${INSTALLDIR}/var/lib/whonix/do_once"
-    #touch "${INSTALLDIR}/var/lib/whonix/do_once/whonixsetup.done"
 
     # Fake that initializer was already run
     mkdir -p "${INSTALLDIR}/root/.whonix"

@@ -35,7 +35,7 @@ cat << 'EOF' >> "${template_dir}"
 for file in ${files[@]}; do
     if [ ! -e ${file} ]; then
         echo "Copying ${file} from ${name} to ${PWD}/${file}..."
-        qvm-run --pass-io development-qubes "cat ${path}/${file}" > ${file}
+        qvm-run --pass-io ${name} "cat ${path}/${file}" > ${file}
     fi
 
     sudo yum erase $(echo "${file}" | sed -r "s/(${version}).+$//") && {
