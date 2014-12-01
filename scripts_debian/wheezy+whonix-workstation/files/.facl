@@ -110,7 +110,7 @@ user::rwx
 group::r-x
 other::---
 
-# file: etc/sudoers.d/qubes
+# file: etc/sudoers.d/whonix-build
 # owner: root
 # group: root
 user::r--
