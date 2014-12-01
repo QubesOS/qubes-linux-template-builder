@@ -28,7 +28,8 @@ fi
 # ------------------------------------------------------------------------------
 # Mount system mount points
 # ------------------------------------------------------------------------------
-for fs in /dev /dev/pts /proc /sys /run; do mount -B $fs "${INSTALLDIR}/$fs"; done
+for fs in /dev /dev/pts /proc /sys; do mount -B $fs "${INSTALLDIR}/$fs"; done
+mount -t tmpfs none "${INSTALLDIR}/run"
 
 # ------------------------------------------------------------------------------
 # Execute any template flavor or sub flavor 'pre' scripts
