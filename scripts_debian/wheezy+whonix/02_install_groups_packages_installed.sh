@@ -132,8 +132,13 @@ if ! [ -f "${INSTALLDIR}/tmp/.whonix_prepared" ]; then
     debug "Whonix Add user"
     chroot "${INSTALLDIR}" id -u 'user' >/dev/null 2>&1 || \
     {
+        # UID needs match host user to have access to Whonix sources
         chroot "${INSTALLDIR}" groupadd -f user
-        chroot "${INSTALLDIR}" useradd -g user -G dialout,cdrom,floppy,sudo,audio,dip,video,plugdev -m -s /bin/bash user
+        [ -n "$SUDO_UID" ] && USER_OPTS="-u $SUDO_UID"
+        chroot "${INSTALLDIR}" useradd -g user $USER_OPTS -G dialout,cdrom,floppy,sudo,audio,dip,video,plugdev -m -s /bin/bash user
+        if [ `chroot "${INSTALLDIR}" id -u user` != 1000 ]; then
+            chroot "${INSTALLDIR}" useradd -g user -u 1000 -M -s /bin/bash user-placeholder
+        fi
     }
 
     # Install Whonix build scripts
@@ -221,6 +226,12 @@ if [ -f "${INSTALLDIR}/tmp/.whonix_installed" ] && ! [ -f "${INSTALLDIR}/tmp/.wh
     #if [ "${TEMPLATE_FLAVOR}" == "whonix-gateway" ]; then
     #    sed -i 's/#DisableNetwork 0/DisableNetwork 0/g' "${INSTALLDIR}/etc/tor/torrc"
     #fi
+
+    # Restore default user UID to have the same in all builds regardless of build host
+    if [ -n "`chroot "${INSTALLDIR}" id -u user-placeholder`" ]; then
+        chroot "${INSTALLDIR}" userdel user-placeholder
+        chroot "${INSTALLDIR}" usermod -u 1000 user
+    fi
 
     # Enable aliases in .bashrc
     sed -i "s/^# export/export/g" "${INSTALLDIR}/root/.bashrc"
