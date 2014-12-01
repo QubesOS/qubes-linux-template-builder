@@ -119,9 +119,8 @@ EOF
         { umount_kill "${INSTALLDIR}"; exit 1; }
 
     # --------------------------------------------------------------------------
-    # Remove Quebes repo from sources.list.d
+    # Remove Qubes Builder repo from sources.list.d
     # --------------------------------------------------------------------------
-    rm -f "${INSTALLDIR}"/etc/apt/sources.list.d/qubes*.list
     umount_kill "${INSTALLDIR}/tmp/qubes_repo"
     rm -f "${INSTALLDIR}/etc/apt/sources.list.d/qubes-builder.list"
     chroot "${INSTALLDIR}" apt-get update || exit 1
