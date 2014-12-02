@@ -6,10 +6,19 @@ export DIST
 dist_ver := $(shell DIST=$(DIST) ./builder_setup)
 DISTRIBUTION := $(word 1,$(dist_ver))
 DIST_VERSION := $(word 2,$(dist_ver))
+TEMPLATE_NAME := $(word 3,$(dist_ver))
+
+ifeq (,$(TEMPLATE_NAME))
 TEMPLATE_NAME := $(DISTRIBUTION)-$(DIST_VERSION)-x64
 ifdef TEMPLATE_FLAVOR
 TEMPLATE_NAME := $(TEMPLATE_NAME)-$(TEMPLATE_FLAVOR)
 endif
+endif
+
+# Make sure names are < 32 characters
+fix_up := $(shell TEMPLATE_NAME=$(TEMPLATE_NAME) ./builder_fix_filenames)
+TEMPLATE_NAME := $(word 1,$(fix_up))
+
 VERSION := $(shell cat version)
 TIMESTAMP := $(shell date -u +%Y%m%d%H%M)
 
@@ -25,6 +34,7 @@ rpms:
 	sudo -E ./prepare_image prepared_images/$(TEMPLATE_NAME).img && \
 	sudo -E ./qubeize_image prepared_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME) && \
 	./build_template_rpm $(TEMPLATE_NAME) || exit 1; \
+	./create_template_list.sh || : \
 
 update-repo-installer:	
 	[ -z "$$UPDATE_REPO" ] && UPDATE_REPO=../installer/yum/qubes-dom0;\

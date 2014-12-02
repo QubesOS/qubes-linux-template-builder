@@ -1,0 +1,252 @@
+# file: .
+# owner: user
+# group: user
+user::rwx
+group::r-x
+other::r-x
+
+# file: lib
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: lib/systemd
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: lib/systemd/system
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: lib/systemd/system/qubes-whonix-firewall.service
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: lib/systemd/system/qubes-whonix-network.service
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: lib/systemd/system/qubes-whonix-init.service
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: etc
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: etc/hosts
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: etc/uwt.d
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: etc/uwt.d/50_uwt_default
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: etc/xdg
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: etc/xdg/autostart
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: etc/xdg/autostart/qubes-whonixsetup.desktop
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: etc/apt
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: etc/hostname
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: etc/sudoers.d
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::---
+
+# file: etc/sudoers.d/whonix-build
+# owner: root
+# group: root
+user::r--
+group::r--
+other::---
+
+# file: .facl
+# owner: user
+# group: user
+user::rw-
+group::r--
+other::r--
+
+# file: usr
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/utility_functions
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/bind-dirs.sh
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/init
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/init/qubes-whonix-firewall.sh
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/init/qubes-whonix-bind.service
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: usr/lib/whonix/init/replace-ips
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/init/init.sh
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/init/whonixcheck.service
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: usr/lib/whonix/init/network-proxy-setup.sh
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/init/qubes-whonix-tor.service
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: usr/lib/whonix/messages.yaml
+# owner: root
+# group: root
+user::rw-
+group::r--
+other::r--
+
+# file: usr/lib/whonix/alert
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/qubes-whonixsetup
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+
+# file: usr/lib/whonix/enable-iptables-logging.sh
+# owner: root
+# group: root
+user::rwx
+group::r-x
+other::r-x
+

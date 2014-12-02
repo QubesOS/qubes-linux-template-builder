@@ -1,81 +1,98 @@
 #!/bin/sh
 
-export CLEANIMG=$1
-export NAME=$2
+# ------------------------------------------------------------------------------
+# Configurations and Conditionals
+# ------------------------------------------------------------------------------
+export CLEANIMG="$1"
+export NAME="$2"
 export LC_ALL=POSIX
 
 . ./builder_setup >/dev/null
+. ./umount_kill.sh >/dev/null
 
-set -e
+if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+    set -x
+else
+    set -e
+fi
 
 if [ $# -eq 0 ]; then
-echo "usage $0 <clean_image_file> <template_name>"
-exit
+    echo "usage $0 <clean_image_file> <template_name>"
+    exit
 fi
 
-if [ x$CLEANIMG = x ]; then
-echo "Image file not specified!"
-exit 1
+if [ "x$CLEANIMG" = x ]; then
+    echo "Image file not specified!"
+    exit 1
 fi
 
-if [ x$NAME = x ]; then
-echo "Name not given!"
-exit 1
+if [ "x$NAME" = x ]; then
+    echo "Name not given!"
+    exit 1
 fi
 
 ID=$(id -ur)
 
 if [ $ID != 0 ] ; then
-	echo "This script should be run as root user."
-	exit 1
+    echo "This script should be run as root user."
+    exit 1
 fi
 
 if [ "$VERBOSE" == "1" ]; then
-	export YUM_OPTS="$YUM_OPTS -q"
+    export YUM_OPTS="$YUM_OPTS -q"
 fi
 
+# ------------------------------------------------------------------------------
+# Cleanup function
+# ------------------------------------------------------------------------------
 function cleanup() {
-	if grep -q " $PWD/mnt/proc " /proc/mounts; then
-		umount mnt/proc
-	fi
-	if grep -q " $PWD/mnt " /proc/mounts; then
-		umount mnt
-	fi
+    umount_kill "$PWD/mnt" || :
 }
-
 trap cleanup ERR
 
-export IMG=qubeized_images/$NAME-root.img
+# ------------------------------------------------------------------------------
+# Mount qubeized_image
+# ------------------------------------------------------------------------------
+export IMG="qubeized_images/$NAME-root.img"
+
 echo "--> Copying $CLEANIMG to $IMG..."
-cp $CLEANIMG $IMG || exit 1
+cp "$CLEANIMG" "$IMG" || exit 1
 
 echo "--> Mounting $IMG"
-
 mkdir -p mnt
-mount -o loop $IMG mnt || exit 1
+mount -o loop "$IMG" mnt || exit 1
 export INSTALLDIR=mnt
 
-$SCRIPTSDIR/04_install_qubes.sh || { umount $INSTALLDIR; exit 1; }
+# ------------------------------------------------------------------------------
+# Run qubeize script
+# ------------------------------------------------------------------------------
+"$SCRIPTSDIR/04_install_qubes.sh" || { umount "$INSTALLDIR"; exit 1; }
 
+# ------------------------------------------------------------------------------
+# Create App Menus
+# ------------------------------------------------------------------------------
 echo "--> Copying the Apps Menu shortcuts..."
-export APPSORIG=qubeized_images/$NAME-apps.orig
-export APPSTEMPL=qubeized_images/$NAME-apps.templates
-mkdir -p $APPSORIG
-cp -r $(pwd)/mnt/usr/share/applications/* $APPSORIG
+export APPSORIG="qubeized_images/$NAME-apps.orig"
+export APPSTEMPL="qubeized_images/$NAME-apps.templates"
+mkdir -p "$APPSORIG"
+cp -r "$(pwd)"/mnt/usr/share/applications/* "$APPSORIG"
 
 echo "--> Creating the Apps Menu templates..."
-./create_apps_templates.sh $APPSORIG $APPSTEMPL
+"./create_apps_templates.sh" "$APPSORIG" "$APPSTEMPL"
 
 echo "--> Choosing appmenus whitelists..."
 rm -f appmenus
 if [ -d "appmenus_${DIST}_${TEMPLATE_FLAVOR}" ]; then
-	ln -s "appmenus_${DIST}_${TEMPLATE_FLAVOR}" appmenus
+    ln -s "appmenus_${DIST}_${TEMPLATE_FLAVOR}" appmenus
 elif [ -d "appmenus_$DIST" ]; then
-	ln -s "appmenus_$DIST" appmenus
+    ln -s "appmenus_$DIST" appmenus
 else
-	ln -s "appmenus_generic" appmenus
+    ln -s "appmenus_generic" appmenus
 fi
 
+# ------------------------------------------------------------------------------
+# Link directories so they can be mounted
+# ------------------------------------------------------------------------------
 echo "--> Linking /home to /rw/home..."
 mv mnt/home mnt/home.orig
 ln -sf /rw/home mnt/home
@@ -85,14 +102,17 @@ mv mnt/usr/local mnt/usr/local.orig
 ln -sf /rw/usrlocal mnt/usr/local
 
 if [ -e mnt/etc/sysconfig/i18n ]; then
-	echo "--> Setting up default locale..."
-	echo LC_CTYPE=en_US.UTF-8 > mnt/etc/sysconfig/i18n
+    echo "--> Setting up default locale..."
+    echo LC_CTYPE=en_US.UTF-8 > mnt/etc/sysconfig/i18n
 fi
 
+# ------------------------------------------------------------------------------
+# Finsh - unmount image
+# ------------------------------------------------------------------------------
 echo "--> Unmounting $IMG"
-umount mnt
+cleanup
 
 echo "Qubeized image stored at: $IMG"
 
 echo "Reducing image size (calling cleanup_image)..."
-./cleanup_image $IMG
+./cleanup_image "$IMG"

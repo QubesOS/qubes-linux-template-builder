@@ -1,6 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
-export IMG=$1
+# ------------------------------------------------------------------------------
+# Configurations
+# ------------------------------------------------------------------------------
+export IMG="$1"
 export LC_ALL=POSIX
 
 RETCODE=0
@@ -8,49 +11,61 @@ RETCODE=0
 : ${DIST=fc14}
 
 . ./builder_setup >/dev/null
+. ./umount_kill.sh >/dev/null
 
-set -e
+if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+    set -x
+else
+    set -e
+fi
 
 if ! [ $# -eq 1 ]; then
-echo "usage $0 <img_file_name>"
-exit
+    echo "usage $0 <img_file_name>"
+    exit
 fi
 
 if [ "$VERBOSE" == "1" ]; then
-	export YUM_OPTS="$YUM_OPTS -q"
+    export YUM_OPTS="$YUM_OPTS -q"
 fi
 
+# ------------------------------------------------------------------------------
+# Prepare for mount
+# ------------------------------------------------------------------------------
 echo "-> Preparing instalation of $DIST template..."
-$SCRIPTSDIR/00_prepare.sh
+export INSTALLDIR="$(readlink -m mnt)"
+mkdir -p "$INSTALLDIR"
+"$SCRIPTSDIR/00_prepare.sh"
 
-if [ -f $IMG ]; then
-	echo "-> Image file already exists, assuming *update*..."
-	mount -o loop $IMG mnt || exit 1
-	export INSTALLDIR=`pwd`/mnt/
-	trap "umount $INSTALLDIR" EXIT
+# ------------------------------------------------------------------------------
+# Mount image and install core OS
+# ------------------------------------------------------------------------------
+
+if [ -f "$IMG" ]; then
+    echo "-> Image file already exists, assuming *update*..."
 else
+    echo "-> Initializing empty image..."
+    truncate -s 10G "$IMG" || exit 1
 
-	echo "-> Initializing empty image..."
-	truncate -s 10G $IMG || exit 1
-
-	echo "-> Creating filesystem..."
-	mkfs.ext4 -q -F $IMG || exit 1
-
-	mkdir -p mnt
-	mount -o loop $IMG mnt || exit 1
-
-	export INSTALLDIR=`pwd`/mnt/
-
-	trap "umount $INSTALLDIR" EXIT
-
-	$SCRIPTSDIR/01_install_core.sh
+    echo "-> Creating filesystem..."
+    mkfs.ext4 -q -F "$IMG" || exit 1
 fi
 
-echo "-> Installing package groups..."
-$SCRIPTSDIR/02_install_groups.sh
+mount -o loop "$IMG" "$INSTALLDIR" || exit 1
+trap "umount_kill $(readlink -m $INSTALLDIR)" EXIT
+"$SCRIPTSDIR/01_install_core.sh"
 
+# ------------------------------------------------------------------------------
+# Install package groups
+# ------------------------------------------------------------------------------
+echo "-> Installing package groups..."
+"$SCRIPTSDIR/02_install_groups.sh"
+
+# ------------------------------------------------------------------------------
+# Cleanup
+# ------------------------------------------------------------------------------
 trap - EXIT
+
 echo "-> Unmounting prepared_image..."
-sudo umount $INSTALLDIR
+umount_kill "$(readlink -m $INSTALLDIR)" || :
 
 exit $RETCODE
