@@ -4,7 +4,10 @@ set -e
 
 echo "Mounting archlinux install system into mnt_archlinux_dvd..."
 mkdir -p mnt_archlinux_dvd
-mount $CACHEDIR/root-image.fs mnt_archlinux_dvd
+mount $CACHEDIR/airootfs.img mnt_archlinux_dvd
+
+echo "Fix bug intruduced in arch-chroot causing arguments not to be passed"
+sed "s/unshare --fork --pid//" -i mnt_archlinux_dvd/usr/bin/arch-chroot
 
 # Note: Enable x86 repos
 su -c "echo '[multilib]' >> $INSTALLDIR/etc/pacman.conf"

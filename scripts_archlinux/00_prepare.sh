@@ -15,11 +15,11 @@ gpg --verify "$CACHEDIR/archlinux-$ISO_VERSION-dual.iso.sig" "$CACHEDIR/archlinu
 if [ "$CACHEDIR/archlinux-$ISO_VERSION-dual.iso" -nt $CACHEDIR/root-image.fs ]; then
 	echo "Extracting squash filesystem from DVD..."
 	mkdir mnt_archlinux_dvd
-	mount -o loop "$CACHEDIR/archlinux-$ISO_VERSION-dual.iso" mnt_archlinux_dvd
-	cp mnt_archlinux_dvd/arch/x86_64/root-image.fs.sfs $CACHEDIR/
+	mount -o loop "$CACHEDIR/archlinux-$ISO_VERSION-dual.iso" mnt_archlinux_dvd || echo "!!Error mounting iso to mnt_archlinux_dvd"
+	cp mnt_archlinux_dvd/arch/x86_64/airootfs.sfs $CACHEDIR/ || echo "!!Error copying root sfs file to \$CACHEDIR"
 	umount mnt_archlinux_dvd
-	mount -o loop $CACHEDIR/root-image.fs.sfs mnt_archlinux_dvd
-	cp mnt_archlinux_dvd/root-image.fs $CACHEDIR/
+	mount -o loop $CACHEDIR/airootfs.sfs mnt_archlinux_dvd || echo "!!Error mounting root sfs"
+	cp mnt_archlinux_dvd/airootfs.img $CACHEDIR/ || echo "!!Error copying root fs file"
 	umount mnt_archlinux_dvd
-	rm $CACHEDIR/root-image.fs.sfs
+	rm $CACHEDIR/airootfs.sfs
 fi
