@@ -47,7 +47,7 @@ touch $RPM_BUILD_ROOT/%{dest_dir}/root.img # we will create the real file in %po
 touch $RPM_BUILD_ROOT/%{dest_dir}/private.img # we will create the real file in %post
 touch $RPM_BUILD_ROOT/%{dest_dir}/volatile.img # we will create the real file in %post
 
-cp $SCRIPTSDIR/clean-volatile.img.tar $RPM_BUILD_ROOT/%{dest_dir}/clean-volatile.img.tar
+cp clean-volatile.img.tar $RPM_BUILD_ROOT/%{dest_dir}/clean-volatile.img.tar
 
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps.tempicons
