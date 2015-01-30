@@ -2,8 +2,6 @@
 
 # Setup env variables
 
-. ./functions.sh > /dev/null
-
 case "$DIST" in
 	fc*)
 		DISTRIBUTION=fedora
