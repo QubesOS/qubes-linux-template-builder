@@ -36,6 +36,10 @@ rpms:
 	./build_template_rpm $(TEMPLATE_NAME) || exit 1; \
 	./create_template_list.sh || : \
 
+rootimg-build:
+	sudo -E ./prepare_image prepared_images/$(TEMPLATE_NAME).img && \
+	sudo -E ./qubeize_image prepared_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME)
+
 update-repo-installer:	
 	[ -z "$$UPDATE_REPO" ] && UPDATE_REPO=../installer/yum/qubes-dom0;\
 	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp_$(DIST))*.noarch.rpm $$UPDATE_REPO/rpm

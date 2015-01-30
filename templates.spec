@@ -35,7 +35,7 @@ Qubes template for %{template_name}
 %build
 cd qubeized_images
 rm -f root.img.part.*
-tar --sparse -cf - %{template_name}-root.img | split -d -b 1G - root.img.part.
+tar --sparse --dereference -cf - %{template_name}-root.img | split -d -b 1G - root.img.part.
 cd ..
 
 

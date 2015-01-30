@@ -9,4 +9,4 @@ fi
 
 rm -f $APPSTMPL/*
 mkdir -p $APPSTMPL
-find $APPSORIG -name "*.desktop" -exec ./convert_app2template.sh {} $APPSTMPL \;
+find $APPSORIG/ -name "*.desktop" -exec ./convert_app2template.sh {} $APPSTMPL \;
