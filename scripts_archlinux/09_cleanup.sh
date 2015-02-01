@@ -24,9 +24,6 @@ echo $VIDEOPKGS | ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --n
 # Remove other font package
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Rsc xorg-fonts-100dpi xorg-fonts-75dpi
 
-# Disable qubes local repository
-sed '/QubesTMP/d' -i $INSTALLDIR/etc/pacman.conf
-
 # Clean pacman cache
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR pacman --noconfirm -Scc
 

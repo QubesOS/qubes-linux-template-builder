@@ -54,9 +54,23 @@ ln -s /etc/sysconfig/i18n $INSTALLDIR/etc/locale.conf
 sed 's/#en_US/en_US/g' -i $INSTALLDIR/etc/locale.gen
 ./mnt_archlinux_dvd/usr/bin/arch-chroot $INSTALLDIR sh -c "locale-gen"
 
-mkdir -p $INSTALLDIR/lib/modules
 # Creating a random file in /lib/modules to ensure that the directory in never deleted when packages are removed
+mkdir -p $INSTALLDIR/lib/modules
 touch $INSTALLDIR/lib/modules/QUBES
+
+# Ensure os-release is setup correctly or Fedora dracut will fail when displaying the OS
+# also ensure that the path is relative, because root is in /newroot before dracut switch root
+ln -s ../usr/lib/os-release $INSTALLDIR/etc/os-release
+
+# Disable qubes local repository
+sed '/QubesTMP/d' -i $INSTALLDIR/etc/pacman.conf
+
+# Reregistering qubes repository to the remote version
+echo "--> Registering Qubes remote repository"
+cat >> $INSTALLDIR/etc/pacman.conf <<EOF
+[qubes]
+Server = http://olivier.medoc.free.fr/archlinux/pkgs/
+EOF
 
 echo "--> Cleaning up..."
 umount $INSTALLDIR/mnt/qubes-rpms-mirror-repo
