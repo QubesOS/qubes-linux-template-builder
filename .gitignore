@@ -5,4 +5,5 @@ cache_*
 mnt_*
 *.iso
 *.fs
+*.img
 install-templates.sh
