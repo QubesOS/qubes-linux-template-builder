@@ -1,5 +1,5 @@
 Name:		qubes-template-minimal-stub
-Version:	1.0
+Version:	1.1
 Release:	1%{?dist}
 Summary:	Placeholder package to minimize installed dependencies
 
@@ -11,11 +11,14 @@ Provides:   /usr/bin/mimeopen
 Provides:   nautilus-actions
 Provides:   gnome-packagekit-updater
 Provides:   ImageMagick
+Provides:   pycairo
 Provides:   notification-daemon
+Provides:   desktop-notification-daemon
 Provides:   tinyproxy
 # Those versions needs to be updated to match target Fedora release, when introducing new one, use ifdefs on %fedora
 Provides:   NetworkManager = 0.9.9.0-38
 Provides:   pulseaudio = 4.0
+Provides:   pulseaudio = 5.0
 Provides:   /usr/bin/pulseaudio
 
 %description
