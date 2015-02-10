@@ -22,7 +22,12 @@ templateFlavorPrefix() {
         fi
     done
     
-    echo "${DIST}${template_flavor:++}"
+    # If template_flavor only contains a '+'; send back $DIST
+    if [ "${template_flavor}" == "+" ]; then
+        echo "${DIST}"
+    else    
+        echo "${DIST}${template_flavor:++}"
+    fi
 }
 
 templateNameDist() {
