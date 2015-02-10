@@ -11,6 +11,20 @@ DEBUG=${DEBUG:-0}
 ################################################################################
 # Global functions
 ################################################################################
+    # ------------------------------------------------------------------------------
+# Set xtrace verbose mode (-x or)
+# ------------------------------------------------------------------------------
+XTRACE=
+function setVerboseMode() {
+    # Cache xtrace current status so it can be restored on exit
+    [[ ${-/x} != $- ]] && XTRACE=0 || XTRACE=1
+
+    if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" -ge 2 ]; then
+        set -x
+    else
+        set +x
+    fi
+}
 
 # ------------------------------------------------------------------------------
 # Define colors
@@ -69,11 +83,31 @@ if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
     chroot() {
         local retval
         true ${blue}
-        /usr/sbin/chroot "$@" && { retval=$?; true; } || { retval=$?; true; }
+        if [ "${SYSTEMD_NSPAWN_ENABLE}"  == "1" ]; then
+            systemd-nspawn $systemd_bind -D "${INSTALLDIR}" -M "${DIST}" "$@" && { retval=$?; true; } || { retval=$?; true; }
+        else
+            /usr/sbin/chroot "${INSTALLDIR}" "$@" && { retval=$?; true; } || { retval=$?; true; }
+        fi
         true ${reset}
         return $retval
     }
 fi
+
+# ------------------------------------------------------------------------------
+# Return xtrace's current mode
+# 0 is enables (-x); 1 is disables (+x)
+# ------------------------------------------------------------------------------
+getXtrace() {
+    [[ ${-/x} != $- ]] && echo 0 || echo 1
+}
+
+# ------------------------------------------------------------------------------
+# Return xtrace to desired state
+# 0 is enables (-x); 1 is disables (+x)
+# ------------------------------------------------------------------------------
+setXtrace() {
+    [[ "${1}" -eq 0 ]] && set -x || set +x
+}
 
 # ------------------------------------------------------------------------------
 # Display messages in color
@@ -82,24 +116,30 @@ fi
 output() {
     if [ "${VERBOSE}" -ge 1 ]; then
         # Don't echo if -x is set since it will already be displayed via true
-        [[ ${-/x} != $- ]] || echo -e "${1}"
+        [[ ${-/x} != $- ]] || echo -e ""$@""
     fi
 }
 
+outputc() {
+    color=${1}
+    shift
+    output "${!color}"$@"${reset}" || :
+}
+
 info() {
-    output "${bold}${blue}INFO: ${1}${reset}" || :
+    output "${bold}${blue}INFO: "$@"${reset}" || :
 }
 
 debug() {
-    output "${bold}${green}DEBUG: ${1}${reset}" || :
+    output "${bold}${green}DEBUG: "$@"${reset}" || :
 }
 
 warn() {
-    output "${stout}${yellow}WARNING: ${1}${reset}" || :
+    output "${stout}${yellow}WARNING: "$@"${reset}" || :
 }
 
 error() {
-    output "${bold}${red}ERROR: ${1}${reset}" || :
+    output "${bold}${red}ERROR: "$@"${reset}" || :
 }
 
 # ------------------------------------------------------------------------------
@@ -166,17 +206,19 @@ templateDir() {
     do 
         # (wheezy+whonix-gateway / wheezy+whonix-gateway+gnome[+++] / wheezy+gnome )
         if [ "${element%:*}" == "$(templateName ${template_flavor})" ]; then
-            eval echo -e ${element#*:}
+            eval echo -e "${element#*:}"
             return
         # Very short name compare (+proxy)
         elif [ "${element:0:1}" == "+" -a "${element%:*}" == "+${template_flavor}" ]; then
-            eval echo -e ${element#*:}
+            eval echo -e "${element#*:}"
             return
         fi
     done
 
-    if [ -n "${template_flavor}" ]; then
-        local template_flavor_prefix="$(templateFlavorPrefix ${template_flavor})"
+    local template_flavor_prefix="$(templateFlavorPrefix ${template_flavor})"
+    if [ -n "${template_flavor}" -a "${template_flavor}" == "+" ]; then
+        local dir="${SCRIPTSDIR}/${template_flavor_prefix}"
+    elif [ -n "${template_flavor}" ]; then
         local dir="${SCRIPTSDIR}/${template_flavor_prefix}${template_flavor}"
     else
         local dir="${SCRIPTSDIR}"
@@ -223,6 +265,7 @@ buildStepExec() {
 
         # Cache $script
         GLOBAL_CACHE[$script]=1
+
         # Execute $script
         "${script}"
     fi
@@ -266,10 +309,15 @@ callTemplateFunction() {
     local calling_arg="$2"
     local functionExec="$3"
     local template_flavor="${TEMPLATE_FLAVOR}"
-
+ 
     ${functionExec} "${calling_script}" \
                     "${calling_arg}" \
                     "${template_flavor}"
+
+    # Find a $DIST sub-directory
+    ${functionExec} "${calling_script}" \
+                    "${calling_arg}" \
+                    "+"
 
     for option in ${TEMPLATE_OPTIONS[@]}
     do
@@ -292,6 +340,17 @@ callTemplateFunction() {
 }
 
 # ------------------------------------------------------------------------------
+# Will return all files that match pattern of suffix
+# Example: 
+#   filename = packages.list
+#   suffix = ${DIST} (wheezy)
+#
+# Will look for a file name packages_wheezy.list in:
+#   the $SCRIPTSDIR; beside original
+#   the $SCRIPTSDIR/$DIST (wheezy) directory
+#   any included template module directories ($SCRIPTSDIR/gnome)
+#
+# All matches are returned and each will be able to be used
 # ------------------------------------------------------------------------------
 getFileLocations() {
     local return_global_var=$1
@@ -311,6 +370,18 @@ getFileLocations() {
 # ------------------------------------------------------------------------------
 # Executes any additional optional configuration steps if the configuration
 # scripts exist
+#
+# Will find all scripts with 
+# Example: 
+#   filename = 04_install_qubes.sh
+#   suffix = post
+#
+# Will look for a file name 04_install_qubes_post in:
+#   the $SCRIPTSDIR; beside original
+#   the $SCRIPTSDIR/$DIST (wheezy) directory
+#   any included template module directories ($SCRIPTSDIR/gnome)
+#
+# All matches are executed
 # ------------------------------------------------------------------------------
 buildStep() {
     local filename="$1"
