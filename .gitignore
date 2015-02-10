@@ -7,3 +7,4 @@ mnt_*
 *.fs
 *.img
 install-templates.sh
+yum_repo_qubes/*
