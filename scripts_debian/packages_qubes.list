@@ -6,3 +6,10 @@ xsettingsd
 gnome-packagekit
 chrony
 ntpdate
+
+libxvmc1
+x11-session-utils
+xfonts-100dpi
+xfonts-75dpi
+xfonts-scalable
+

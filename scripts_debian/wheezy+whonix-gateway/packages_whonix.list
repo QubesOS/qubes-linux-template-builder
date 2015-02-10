@@ -1,7 +1,8 @@
-git
-curl
 sudo
 locales
+haveged
+
+curl
 console-data
 console-common
 initramfs-tools
@@ -12,17 +13,14 @@ less
 lsof
 most
 pciutils
-strace
 sysfsutils
 usbutils
 lsb-release
-acpi-support-base
-haveged
 
 build-essential:native
 gcc
 fakeroot
 lintian
-
 rsync
 grub-pc
+

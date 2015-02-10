@@ -1,3 +1,5 @@
 gnome-terminal.desktop
-nautilus.desktop
+org.gnome.Nautilus.desktop
+iceweasel.desktop
+icedove.desktop
 yelp.desktop

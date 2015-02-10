@@ -1,45 +1,82 @@
-#!/bin/bash -x
+#!/bin/bash -e
 # vim: set ts=4 sw=4 sts=4 et :
 
-# ------------------------------------------------------------------------------
 # Source external scripts
-# ------------------------------------------------------------------------------
-. ${SCRIPTSDIR}/vars.sh
-. ./umount_kill.sh >/dev/null
+source "${SCRIPTSDIR}/vars.sh"
+source "${SCRIPTSDIR}/distribution.sh"
 
-# ------------------------------------------------------------------------------
-# Configurations
-# ------------------------------------------------------------------------------
-if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
-    set -x
-else
-    set -e
-fi
 INSTALLDIR="$(readlink -m mnt)"
-umount_kill "${INSTALLDIR}" || :
 
-# ------------------------------------------------------------------------------
+# Make sure ${INSTALLDIR} is not mounted
+umount_all "${INSTALLDIR}" || true
+
+# ==============================================================================
 # Execute any template flavor or sub flavor 'pre' scripts
-# ------------------------------------------------------------------------------
-buildStep "$0" "pre"
+# ==============================================================================
+buildStep "${0}" "pre"
 
-# ------------------------------------------------------------------------------
-# Force overwrite of an existing image for now if debootstrap did not seem to complete...
-# ------------------------------------------------------------------------------
-debug "Determine if ${IMG} should be reused or deleted..."
-if [ -f "${IMG}" ]; then
-    # Assume a failed debootstrap installation if .prepare_debootstrap does not exist
+# ==============================================================================
+# Use a snapshot of the debootstraped debian image
+# ==============================================================================
+manage_snapshot() {
+    local snapshot="${1}"
+
+    umount_kill "${INSTALLDIR}" || true
     mount -o loop "${IMG}" "${INSTALLDIR}" || exit 1
-    if ! [ -f "${INSTALLDIR}/tmp/.prepared_debootstrap" ]; then
-        warn "Last build failed. Deleting ${IMG}"
-        rm -f "${IMG}"
+
+    # Remove old snapshots if groups completed
+    if [ -e "${INSTALLDIR}/${TMPDIR}/.prepared_groups" ]; then
+        outputc stout "Removing stale snapshots"
+        umount_kill "${INSTALLDIR}" || true
+        rm -rf "${debootstrap_snapshot}"
+        rm -rf "${packages_snapshot}"
+        return
     fi
 
-    # Umount image; don't fail if its already umounted
-    umount_kill "${INSTALLDIR}" || :
+    outputc stout "Replacing ${IMG} with snapshot ${snapshot}"
+    umount_kill "${INSTALLDIR}" || true
+    cp -f "${snapshot}" "${IMG}"
+}
+
+# ==============================================================================
+# Determine if a snapshot should be used, reuse an existing image or
+# delete the existing image to start fresh based on configuration options
+#
+# SNAPSHOT=1 - Use snapshots; Will remove after successful build
+# If debootstrap did not complete, the existing image will be deleted
+# ==============================================================================
+splitPath "${IMG}" path_parts
+packages_snapshot="${path_parts[dir]}${path_parts[base]}-packages${path_parts[dotext]}"
+debootstrap_snapshot="${path_parts[dir]}${path_parts[base]}-debootstrap${path_parts[dotext]}"
+
+if [ -f "${IMG}" ]; then
+    if [ -f "${packages_snapshot}" -a "${SNAPSHOT}" == "1" ]; then
+        # Use 'packages' snapshot
+        manage_snapshot "${packages_snapshot}"
+
+    elif [ -f "${debootstrap_snapshot}" -a "${SNAPSHOT}" == "1" ]; then
+        # Use 'debootstrap' snapshot
+        manage_snapshot "${debootstrap_snapshot}"
+
+    else
+        # Use '$IMG' if debootstrap did not fail
+        mount -o loop "${IMG}" "${INSTALLDIR}" || exit 1
+
+        # Assume a failed debootstrap installation if .prepared_debootstrap does not exist
+        if [ -e "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
+            debug "Reusing existing image ${IMG}"
+        else
+            outputc stout "Removing stale or incomplete ${IMG}"
+            umount_kill "${INSTALLDIR}" || true
+            rm -f "${IMG}"
+        fi
+
+        # Umount image; don't fail if its already umounted
+        umount_kill "${INSTALLDIR}" || true
+    fi
 fi
 
-# ------------------------------------------------------------------------------
+# ==============================================================================
 # Execute any template flavor or sub flavor 'post' scripts
-# ------------------------------------------------------------------------------
-buildStep "$0" "post"
+# ==============================================================================
+buildStep "${0}" "post"
