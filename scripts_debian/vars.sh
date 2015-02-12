@@ -27,10 +27,10 @@ DEBIAN_MIRROR=http://ftp.us.debian.org/debian
 # TODO: Not yet implemented
 DEBIAN_MIRRORS=('http://ftp.us.debian.org/debian',
                 'http://http.debian.net/debian,
-		        'http://ftp.ca.debian.org/debian,
-		       )
+                'http://ftp.ca.debian.org/debian,
+               )
 
 # ------------------------------------------------------------------------------
 # apt-get configuration options
 # ------------------------------------------------------------------------------
-APT_GET_OPTIONS="-o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes --yes"
+APT_GET_OPTIONS="-o Dpkg::Options::="--force-confnew" --force-yes --yes"

@@ -28,4 +28,4 @@ DEBIAN_MIRRORS=('http://archive.ubuntu.com/ubuntu',
 # ------------------------------------------------------------------------------
 # apt-get configuration options
 # ------------------------------------------------------------------------------
-APT_GET_OPTIONS="-o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes --yes"
+APT_GET_OPTIONS="-o Dpkg::Options::="--force-confnew" --force-yes --yes"
