@@ -14,29 +14,19 @@ debug ' Installing base system using debootstrap'
 # ==============================================================================
 buildStep "${0}" "pre"
 
-
 if ! [ -f "${INSTALLDIR}/${TMPDIR}/.prepared_debootstrap" ]; then
-    if [ "${LXC_ENABLE}" == "1" ]; then
-        #### "------------------------------------------------------------------
-        info " $(templateName): LXC: Installing base '${DISTRIBUTION}-${DIST}' system"
-        #### "------------------------------------------------------------------
-        lxc-create -P "${LXC_DIR}" --dir="${INSTALLDIR}" -t download -n "${DIST}" -- \
-            --dist "${DISTRIBUTION}" --release "${DIST}" --arch amd64
-
-    else
-        #### "------------------------------------------------------------------
-        info " $(templateName): Installing base '${DISTRIBUTION}-${DIST}' system"
-        #### "------------------------------------------------------------------
-        COMPONENTS="" debootstrap \
-            --arch=amd64 \
-            --include="ncurses-term locales tasksel" \
-            --components=main \
-            --keyring="${SCRIPTSDIR}/keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
-            "${DIST}" "${INSTALLDIR}" "${DEBIAN_MIRROR}" || { 
-                error "Debootstrap failed!";
-                exit 1; 
-            }
-    fi
+    #### "------------------------------------------------------------------
+    info " $(templateName): Installing base '${DISTRIBUTION}-${DIST}' system"
+    #### "------------------------------------------------------------------
+    COMPONENTS="" debootstrap \
+        --arch=amd64 \
+        --include="ncurses-term locales tasksel" \
+        --components=main \
+        --keyring="${SCRIPTSDIR}/keys/${DIST}-${DISTRIBUTION}-archive-keyring.gpg" \
+        "${DIST}" "${INSTALLDIR}" "${DEBIAN_MIRROR}" || { 
+            error "Debootstrap failed!";
+            exit 1; 
+        }
 
     #### '----------------------------------------------------------------------
     info ' Configure keyboard'

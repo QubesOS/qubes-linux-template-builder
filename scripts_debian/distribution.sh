@@ -51,10 +51,6 @@ function umount_all() {
         fi
     fi
 
-    if [ "${directory}" == "${INSTALLDIR}" -a "${LXC_ENABLE}" == "1" ]; then
-        lxcStop
-    fi
-
     umount_kill "${directory}" || true
 }
 
@@ -104,14 +100,6 @@ function addDivertPolicy() {
     outputc green "Deactivating initctl..."
     chroot dpkg-divert --local --rename --add /sbin/initctl || true
 
-    # Only move if its a regualr file; not soft link
-    #if [ -f "${INSTALLDIR}/sbin/initctl" ]; then
-    #    mv "${INSTALLDIR}"/sbin/initctl "${INSTALLDIR}"/sbin/initctl.dist
-    #else
-    #    rm -f "${INSTALLDIR}"/sbin/initctl || true
-    #fi
-    #chroot ln -fs /bin/true /sbin/initctl
-
     # utopic systemd install still broken...
     outputc green "Hacking invoke-rc.d to ignore missing init scripts..."
     chroot sed -i -e "s/exit 100/exit 0 #exit 100/" /usr/sbin/invoke-rc.d
@@ -122,12 +110,6 @@ function addDivertPolicy() {
 # ==============================================================================
 function removeDivertPolicy() {
     outputc red "Reactivating initctl..."
-
-    #if [ -f "${INSTALLDIR}/sbin/initctl.dist" ]; then
-    #    rm -f "${INSTALLDIR}"/sbin/initctl || true
-    #    mv "${INSTALLDIR}"/sbin/initctl.dist "${INSTALLDIR}"/sbin/initctl
-    #fi
-
     chroot dpkg-divert --local --rename --remove /sbin/initctl || true
 
     outputc red "Restoring invoke-rc.d..."
@@ -141,31 +123,13 @@ function prepareChroot() {
     # Make sure nothing is mounted within $INSTALLDIR
     umount_kill "${INSTALLDIR}/"
 
-    #mkdir -p "${INSTALLDIR}/lib/modules"
-    #mount --bind /lib/modules "${INSTALLDIR}/lib/modules"
-
-    if [ "${LXC_ENABLE}" == "1" ]; then
-        # Shutdown lxc container if its running
-        chroot echo && lxcStop || true
-
-        # Start lxc container
-        lxcStart
-        sleep 3
-        debug "lxc root: /proc/$(lxc-info -P "${LXC_DIR}" -n ${DIST} -p -H)/root"
-    else
-        mount -t tmpfs none "${INSTALLDIR}/run"
-        if [ "${SYSTEMD_NSPAWN_ENABLE}"  != "1" ]; then
-            #mount --bind /dev "${INSTALLDIR}/dev"
-            ###mount --bind /dev/pts "${INSTALLDIR}/dev/pts"
-            mount -t proc proc "${INSTALLDIR}/proc"
-            mount -t sysfs sys "${INSTALLDIR}/sys"
-        fi
-        createDbusUuid
-        addDivertPolicy
+    mount -t tmpfs none "${INSTALLDIR}/run"
+    if [ "${SYSTEMD_NSPAWN_ENABLE}"  != "1" ]; then
+        mount -t proc proc "${INSTALLDIR}/proc"
+        mount -t sysfs sys "${INSTALLDIR}/sys"
     fi
-
-    # Does lxc need this; moving away for now
-    ###createDbusUuid
+    createDbusUuid
+    addDivertPolicy
 }
 
 # ==============================================================================
@@ -173,8 +137,6 @@ function prepareChroot() {
 # ==============================================================================
 function aptUpgrade() {
     aptUpdate
-    #DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-    #    chroot apt-get ${APT_GET_OPTIONS} upgrade
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot env APT_LISTCHANGES_FRONTEND=none apt-get dist-upgrade -u -y --force-yes
 }
@@ -184,8 +146,6 @@ function aptUpgrade() {
 # ==============================================================================
 function aptDistUpgrade() {
     aptUpdate
-    #DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-    #    chroot apt-get ${APT_GET_OPTIONS} dist-upgrade
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot env APT_LISTCHANGES_FRONTEND=none apt-get dist-upgrade -u -y --force-yes
 }
@@ -195,7 +155,6 @@ function aptDistUpgrade() {
 # ==============================================================================
 function aptUpdate() {
     debug "Updating system"
-    #DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot apt-get update
 }
@@ -205,7 +164,6 @@ function aptUpdate() {
 # ==============================================================================
 function aptRemove() {
     files="$@"
-    #DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot apt-get ${APT_GET_OPTIONS} remove ${files[@]}
 }
@@ -215,7 +173,6 @@ function aptRemove() {
 # ==============================================================================
 function aptInstall() {
     files="$@"
-    #DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
     DEBIAN_FRONTEND="noninteractive" DEBIAN_PRIORITY="critical" DEBCONF_NOWARNINGS="yes" \
         chroot apt-get ${APT_GET_OPTIONS} install ${files[@]}
 }
@@ -270,98 +227,8 @@ function installSystemd() {
     chroot rm -f /sbin/init
     chroot ln -sf /lib/systemd/systemd /sbin/init
 
-    if [ "${LXC_ENABLE}" == "1" ]; then
-        # XXX: Patch resolvconf (may only be trusy specific; if so move into buildStep
-        sed -i 's/RUN_CANONICALDIR/RUN_DIR/g' "${INSTALLDIR}/sbin/resolvconf"
-
-        # Enable resolvconf
-        chroot systemctl enable resolvconf
-
-        # XXX: Do I really need to restart it?
-        # Restart lxc container
-        lxcRestart
-    fi
-
     buildStep "$0" "post-systemd"
 }
-
-# ==============================================================================
-# Destroy LXC container
-# ==============================================================================
-function lxcDestroy() {
-    if [ "${LXC_ENABLE}" == "1" ]; then
-        warn "Destroying LXC container..."
-        lxc-destroy -P "${LXC_DIR}" -n "${DIST}" || true
-        mkdir -p "${INSTALLDIR}"
-    fi
-}
-
-# ==============================================================================
-# Restart LXC container and wait for network
-# ==============================================================================
-function lxcRestart() {
-    lxcStop
-    lxcStart
-    prepareChroot
-}
-
-# ==============================================================================
-# Start LXC container and wait for network
-# ==============================================================================
-function lxcStart() {
-    LXC_IF=eth0
-
-    info "Launching lxc-wait in background..."
-    lxc-wait -P "${LXC_DIR}" -n "${DIST}" -s RUNNING &
-    lxc_wait_pid=$!
-
-    info "Starting LXC container..."
-    lxc-start -d -P "${LXC_DIR}" -n "${DIST}"
-
-    info "Waiting for LXC container RUNNING state..."
-    wait ${lxc_wait_pid}
-    sleep 1
-
-    info "Waiting for LXC container network ${LXC_IF} up state..."
-    lxc-attach -P "${LXC_DIR}" -n "${DIST}" -- \
-        su -c "while ! ip a | sed -rn '/: '"${LXC_IF}"':.*state UP/{N;N;s/.*inet (\S*).*/\1/p}' | grep -q '.'; do printf '.'; sleep 1; done; echo ''" || sleep 3
-
-    info "Network state is active."
-
-    # Re-map install directory to lxc container
-    ###ORIG_INSTALLDIR="${INSTALLDIR}"
-    ###INSTALLDIR="/proc/$(lxc-info -P "${LXC_DIR}" -n ${DIST} -p -H)/root"
-}
-
-# ==============================================================================
-# Start LXC container and wait for network
-# ==============================================================================
-function lxcStop() {
-    # XXX - Should not umount here in case of restart
-    # umount anything in the lxc container (using _kill, not _all)
-    umount_kill "${INSTALLDIR}/"
-
-    # XXX: Is this needed
-    #rm -rf "${INSTALLDIR}/run/*" | true
-
-    # Re-set install directory to original location
-    ###INSTALLDIR="${ORIG_INSTALLDIR-"${INSTALLDIR}"}"
-
-    info "Launching lxc-wait in background..."
-    lxc-wait -P "${LXC_DIR}" -n "${DIST}" -s STOPPED &
-    lxc_wait_pid=$!
-
-    info "Stopping LXC container..."
-    sync
-    lxc-stop --kill -P "${LXC_DIR}" -n "${DIST}" || true
-
-    info "Waiting for LXC container STOPPED state..."
-    wait ${lxc_wait_pid}
-    sleep 1
-
-    info "LXC container stopped."
-}
-
 
 # ==============================================================================
 # ------------------------------------------------------------------------------
@@ -412,10 +279,8 @@ function updateQubuntuSourceList() {
 # Make sure there is a resolv.conf with network of this AppVM for building
 # ==============================================================================
 function createResolvConf() {
-    if [ "${LXC_ENABLE}" != "1" ]; then
-        rm -f "${INSTALLDIR}/etc/resolv.conf"
-        cp /etc/resolv.conf "${INSTALLDIR}/etc/resolv.conf"
-    fi
+    rm -f "${INSTALLDIR}/etc/resolv.conf"
+    cp /etc/resolv.conf "${INSTALLDIR}/etc/resolv.conf"
 }
 
 # ==============================================================================
@@ -447,11 +312,6 @@ EOF
 # ==============================================================================
 function updateLocale() {
     debug "Updating locales"
-
-    #echo "en_US.UTF-8 UTF-8" >> "${INSTALLDIR}/etc/locale.gen"
-    #chroot "${INSTALLDIR}" locale-gen
-    #chroot "${INSTALLDIR}" update-locale LANG=en_US.UTF-8
-
     chroot localedef -f UTF-8 -i en_US -c en_US.UTF-8
     chroot update-locale LC_ALL=en_US.UTF-8
 }
@@ -498,9 +358,6 @@ EOF
 installQubesRepo() {
     info " Defining Qubes CUSTOMREPO Location: ${PWD}/yum_repo_qubes/${DIST}"
     export CUSTOMREPO="${PWD}/yum_repo_qubes/${DIST}"
-
-#    info ' Installing keyrings' # Relies on $CUSTOMREPO
-#    installKeyrings
 
     info "Mounting local qubes_repo"
     mkdir -p "${INSTALLDIR}/tmp/qubes_repo"
