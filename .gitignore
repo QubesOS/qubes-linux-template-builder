@@ -8,3 +8,4 @@ mnt_*
 *.img
 install-templates.sh
 yum_repo_qubes/*
+scripts_fedora/base_rpms_fc21/*

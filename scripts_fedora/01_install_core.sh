@@ -5,6 +5,12 @@ if ! [ -f "${INSTALLDIR}/tmp/.prepared_base" ]; then
     rpm --initdb --root=$INSTALLDIR
     rpm --import --root=$INSTALLDIR $SCRIPTSDIR/keys/*
 
+    if [ "$DIST" == "fc21" ]; then
+        echo "-> Retreiving core RPM packages..."
+        INITIAL_PACKAGES="filesystem setup fedora-release"
+        yum --disablerepo=\* --enablerepo=fedora -y --installroot="${INSTALLDIR}" --releasever=${DIST/fc/} install --downloadonly --downloaddir="$SCRIPTSDIR/base_rpms_${DIST}" ${INITIAL_PACKAGES}
+    fi
+
     echo "-> Installing core RPM packages..."
     rpm -i --root=$INSTALLDIR $SCRIPTSDIR/base_rpms/*.rpm || exit 1
 
