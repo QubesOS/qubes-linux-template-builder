@@ -46,6 +46,29 @@ function yumInstall() {
 }
 
 # ==============================================================================
+# Verify RPM packages
+# ==============================================================================
+function verifyPackages() {
+    for file in $@; do
+        result=$(rpm --root="${INSTALLDIR}" --checksig "${file}") || {
+            echo "Filename: ${file} failed verification.  Exiting!"
+            exit 1
+        }
+        result_status="${result##*:}"
+        echo "${result_status}" | grep -q 'PGP' && {
+            echo "Filename: ${file} contains an invalid PGP signature.  Exiting!"
+            exit 1
+        }
+        echo "${result_status}" | grep -q 'pgp' || {
+            echo "Filename: ${file} is not signed.  Exiting!"
+            exit 1
+        }
+    done
+
+    return 0
+}
+
+# ==============================================================================
 # Install extra packages in script_${DIST}/packages.list file
 # -and / or- TEMPLATE_FLAVOR directories
 # ==============================================================================
