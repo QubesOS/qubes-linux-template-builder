@@ -44,28 +44,15 @@ trap cleanup EXIT
 # - pub  4096R/A668B376 2013-06-28 RPM Fusion nonfree repository for Fedora (21) <rpmfusion-buildsys@lists.rpmfusion.org>
 # Key fingerprint = E160 058E F06F A4C3 C15D  0F86 0174 46D1 A668 B376
 
-#### "----------------------------------------------------------------------
-info " Verifing any repos before copying over to ${INSTALLDIR}"
-#### "----------------------------------------------------------------------
-if [ ${VERSION} -ge 20 ]; then
-    # Import repo keys
-    rpm --import --root="${INSTALLDIR}" "${SCRIPTSDIR}/3rd_party_software/RPM-GPG-KEY-rpmfusion-free-fedora-${VERSION}"
-    rpm --import --root="${INSTALLDIR}" "${SCRIPTSDIR}/3rd_party_software/RPM-GPG-KEY-rpmfusion-nonfree-fedora-${VERSION}"
-
-    # Verify repos
-    verifyPackages "${SCRIPTSDIR}/3rd_party_software/rpmfusion-free-release-${VERSION}.noarch.rpm" \
-                   "${SCRIPTSDIR}/3rd_party_software/rpmfusion-nonfree-release-${VERSION}.noarch.rpm" \
-                   || exit 1
-
 #### '----------------------------------------------------------------------
 info ' Copying 3rd party software to "tmp" directory to prepare for installation'
 #### '----------------------------------------------------------------------
-cp -rp "${SCRIPTSDIR}/3rd_party_software" "${INSTALLDIR}/tmp"
+cp -a "${SCRIPTSDIR}/3rd_party_software" "${INSTALLDIR}/tmp"
 
 #### '----------------------------------------------------------------------
 info ' Installing google-chrome repos'
 #### '----------------------------------------------------------------------
-cp "${SCRIPTSDIR}/3rd_party_software/google-linux_signing_key.pub" "${INSTALLDIR}/etc/pki/rpm-gpg/"
+install -m 0644 "${SCRIPTSDIR}/3rd_party_software/google-linux_signing_key.pub" "${INSTALLDIR}/etc/pki/rpm-gpg/"
 cat << EOF > "${INSTALLDIR}/etc/yum.repos.d/google-chrome.repo"
 [google-chrome]
 name=google-chrome - \$basearch
@@ -78,16 +65,14 @@ EOF
 #### '----------------------------------------------------------------------
 info ' Installing adobe repo'
 #### '----------------------------------------------------------------------
-rpm -i --root="${INSTALLDIR}" "${SCRIPTSDIR}/3rd_party_software/adobe-release-x86_64-"*.noarch.rpm || exit 1
+yumInstall /tmp/3rd_party_software/adobe-release-x86_64.noarch.rpm
 
 if [ "$TEMPLATE_FLAVOR" == "fullyloaded" ]; then
     #### '------------------------------------------------------------------
     info ' Installing 3rd party software'
     #### '------------------------------------------------------------------
-    mount --bind /etc/resolv.conf "${INSTALLDIR}/etc/resolv.conf"
-    chroot yum install $YUM_OPTS -y google-chrome-stable
-    rpm --import --root="${INSTALLDIR}" "${INSTALLDIR}/etc/pki/rpm-gpg/RPM-GPG-KEY-adobe-linux"
-    yum install -c "$PWD/yum.conf" $YUM_OPTS -y --installroot="${INSTALLDIR}" flash-plugin || exit 1
+    yumInstall google-chrome-stable
+    yumInstall flash-plugin
 else
     chroot yum-config-manager --disable google-chrome > /dev/null
     chroot yum-config-manager --disable adobe-linux-x86_64 > /dev/null
@@ -96,10 +81,10 @@ fi
 #### '----------------------------------------------------------------------
 info ' Installing rpmfusion repos'
 #### '----------------------------------------------------------------------
-
+if [ ${VERSION} -ge 20 ]; then
     # Install repos
-    chroot rpm -i /tmp/3rd_party_software/rpmfusion-free-release-${VERSION}.noarch.rpm
-    chroot rpm -i /tmp/3rd_party_software/rpmfusion-nonfree-release-${VERSION}.noarch.rpm
+    yumInstall /tmp/3rd_party_software/rpmfusion-free-release-${VERSION}.noarch.rpm
+    yumInstall /tmp/3rd_party_software/rpmfusion-nonfree-release-${VERSION}.noarch.rpm
 
     # Disable rpmfusion-free repos
     chroot yum-config-manager --disable rpmfusion-free > /dev/null
