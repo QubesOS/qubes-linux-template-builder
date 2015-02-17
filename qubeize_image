@@ -46,7 +46,11 @@ fi
 # Cleanup function
 # ------------------------------------------------------------------------------
 function cleanup() {
-    umount_kill "$PWD/mnt" || :
+    errval=$?
+    trap - ERR
+    trap
+    umount_kill "$PWD/mnt" || true
+    exit $errval
 }
 trap cleanup ERR
 
@@ -66,7 +70,7 @@ export INSTALLDIR=mnt
 # ------------------------------------------------------------------------------
 # Run qubeize script
 # ------------------------------------------------------------------------------
-"$SCRIPTSDIR/04_install_qubes.sh" || { umount "$INSTALLDIR"; exit 1; }
+"$SCRIPTSDIR/04_install_qubes.sh"
 
 # ------------------------------------------------------------------------------
 # Create App Menus
@@ -110,7 +114,7 @@ fi
 # Finsh - unmount image
 # ------------------------------------------------------------------------------
 echo "--> Unmounting $IMG"
-cleanup
+umount_kill "$PWD/mnt" || true
 
 echo "Qubeized image stored at: $IMG"
 

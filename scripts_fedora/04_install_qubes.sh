@@ -1,4 +1,5 @@
 #!/bin/sh
+
 echo "--> Preparing environment..."
 mount -t proc proc $PWD/mnt/proc
 
@@ -22,5 +23,9 @@ if [ "$TEMPLATE_FLAVOR" != "minimal" ]; then
     echo "--> Installing 3rd party apps"
     $SCRIPTSDIR/add_3rd_party_software.sh || RETCODE=1
 fi
+
+# Distribution specific steps
+source ./functions.sh
+buildStep "${0}" "${DIST}"
 
 exit $RETCODE

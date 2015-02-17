@@ -93,7 +93,7 @@ header <<EOF
  1. With TEMPLATE_FLAVOR
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -112,7 +112,7 @@ header <<EOF
  2. Without TEMPLATE_FLAVOR 
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh"
 assertEnd
 
 
@@ -133,7 +133,7 @@ header <<EOF
 EOF
 buildStep "$0" "pre"
 debug "Not supposed to find wheezy+whonix-gateway+kde"
-assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh\ntests/template-flavors/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -155,7 +155,7 @@ header <<EOF
 EOF
 buildStep "$0" "pre"
 debug "Not supposed to find debian+whonix-gateway+kde"
-assertTest "buildStep $0 pre" "tests/template-flavors/debian+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh\ntests/template-flavors/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/debian+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -177,7 +177,7 @@ header <<EOF
 EOF
 buildStep "$0" "pre"
 debug "Not supposed to find whonix-gateway+kde"
-assertTest "buildStep $0 pre" "tests/template-flavors/whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh\ntests/template-flavors/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/wheezy+whonix-gateway+gnome/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -198,7 +198,7 @@ header <<EOF
     and in a bash file use single 'quotes' around string and \${SCRIPTSDIR}
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/another_location/whonix_gnome/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/another_location/whonix_gnome/test_pre.sh"
 assertEnd
 
 
@@ -217,7 +217,7 @@ header <<EOF
  7. Custom template directory
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/another_location/whonix-gw/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/another_location/whonix-gw/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh"
 assertEnd
 
 
@@ -236,7 +236,7 @@ header <<EOF
  8. Custom template directory with space in name
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/another_location/whonix gw/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/another_location/whonix gw/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh"
 assertEnd
 
 
@@ -255,7 +255,7 @@ header <<EOF
  9. Custom template directory for options
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/another_location/whonix_gnome/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/another_location/whonix_gnome/test_pre.sh"
 assertEnd
 
 
@@ -274,7 +274,7 @@ header <<EOF
 10. Template directory for options within ${SCRIPTSDIR} using short name filter
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/proxy/test_pre.sh\ntests/template-flavors/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/proxy/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -293,7 +293,7 @@ header <<EOF
 11. Template directory for options within using VERY short name filter (+proxy)
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/proxy/test_pre.sh\ntests/template-flavors/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/proxy/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 

@@ -1,1 +1,0 @@
-../wheezy+whonix/02_install_groups_packages_installed.sh

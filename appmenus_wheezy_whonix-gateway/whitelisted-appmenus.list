@@ -8,4 +8,9 @@ gateway-firewall30default.desktop
 gateway-firewall50user.desktop
 gateway-torrc.desktop
 gateway-torrcexamples.desktop
-kwrite.desktop
+gateway-firewall30default.desktop
+gateway-firewall50user.desktop
+gateway-firsttimesetup.desktop
+gateway-torrc.desktop
+gateway-torrcexamples.desktop
+whonix_repository.desktop

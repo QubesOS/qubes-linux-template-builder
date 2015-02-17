@@ -15,6 +15,18 @@ case "$DIST" in
 		DISTRIBUTION=debian
 		VERSION=8
 		;;
+	trusty)
+		DISTRIBUTION=qubuntu
+		VERSION=14.04
+		;;
+	utopic)
+		DISTRIBUTION=qubuntu
+		VERSION=14.10
+		;;
+	vivid)
+		DISTRIBUTION=qubuntu
+		VERSION=15.04
+		;;
 	*)
 		DISTRIBUTION="$DIST"
 		VERSION=

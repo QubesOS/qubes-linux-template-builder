@@ -19,6 +19,9 @@ endif
 fix_up := $(shell TEMPLATE_NAME=$(TEMPLATE_NAME) ./builder_fix_filenames)
 TEMPLATE_NAME := $(word 1,$(fix_up))
 
+export DISTRIBUTION
+export TEMPLATE_NAME
+
 VERSION := $(shell cat version)
 TIMESTAMP := $(shell date -u +%Y%m%d%H%M)
 

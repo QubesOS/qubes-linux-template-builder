@@ -1,1 +1,0 @@
-../wheezy+whonix/00_prepare_pre.sh
