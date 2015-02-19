@@ -91,6 +91,10 @@ if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
         true ${reset}
         return $retval
     }
+else
+    chroot() {
+        /usr/sbin/chroot "${INSTALLDIR}" "$@"
+    }
 fi
 
 # ------------------------------------------------------------------------------
