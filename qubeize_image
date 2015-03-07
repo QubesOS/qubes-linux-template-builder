@@ -75,15 +75,6 @@ export INSTALLDIR=mnt
 # ------------------------------------------------------------------------------
 # Create App Menus
 # ------------------------------------------------------------------------------
-echo "--> Copying the Apps Menu shortcuts..."
-export APPSORIG="qubeized_images/$NAME-apps.orig"
-export APPSTEMPL="qubeized_images/$NAME-apps.templates"
-mkdir -p "$APPSORIG"
-cp -r "$(pwd)"/mnt/usr/share/applications/* "$APPSORIG"
-
-echo "--> Creating the Apps Menu templates..."
-"./create_apps_templates.sh" "$APPSORIG" "$APPSTEMPL"
-
 echo "--> Choosing appmenus whitelists..."
 rm -f appmenus
 if [ -d "appmenus_${DIST}_${TEMPLATE_FLAVOR}" ]; then

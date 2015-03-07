@@ -46,13 +46,11 @@ for i in qubeized_images/root.img.part.* ; do ln $i $RPM_BUILD_ROOT/%{dest_dir}/
 touch $RPM_BUILD_ROOT/%{dest_dir}/root.img # we will create the real file in %post
 touch $RPM_BUILD_ROOT/%{dest_dir}/private.img # we will create the real file in %post
 touch $RPM_BUILD_ROOT/%{dest_dir}/volatile.img # we will create the real file in %post
-
-cp clean-volatile.img.tar $RPM_BUILD_ROOT/%{dest_dir}/clean-volatile.img.tar
+touch $RPM_BUILD_ROOT/%{dest_dir}/clean-volatile.img.tar # we will create the real file in %post
 
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps.tempicons
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps
-cp -r qubeized_images/%{template_name}-apps.templates/* $RPM_BUILD_ROOT/%{dest_dir}/apps.templates
 cp appmenus/whitelisted-appmenus.list appmenus/vm-whitelisted-appmenus.list $RPM_BUILD_ROOT/%{dest_dir}/
 cp appmenus/netvm-whitelisted-appmenus.list $RPM_BUILD_ROOT/%{dest_dir}/
 touch $RPM_BUILD_ROOT/%{dest_dir}/icon.png
@@ -76,9 +74,12 @@ chown root.qubes %{dest_dir}/root.img
 chmod 0660 %{dest_dir}/root.img
 
 echo "--> Processing the volatile.img..."
-tar --sparse -xf %{dest_dir}/clean-volatile.img.tar -C %{dest_dir}
+/usr/lib/qubes/prepare-volatile-img.sh
 chown root.qubes %{dest_dir}/volatile.img
 chmod 0660 %{dest_dir}/volatile.img
+tar --sparse -cf %{dest_dir}/clean-volatile.img.tar -C %{dest_dir} volatile.img
+chown root.qubes %{dest_dir}/clean-volatile.img.tar
+chmod 0660 %{dest_dir}/clean-volatile.img.tar
 
 if [ "$1" = 1 ] ; then
     # installing for the first time
@@ -94,7 +95,6 @@ export XDG_DATA_DIRS=/usr/share/
 
 echo "--> Instaling menu shortcuts..."
 ln -sf /usr/share/qubes/icons/template.png %{dest_dir}/icon.png
-/usr/libexec/qubes-appmenus/create-apps-for-appvm.sh %{dest_dir}/apps.templates %{template_name} vm-templates
 
 if [ "$1" = 1 ] ; then
     # installing for the first time
@@ -106,6 +106,11 @@ if [ "`stat -c %d:%i /`" != "`stat -c %d:%i /proc/1/root/.`" ]; then
     qvm-template-commit --offline-mode %{template_name}
 else
     qvm-template-commit %{template_name}
+    qvm-start --no-guid %{template_name}
+    qvm-sync-appmenus --force-root %{template_name}
+    qvm-shutdown --wait %{template_name}
+    chgrp -R qubes %{dest_dir}
+    chmod g+rwX -R %{dest_dir}
 fi
 
 %preun
@@ -147,7 +152,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr (775,root,qubes) %dir %{dest_dir}/apps
 %attr (775,root,qubes) %dir %{dest_dir}/apps.templates
 %attr (775,root,qubes) %dir %{dest_dir}/apps.tempicons
-%attr (664,root,qubes) %{dest_dir}/apps.templates/*
 %attr (664,root,qubes) %{dest_dir}/whitelisted-appmenus.list
 %attr (664,root,qubes) %{dest_dir}/vm-whitelisted-appmenus.list
 %attr (664,root,qubes) %{dest_dir}/netvm-whitelisted-appmenus.list
