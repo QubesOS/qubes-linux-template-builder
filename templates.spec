@@ -73,7 +73,7 @@ chown root.qubes %{dest_dir}/root.img
 chmod 0660 %{dest_dir}/root.img
 
 echo "--> Processing the volatile.img..."
-/usr/lib/qubes/prepare-volatile-img.sh
+/usr/lib/qubes/prepare-volatile-img.sh %{dest_dir}/volatile.img $[ `stat -c '%s' %{dest_dir}/root.img` / 1024 / 1024 ] || exit 1
 chown root.qubes %{dest_dir}/volatile.img
 chmod 0660 %{dest_dir}/volatile.img
 tar --sparse -cf %{dest_dir}/clean-volatile.img.tar -C %{dest_dir} volatile.img
