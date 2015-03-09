@@ -57,7 +57,8 @@ trap cleanup ERR
 # ------------------------------------------------------------------------------
 # Mount qubeized_image
 # ------------------------------------------------------------------------------
-export IMG="qubeized_images/$NAME-root.img"
+export IMG="qubeized_images/$NAME/root.img"
+mkdir -p "qubeized_images/$NAME"
 
 echo "--> Copying $CLEANIMG to $IMG..."
 cp "$CLEANIMG" "$IMG" || exit 1

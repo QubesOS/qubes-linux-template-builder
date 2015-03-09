@@ -33,16 +33,16 @@ Obsoletes:  %{name} > %{version}-%{release}
 Qubes template for %{template_name}
 
 %build
-cd qubeized_images
+pushd qubeized_images/%{template_name}
 rm -f root.img.part.*
-tar --sparse --dereference -cf - %{template_name}-root.img | split -d -b 1G - root.img.part.
-cd ..
+tar --sparse --dereference -cf - root.img | split -d -b 1G - root.img.part.
+popd
 
 
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}
-for i in qubeized_images/root.img.part.* ; do ln $i $RPM_BUILD_ROOT/%{dest_dir}/`basename $i` ; done
+for i in qubeized_images/%{template_name}/root.img.part.* ; do mv $i $RPM_BUILD_ROOT/%{dest_dir}/ ; done
 touch $RPM_BUILD_ROOT/%{dest_dir}/root.img # we will create the real file in %post
 touch $RPM_BUILD_ROOT/%{dest_dir}/private.img # we will create the real file in %post
 touch $RPM_BUILD_ROOT/%{dest_dir}/volatile.img # we will create the real file in %post
@@ -69,7 +69,6 @@ fi
 echo "--> Processing the root.img... (this might take a while)"
 cat %{dest_dir}/root.img.part.* | tar --sparse -xf - -C %{dest_dir}
 rm -f %{dest_dir}/root.img.part.*
-mv %{dest_dir}/%{template_name}-root.img %{dest_dir}/root.img
 chown root.qubes %{dest_dir}/root.img
 chmod 0660 %{dest_dir}/root.img
 

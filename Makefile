@@ -15,7 +15,7 @@ TEMPLATE_NAME := $(TEMPLATE_NAME)-$(TEMPLATE_FLAVOR)
 endif
 endif
 
-# Make sure names are < 32 characters
+# Make sure names are < 32 characters, process aliases
 fix_up := $(shell TEMPLATE_NAME=$(TEMPLATE_NAME) ./builder_fix_filenames)
 TEMPLATE_NAME := $(word 1,$(fix_up))
 
@@ -31,13 +31,13 @@ help:
 	@echo "make clean                 -- copy newly generated rpm to installer repo"
 
 
-rpms:
+prepare:
 	@echo $(TIMESTAMP) > build_timestamp_$(DIST)
+
+rpms: prepare rootimg-build
 	@echo "Building template: $(TEMPLATE_NAME)"
-	sudo -E ./prepare_image prepared_images/$(TEMPLATE_NAME).img && \
-	sudo -E ./qubeize_image prepared_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME) && \
-	./build_template_rpm $(TEMPLATE_NAME) || exit 1; \
-	./create_template_list.sh || : \
+	./build_template_rpm $(TEMPLATE_NAME)
+	./create_template_list.sh || :
 
 rootimg-build:
 	sudo -E ./prepare_image prepared_images/$(TEMPLATE_NAME).img && \
