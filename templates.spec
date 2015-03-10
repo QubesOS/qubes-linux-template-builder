@@ -4,7 +4,7 @@
 #
 
 %{!?version: %define version %(cat version)}
-%{!?rel: %define rel %(cat build_timestamp_%{DIST})}
+%{!?rel: %define rel %(cat build_timestamp_%{template_name})}
 
 Name:		qubes-template-%{template_name}
 Version:	%{version}

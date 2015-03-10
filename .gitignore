@@ -1,11 +1,7 @@
 *~
 appmenus
 build_timestamp_*
-cache_*
-mnt_*
 *.iso
-*.fs
 *.img
 install-templates.sh
-yum_repo_qubes/*
-scripts_fedora/base_rpms_fc21/*
+pkgs-for-template/*

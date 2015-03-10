@@ -10,14 +10,14 @@ RETCODE=0
 
 : ${DIST=fc14}
 
-. ./builder_setup >/dev/null
-. ./umount_kill.sh >/dev/null
-
 if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
     set -x
 else
     set -e
 fi
+
+. ./builder_setup >/dev/null
+. ./umount_kill.sh >/dev/null
 
 if ! [ $# -eq 1 ]; then
     echo "usage ${0} <img_file_name>"

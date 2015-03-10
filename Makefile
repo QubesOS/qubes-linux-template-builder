@@ -3,24 +3,21 @@ $(error "You must set DIST variable, e.g. DIST=fc14")
 endif
 export DIST
 
-dist_ver := $(shell DIST=$(DIST) ./builder_setup)
-DISTRIBUTION := $(word 1,$(dist_ver))
-DIST_VERSION := $(word 2,$(dist_ver))
-TEMPLATE_NAME := $(word 3,$(dist_ver))
+TEMPLATE_BUILDER = 1
+-include $(addsuffix /Makefile.builder,$(BUILDER_PLUGINS_DIRS))
 
-ifeq (,$(TEMPLATE_NAME))
-TEMPLATE_NAME := $(DISTRIBUTION)-$(DIST_VERSION)-x64
+TEMPLATE_NAME := $(DIST)
 ifdef TEMPLATE_FLAVOR
 TEMPLATE_NAME := $(TEMPLATE_NAME)-$(TEMPLATE_FLAVOR)
-endif
 endif
 
 # Make sure names are < 32 characters, process aliases
 fix_up := $(shell TEMPLATE_NAME=$(TEMPLATE_NAME) ./builder_fix_filenames)
 TEMPLATE_NAME := $(word 1,$(fix_up))
 
-export DISTRIBUTION
 export TEMPLATE_NAME
+export TEMPLATE_SCRIPTS
+export DISTRIBUTION
 
 VERSION := $(shell cat version)
 TIMESTAMP := $(shell date -u +%Y%m%d%H%M)
@@ -32,7 +29,7 @@ help:
 
 
 prepare:
-	@echo $(TIMESTAMP) > build_timestamp_$(DIST)
+	@echo $(TIMESTAMP) > build_timestamp_$(TEMPLATE_NAME)
 
 rpms: prepare rootimg-build
 	@echo "Building template: $(TEMPLATE_NAME)"
@@ -40,7 +37,10 @@ rpms: prepare rootimg-build
 	./create_template_list.sh || :
 
 rootimg-build:
-	sudo -E ./prepare_image prepared_images/$(TEMPLATE_NAME).img && \
+ifeq (,$(TEMPLATE_SCRIPTS))
+	$(error Building template $(DIST) not supported by any of configured plugins)
+endif
+	sudo -E ./prepare_image prepared_images/$(TEMPLATE_NAME).img
 	sudo -E ./qubeize_image prepared_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME)
 
 update-repo-installer:	
@@ -48,8 +48,8 @@ update-repo-installer:
 	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp_$(DIST))*.noarch.rpm $$UPDATE_REPO/rpm
 
 prepare-repo-template:
-	rm -rf yum_repo_qubes/$(DIST)
-	mkdir -p yum_repo_qubes/$(DIST)/rpm yum_repo_qubes/$(DIST)/repodata
+	rm -rf pkgs-for-template/$(DIST)
+	mkdir -p pkgs-for-template/$(DIST)
 
 clean:
 	sudo rm -fr qubeized_images/root.img.*

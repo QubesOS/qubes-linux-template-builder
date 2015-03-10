@@ -2,44 +2,14 @@
 
 # Setup env variables
 
-case "$DIST" in
-	fc*)
-		DISTRIBUTION=fedora
-		VERSION=${DIST/fc/}
-		;;
-	wheezy)
-		DISTRIBUTION=debian
-		VERSION=7
-		;;
-	jessie)
-		DISTRIBUTION=debian
-		VERSION=8
-		;;
-	trusty)
-		DISTRIBUTION=qubuntu
-		VERSION=14.04
-		;;
-	utopic)
-		DISTRIBUTION=qubuntu
-		VERSION=14.10
-		;;
-	vivid)
-		DISTRIBUTION=qubuntu
-		VERSION=15.04
-		;;
-	*)
-		DISTRIBUTION="$DIST"
-		VERSION=
-		;;
-esac
-
-if [ -d "scripts_$DIST" ]; then
-	SCRIPTSDIR="scripts_$DIST"
-else
-	SCRIPTSDIR="scripts_$DISTRIBUTION"
+SCRIPTSDIR=$TEMPLATE_SCRIPTS
+if [ ! -d "$SCRIPTSDIR" ]; then
+    echo "Scripts directory $SCRIPTSDIR does not exists"
+    exit 1
 fi
 
-CACHEDIR=cache_$DIST
+if [ -z "$CACHEDIR" ]; then
+    CACHEDIR=cache_$DIST
+fi
 
 export SCRIPTSDIR CACHEDIR
-echo $DISTRIBUTION $VERSION
