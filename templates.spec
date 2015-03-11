@@ -111,6 +111,8 @@ else
     chgrp -R qubes %{dest_dir}
     chmod g+rwX -R %{dest_dir}
 fi
+/usr/libexec/qubes-appmenus/create-apps-for-appvm.sh %{dest_dir}/apps.templates %{template_name} vm-templates
+exit 0
 
 %preun
 if [ "$1" = 0 ] ; then
