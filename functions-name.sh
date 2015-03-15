@@ -6,6 +6,23 @@ set -e
 VERBOSE=${VERBOSE:-1}
 DEBUG=${DEBUG:-0}
 
+containsFlavor() {
+    flavor="${1}"
+    retval=1
+
+    # Check the template flavor first
+    if [ "${flavor}" == "${TEMPLATE_FLAVOR}" ]; then
+        retval=0
+    fi
+
+    # Check the template flavors next
+    elementIn "${flavor}" ${TEMPLATE_OPTIONS[@]} && {
+        retval=0
+    }
+
+    return ${retval}
+}
+
 templateFlavorPrefix() {
     local template_flavor=${1-${TEMPLATE_FLAVOR}}
 
@@ -30,18 +47,31 @@ templateFlavorPrefix() {
     fi
 }
 
+templateNameFixLength() {
+    local template_name="${1}"
+    local temp_name=(${template_name//+/ })
+    local index=$(( ${#temp_name[@]}-1 ))
+
+    while [ ${#template_name} -ge 32 ]; do
+        template_name=$(printf '%s' ${temp_name[0]})
+        if [ $index -gt 0 ]; then
+            template_name+=$(printf '+%s' ${temp_name[@]:1:index})
+        fi
+        (( index-- ))
+        if [ $index -lt 1 ]; then
+            template_name="${template_name:0:31}"
+        fi
+    done
+
+    echo "${template_name}"
+}
+
 templateNameDist() {
     local dist_name="${1}"
     template_name="$(templateName)" && dist_name="${template_name}"
 
-    # XXX: Temp hack to shorten name
-    if [ ${#dist_name} -ge 32 ]; then
-        if [ ${#template_name} -lt 32 ]; then
-            dist_name="${template_name}"
-        else
-            dist_name="${dist_name:0:31}"
-        fi
-    fi
+    # Automaticly correct name length if it's greater than 32 chars
+    dist_name="$(templateNameFixLength ${template_name})"
 
     # Remove and '+' characters from name since they are invalid for name
     dist_name="${dist_name//+/-}"
@@ -53,13 +83,13 @@ templateName() {
     retval=1 # Default is 1; mean no replace happened
 
     # Only apply options if $1 was not passed
-    if [ -n "${1}" ]; then
+    if [ -n "${1}" ] || [ "X${TEMPLATE_OPTIONS}" == "X" ]; then
         local template_options=
     else
-        local template_options="${TEMPLATE_OPTIONS// /+}"
+        local template_options=$(printf '%s' ${TEMPLATE_OPTIONS[@]/#/+})
     fi
 
-    local template_name="$(templateFlavorPrefix ${template_flavor})${template_flavor}${template_options:++}${template_options}"
+    local template_name="$(templateFlavorPrefix ${template_flavor})${template_flavor}${template_options}"
 
     # If TEMPLATE_LABEL is not already an array, make it one
     if ! [[ "$(declare -p TEMPLATE_LABEL 2>/dev/null)" =~ ^declare\ -a.* ]] ; then 
@@ -74,13 +104,6 @@ templateName() {
         fi
     done
 
-    if [ ${#template_name} -ge 32 ]; then
-        error "Template name is greater than 31 characters: ${template_name}"
-        error "Please set an alias"
-        error "Exiting!!!"
-        exit 1
-    fi
-
-    echo ${template_name}
+    echo "$(templateNameFixLength ${template_name})"
     return $retval
 }
