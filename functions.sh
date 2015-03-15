@@ -165,6 +165,19 @@ setArrayAsGlobal() {
 
 
 # ------------------------------------------------------------------------------
+# Checks if the passed element exists in passed array
+# $1: Element to check for
+# $2: Array to check for element in
+#
+# Returns 0 if True, or 1 if False
+# ------------------------------------------------------------------------------
+elementIn () {
+  local element
+  for element in "${@:2}"; do [[ "$element" == "$1" ]] && return 0; done
+  return 1
+}
+
+# ------------------------------------------------------------------------------
 # Spilts the path and returns an array of parts
 #
 # $1: Full path of file to split
@@ -231,6 +244,15 @@ templateDir() {
     echo "${dir}"
 }
 
+exists() {
+    filename="${1}"
+    if [ -e "${filename}" ]; then
+        echo "${filename}"
+        return 0
+    fi
+    return 1
+}
+
 templateFile() {
     local file="$1"
     local suffix="$2"
@@ -239,15 +261,35 @@ templateFile() {
 
     splitPath "${file}" path_parts
 
-    # Append suffix to filename (before extension)
-    if [ "${suffix}" ]; then
-        file="${template_dir}/${path_parts[base]}_${suffix}${path_parts[dotext]}"
-    else
-        file="${template_dir}/${path_parts[base]}${path_parts[dotext]}"
+    # No template flavor
+    if [ "X{template_flavor}" == "X" ]; then
+        if [ -e "${file}" ]; then
+            echo "${file}"
+        fi
+        return
     fi
 
-    if [ -f "${file}" ]; then
-        echo "${file}"
+    # Locate file in directory named after flavor
+    if [ "${suffix}" ]; then
+        # Append suffix to filename (before extension)
+
+        # (../SCRIPTSDIR/minimal/packages_qubes_suffix.list)
+        exists "${template_dir}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
+
+        # (../SCRIPTSDIR/minimal/packages_qubes_minimal_suffix.list)
+        exists "${template_dir}/${path_parts[base]}_${suffix}_${template_flavor}${path_parts[dotext]}" || true
+
+        # (../SCRIPTSDIR/packages_qubes_minimal_suffix.list)
+        exists "${SCRIPTSDIR}/${path_parts[base]}_${suffix}_${template_flavor}${path_parts[dotext]}" || true
+    else
+        # (../SCRIPTSDIR/minimal/packages_qubes.list)
+        exists "${template_dir}/${path_parts[base]}${path_parts[dotext]}" || true
+
+        # (../SCRIPTSDIR/minimal/packages_qubes_minimal.list)
+        exists "${template_dir}/${path_parts[base]}_${template_flavor}${path_parts[dotext]}" || true
+
+        # (../SCRIPTSDIR/packages_qubes_minimal.list)
+        exists "${SCRIPTSDIR}/${path_parts[base]}_${template_flavor}${path_parts[dotext]}" || true
     fi
 }
 
