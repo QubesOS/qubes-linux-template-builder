@@ -12,6 +12,8 @@ ROOT_DIR=$(readlink -m .)
 . ./functions.sh
 . ./tests/assert/assert.sh
 
+set +e
+
 header() {
     echo
     echo
@@ -217,7 +219,7 @@ header <<EOF
  7. Custom template directory
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/another_location/whonix-gw/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/another_location/whonix-gw/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -236,7 +238,7 @@ header <<EOF
  8. Custom template directory with space in name
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/another_location/whonix gw/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/another_location/whonix gw/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -359,9 +361,48 @@ info "Template name: $(templateName)"
 assertTest "templateName" "debian-7"
 assertEnd
 
+# ------------------------------------------------------------------------------
+# 15. Template Name - containsFlavor
+# ------------------------------------------------------------------------------
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="whonix-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR=""
+TEMPLATE_OPTIONS=('proxy' 'minimal' 'flash' 'gnome')
+TEMPLATE_LABEL=""
+
+header <<EOF
+15. Template Name - containsFlavor
+    containsFlavor flash
+    containsFlavor whonix-gateway
+EOF
+assert_raises "containsFlavor flash"
+assert_raises "containsFlavor whonix-gateway"
+assertEnd
 
 # ------------------------------------------------------------------------------
-# 15. Configuration Files
+# 16. Long Template Name
+# ------------------------------------------------------------------------------
+SCRIPTSDIR="tests/template-flavors"
+DIST="wheezy"
+DISTS_VM=""
+TEMPLATE_FLAVOR="tor-gateway"
+TEMPLATE_FLAVOR_PREFIX=""
+TEMPLATE_FLAVOR_DIR=""
+TEMPLATE_OPTIONS=""
+TEMPLATE_OPTIONS=('minimal' 'proxy' 'flash' 'gnome' 'standard')
+
+header <<EOF
+ 16. Long Template Name
+EOF
+info "Template name: $(templateName)"
+assertTest "templateName" "wheezy+tor-gateway+minimal"
+assertEnd
+
+# ------------------------------------------------------------------------------
+# 17. Configuration Files
 # ------------------------------------------------------------------------------
 SCRIPTSDIR="tests/template-flavors"
 DIST="wheezy"
@@ -375,7 +416,7 @@ TEMPLATE_FLAVOR_DIR=(
 TEMPLATE_OPTIONS=('gnome')
 
 header <<EOF
-15. Configuration Files
+17. Configuration Files
     Find packages.list for every template available
 EOF
 getFileLocations filelist 'packages.list'
@@ -388,7 +429,7 @@ assertEnd
 
 
 # ------------------------------------------------------------------------------
-# 16. Configuration Files - No Template
+# 18. Configuration Files - No Template
 # ------------------------------------------------------------------------------
 SCRIPTSDIR="tests/template-flavors"
 DIST="wheezy"
@@ -399,7 +440,7 @@ TEMPLATE_FLAVOR_DIR=""
 TEMPLATE_OPTIONS=('gnome')
 
 header <<EOF
-16. Configuration Files - No Template
+18. Configuration Files - No Template
     Find packages.list for every template available
 EOF
 getFileLocations filelist 'packages.list'
@@ -412,7 +453,7 @@ assertEnd
 
 
 # ------------------------------------------------------------------------------
-# 17. Configuration Files - No Template - with suffix
+# 19. Configuration Files - No Template - with suffix
 # ------------------------------------------------------------------------------
 SCRIPTSDIR="tests/template-flavors"
 DIST="wheezy"
@@ -423,7 +464,7 @@ TEMPLATE_FLAVOR_DIR=""
 TEMPLATE_OPTIONS=('gnome')
 
 header <<EOF
-17. Configuration Files - No Template - with suffix
+19. Configuration Files - No Template - with suffix
      Find packages.list for every template available
 EOF
 getFileLocations filelist 'packages.list' 'wheezy'
@@ -435,7 +476,7 @@ assertTest "echo ${result}" "tests/template-flavors/packages_wheezy.list"
 assertEnd
 
 # ------------------------------------------------------------------------------
-# 18. Copy files
+# 20. Copy files
 # ------------------------------------------------------------------------------
 SCRIPTSDIR="tests/template-flavors"
 DIST="wheezy"
@@ -447,7 +488,7 @@ TEMPLATE_OPTIONS=""
 INSTALLDIR="${SCRIPTSDIR}/test_copy_location"
 
 header <<EOF 
-18. Copy files
+20. Copy files
     Just test copying from here to ${INSTALLDIR}
     INSTALLDIR="${SCRIPTSDIR}/test_copy_location"
 EOF
@@ -458,7 +499,6 @@ copyTree "files"
 ls -l "${INSTALLDIR}"
 assertTest "ls ${INSTALLDIR}" "test1\ntest2\ntest3"
 assertEnd
-
 
 # Done
 popd
