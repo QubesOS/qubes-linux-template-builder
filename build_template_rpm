@@ -24,4 +24,6 @@ rpmbuild --target noarch \
          --define "_tmppath $PWD/rpmbuild/tmp" \
          -bb templates.spec
 
-[ -d appmenus-$$ ] && rm -rf appmenus-$$ appmenus
+if [ -d appmenus-$$ ]; then
+    rm -rf appmenus-$$ appmenus
+fi
