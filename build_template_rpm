@@ -6,7 +6,6 @@ echo "usage $0 <template_name>"
 exit 1
 fi
 
-. ./builder_setup
 
 rpmbuild --target noarch \
          --define "template_name $NAME" \
