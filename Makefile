@@ -27,13 +27,17 @@ help:
 	@echo "make update-repo-installer -- copy newly generated rpm to installer repo"
 	@echo "make clean                 -- copy newly generated rpm to installer repo"
 
+template-name:
+	@echo $(TEMPLATE_NAME)
 
 prepare:
+	@echo "Building template: $(TEMPLATE_NAME)"
 	@echo $(TIMESTAMP) > build_timestamp_$(TEMPLATE_NAME)
 
-rpms: prepare rootimg-build
-	@echo "Building template: $(TEMPLATE_NAME)"
+package:
 	./build_template_rpm $(TEMPLATE_NAME)
+
+rpms: prepare rootimg-build package
 	./create_template_list.sh || :
 
 rootimg-build:
