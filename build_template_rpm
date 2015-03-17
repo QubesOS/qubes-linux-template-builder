@@ -6,6 +6,16 @@ echo "usage $0 <template_name>"
 exit 1
 fi
 
+# handle appmenus whitelists from DispVM build
+if [ -d qubeized_images/$NAME/untrusted_appmenus ]; then
+    srcdir="qubeized_images/$NAME/untrusted_appmenus"
+    mkdir -p appmenus-$$
+    rm -f appmenus
+    ln -s appmenus-$$ appmenus
+    for f in whitelisted-appmenus.list vm-whitelisted-appmenus.list netvm-whitelisted-appmenus.list; do
+        grep '^[a-zA-Z0-9.()_-]+.desktop$' $srcdir/$f > appmenus/$f
+    done
+fi
 
 rpmbuild --target noarch \
          --define "template_name $NAME" \
@@ -13,3 +23,5 @@ rpmbuild --target noarch \
          --define "_topdir $PWD/rpmbuild" \
          --define "_tmppath $PWD/rpmbuild/tmp" \
          -bb templates.spec
+
+[ -d appmenus-$$ ] && rm -rf appmenus-$$ appmenus
