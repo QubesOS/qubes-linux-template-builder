@@ -105,9 +105,13 @@ if [ "`stat -c %d:%i /`" != "`stat -c %d:%i /proc/1/root/.`" ]; then
     qvm-template-commit --offline-mode %{template_name}
 else
     qvm-template-commit %{template_name}
+    qvm-prefs -s %{template_name} netvm none
     qvm-start --no-guid %{template_name}
     qvm-sync-appmenus --force-root %{template_name}
     qvm-shutdown --wait %{template_name}
+    qvm-prefs -s %{template_name} netvm default
+    # restore default firewall settings, which was reset by setting netvm=none
+    rm -f %{dest_dir}/firewall.xml
     chgrp -R qubes %{dest_dir}
     chmod g+rwX -R %{dest_dir}
 fi
