@@ -5,3 +5,4 @@ build_timestamp_*
 *.img
 install-templates.sh
 pkgs-for-template/*
+cache_*/
