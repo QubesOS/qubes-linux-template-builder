@@ -13,7 +13,7 @@ if [ -d qubeized_images/$NAME/untrusted_appmenus ]; then
     rm -f appmenus
     ln -s appmenus-$$ appmenus
     for f in whitelisted-appmenus.list vm-whitelisted-appmenus.list netvm-whitelisted-appmenus.list; do
-        grep '^[a-zA-Z0-9.()_-]+.desktop$' $srcdir/$f > appmenus/$f
+        grep '^[a-zA-Z0-9.()_-]\+.desktop$' $srcdir/$f > appmenus/$f
     done
 fi
 
