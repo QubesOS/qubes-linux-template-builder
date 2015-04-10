@@ -249,6 +249,10 @@ exists() {
 
     if [ -e "${filename}" ] && ! elementIn "${filename}" "${GLOBAL_CACHE[@]}"; then
         # Cache $script
+        #
+        # GLOBAL_CACHE is declared in the `getFileLocations` function and is later
+        # renamed to a name passed into the function as $1 to allow scripts using
+        # the function to have access to the array
         GLOBAL_CACHE["${#GLOBAL_CACHE[@]}"]="${filename}"
         return 0
     fi
