@@ -200,7 +200,7 @@ header <<EOF
     and in a bash file use single 'quotes' around string and \${SCRIPTSDIR}
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/another_location/whonix_gnome/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/another_location/whonix_gnome/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 
@@ -221,7 +221,6 @@ EOF
 buildStep "$0" "pre"
 assertTest "buildStep $0 pre" "tests/template-flavors/another_location/whonix-gw/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
-
 
 # ------------------------------------------------------------------------------
 # 8. Custom template directory with space in name
@@ -257,7 +256,7 @@ header <<EOF
  9. Custom template directory for options
 EOF
 buildStep "$0" "pre"
-assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/another_location/whonix_gnome/test_pre.sh"
+assertTest "buildStep $0 pre" "tests/template-flavors/wheezy+whonix-gateway/test_pre.sh\ntests/template-flavors/wheezy/test_pre.sh\ntests/template-flavors/another_location/whonix_gnome/test_pre.sh\ntests/template-flavors/test_pre.sh"
 assertEnd
 
 

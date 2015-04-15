@@ -118,7 +118,7 @@ setXtrace() {
 # ------------------------------------------------------------------------------
 # Only output text under certain conditions
 output() {
-    if [ "${VERBOSE}" -ge 1 ]; then
+    if [ "${VERBOSE}" -ge 1 ] && [[ -z ${TEST} ]]; then
         # Don't echo if -x is set since it will already be displayed via true
         [[ ${-/x} != $- ]] || echo -e ""$@""
     fi
@@ -246,8 +246,14 @@ templateDir() {
 
 exists() {
     filename="${1}"
-    if [ -e "${filename}" ]; then
-        echo "${filename}"
+
+    if [ -e "${filename}" ] && ! elementIn "${filename}" "${GLOBAL_CACHE[@]}"; then
+        # Cache $script
+        #
+        # GLOBAL_CACHE is declared in the `getFileLocations` function and is later
+        # renamed to a name passed into the function as $1 to allow scripts using
+        # the function to have access to the array
+        GLOBAL_CACHE["${#GLOBAL_CACHE[@]}"]="${filename}"
         return 0
     fi
     return 1
@@ -262,58 +268,49 @@ templateFile() {
     splitPath "${file}" path_parts
 
     # No template flavor
-    if [ "X{template_flavor}" == "X" ]; then
-        if [ -e "${file}" ]; then
-            echo "${file}"
-        fi
+    if [ -z "${template_flavor}" ]; then
+        if [ "${suffix}" ]; then
+            exists "${SCRIPTSDIR}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
+        else
+            exists "${SCRIPTSDIR}/${path_parts[base]}${path_parts[dotext]}" || true
+        fi    
         return
     fi
 
     # Locate file in directory named after flavor
     if [ "${suffix}" ]; then
         # Append suffix to filename (before extension)
+        # `minimal` is the template_flavor being used in comment example
 
-        # (../SCRIPTSDIR/minimal/packages_qubes_suffix.list)
+        # (TEMPLATE_FLAVOR_DIR/minimal/packages_qubes_suffix.list)
+        exists "${template_dir}/${template_flavor}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
+
+        # (TEMPLATE_FLAVOR_DIR/minimal/packages_qubes_suffix.list)
+        exists "${template_dir}/${template_flavor}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
+
+        # (TEMPLATE_FLAVOR_DIR/packages_qubes_suffix.list)
         exists "${template_dir}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
 
-        # (../SCRIPTSDIR/minimal/packages_qubes_minimal_suffix.list)
+        # (TEMPLATE_FLAVOR_DIR/packages_qubes_minimal_suffix.list)
         exists "${template_dir}/${path_parts[base]}_${suffix}_${template_flavor}${path_parts[dotext]}" || true
 
-        # (../SCRIPTSDIR/packages_qubes_minimal_suffix.list)
+        # (SCRIPTSDIR/packages_qubes_minimal_suffix.list)
         exists "${SCRIPTSDIR}/${path_parts[base]}_${suffix}_${template_flavor}${path_parts[dotext]}" || true
     else
-        # (../SCRIPTSDIR/minimal/packages_qubes.list)
+        # (TEMPLATE_FLAVOR_DIR/minimal/packages_qubes.list)
+        exists "${template_dir}/${template_flavor}/${path_parts[base]}${path_parts[dotext]}" || true
+
+        # (TEMPLATE_FLAVOR_DIR/minimal/packages_qubes_minimal.list)
+        exists "${template_dir}/${template_flavor}/${path_parts[base]}_${template_flavor}${path_parts[dotext]}" || true
+
+        # (TEMPLATE_FLAVOR_DIR/packages_qubes.list)
         exists "${template_dir}/${path_parts[base]}${path_parts[dotext]}" || true
 
-        # (../SCRIPTSDIR/minimal/packages_qubes_minimal.list)
+        # (TEMPLATE_FLAVOR_DIR/packages_qubes_minimal.list)
         exists "${template_dir}/${path_parts[base]}_${template_flavor}${path_parts[dotext]}" || true
 
-        # (../SCRIPTSDIR/packages_qubes_minimal.list)
+        # (SCRIPTSDIR/packages_qubes_minimal.list)
         exists "${SCRIPTSDIR}/${path_parts[base]}_${template_flavor}${path_parts[dotext]}" || true
-    fi
-}
-
-buildStepExec() {
-    local filename="$1"
-    local suffix="$2"
-    local template_flavor="$3"
-
-    script="$(templateFile "${filename}" "${suffix}" "${template_flavor}")"
-
-    if [ -f "${script}" ] && [ ! ${GLOBAL_CACHE[$script]+_} ]; then
-
-        # Test module expects raw  output back only used to asser test results
-        if [[ -n ${TEST} ]]; then
-            echo "${script}" 
-        else
-            output "${bold}${under}INFO: Currently running script: ${script}${reset}"
-        fi
-
-        # Cache $script
-        GLOBAL_CACHE[$script]=1
-
-        # Execute $script
-        "${script}"
     fi
 }
 
@@ -347,10 +344,6 @@ copyTreeExec() {
 }
 
 callTemplateFunction() {
-    # Reset Cache
-    unset GLOBAL_CACHE
-    declare -A -g GLOBAL_CACHE
-
     local calling_script="$1"
     local calling_arg="$2"
     local functionExec="$3"
@@ -404,13 +397,18 @@ getFileLocations() {
     local suffix="$3"
     local function="templateFile"
 
-    files="$(callTemplateFunction "${filename}" "${suffix}" "${function}")"
+    unset GLOBAL_CACHE
+    declare -A -g GLOBAL_CACHE
 
-    IFS_orig="${IFS}}"; IFS=$'\n'
-    files=( "${files}" )
-    setArrayAsGlobal files $return_global_var
+    callTemplateFunction "${filename}" "${suffix}" "${function}"
+    setArrayAsGlobal GLOBAL_CACHE $return_global_var
 
-    IFS="${IFS_orig}"
+    if [ ! ${#GLOBAL_CACHE[@]} -eq 0 ]; then
+        debug "Smart files located for: '${filename##*/}' (suffix: ${suffix}):"
+        for filename in "${GLOBAL_CACHE[@]}"; do
+            debug "${filename}"
+        done
+    fi
 }
 
 # ------------------------------------------------------------------------------
@@ -432,9 +430,23 @@ getFileLocations() {
 buildStep() {
     local filename="$1"
     local suffix="$2"
-    local function="buildStepExec"
 
-    callTemplateFunction "${filename}" "${suffix}" "${function}"
+    info "Locating buildStep files: ${filename##*/} suffix: ${suffix}"
+    getFileLocations "build_step_files" "${filename}" "${suffix}"
+
+    for script in "${build_step_files[@]}"; do
+        if [ -e "${script}" ]; then
+            # Test module expects raw  output back only used to asser test results
+            if [[ -n ${TEST} ]]; then
+                echo "${script}" 
+            else
+                output "${bold}${under}INFO: Currently running script: ${script}${reset}"
+            fi
+
+            # Execute $script
+            "${script}"
+        fi
+    done
 }
 
 # ------------------------------------------------------------------------------
@@ -460,8 +472,13 @@ copyTree() {
     local target_dir="$3"
     local function="copyTreeExec"
 
-    if [ "x${source_dir}" == "x" ]; then
-        callTemplateFunction "" "${dir}" "${function}"
+    if [ -z "${source_dir}" ]; then
+        splitPath "${0}" path_parts
+        if [ -d "${path_parts[dir]}/${dir}" ]; then
+            copyTreeExec "${path_parts[dir]}" "${dir}" "" ""
+        else
+            callTemplateFunction "" "${dir}" "${function}"
+        fi
     else
         copyTreeExec "${source_dir}" "${dir}" "" "${target_dir}"
     fi
