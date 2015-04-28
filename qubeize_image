@@ -77,13 +77,14 @@ export INSTALLDIR=mnt
 # Create App Menus
 # ------------------------------------------------------------------------------
 echo "--> Choosing appmenus whitelists..."
+_appmenus_dir="${APPMENUS_DIR-${SCRIPTSDIR}}"
 rm -f appmenus
-if [ -d "${SCRIPTSDIR}/appmenus_${DIST}_${TEMPLATE_FLAVOR}" ]; then
-    ln -s "${SCRIPTSDIR}/appmenus_${DIST}_${TEMPLATE_FLAVOR}" appmenus
-elif [ -d "${SCRIPTSDIR}/appmenus_$DIST" ]; then
-    ln -s "${SCRIPTSDIR}/appmenus_$DIST" appmenus
-elif [ -d "${SCRIPTSDIR}/appmenus" ]; then
-    ln -s "${SCRIPTSDIR}/appmenus" appmenus
+if [ -d "${_appmenus_dir}/appmenus_${DIST}_${TEMPLATE_FLAVOR}" ]; then
+    ln -s "${_appmenus_dir}/appmenus_${DIST}_${TEMPLATE_FLAVOR}" appmenus
+elif [ -d "${_appmenus_dir}/appmenus_$DIST" ]; then
+    ln -s "${_appmenus_dir}/appmenus_$DIST" appmenus
+elif [ -d "${_appmenus_dir}/appmenus" ]; then
+    ln -s "${_appmenus_dir}/appmenus" appmenus
 else
     ln -s "appmenus_generic" appmenus
 fi
