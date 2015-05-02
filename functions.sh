@@ -81,19 +81,28 @@ fi
 
 if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
     chroot() {
+        # Display `chroot` or `systemd-nspawn` in blue ONLY if VERBOSE >= 2
+        # or DEBUG == "1"
         local retval
         true ${blue}
+
+        # Need to capture exit code after running chroot or systemd-nspawn
+        # so it will be available as a return value
         if [ "${SYSTEMD_NSPAWN_ENABLE}"  == "1" ]; then
-            systemd-nspawn $systemd_bind -D "${INSTALLDIR}" -M "${DIST}" "$@" && { retval=$?; true; } || { retval=$?; true; }
+            systemd-nspawn $systemd_bind -D "${INSTALLDIR}" -M "${DIST}" ${1+"$@"} && { retval=$?; true; } || { retval=$?; true; }
         else
-            /usr/sbin/chroot "${INSTALLDIR}" "$@" && { retval=$?; true; } || { retval=$?; true; }
+            /usr/sbin/chroot "${INSTALLDIR}" ${1+"$@"} && { retval=$?; true; } || { retval=$?; true; }
         fi
         true ${reset}
         return $retval
     }
 else
     chroot() {
-        /usr/sbin/chroot "${INSTALLDIR}" "$@"
+        if [ "${SYSTEMD_NSPAWN_ENABLE}"  == "1" ]; then
+            systemd-nspawn $systemd_bind -D "${INSTALLDIR}" -M "${DIST}" ${1+"$@"}
+        else
+            /usr/sbin/chroot "${INSTALLDIR}" ${1+"$@"}
+        fi
     }
 fi
 
