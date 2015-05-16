@@ -95,27 +95,41 @@ export XDG_DATA_DIRS=/usr/share/
 echo "--> Instaling menu shortcuts..."
 ln -sf /usr/share/qubes/icons/template.png %{dest_dir}/icon.png
 
+local_user=`getent group qubes | cut -d : -f 4 | cut -d , -f 1`
+if [ -n "$local_user" ]; then
+    call_as_user() {
+        su -c "$*" - $local_user
+    }
+else
+    # This will be the case during installation - user will be created in
+    # firstboot. There is also a code to fix file permissions, so not a big problem
+    call_as_user() {
+        $*
+    }
+fi
+
 if [ "$1" = 1 ] ; then
     # installing for the first time
-    qvm-add-template --rpm %{template_name}
+    call_as_user qvm-add-template --rpm %{template_name}
 fi
 
 # If running inside of chroot (means - from anaconda), force offline mode
 if [ "`stat -c %d:%i /`" != "`stat -c %d:%i /proc/1/root/.`" ]; then
     qvm-template-commit --offline-mode %{template_name}
+    call_as_user /usr/libexec/qubes-appmenus/create-apps-for-appvm.sh \
+        %{dest_dir}/apps.templates %{template_name} vm-templates
 else
     qvm-template-commit %{template_name}
-    qvm-prefs -s %{template_name} netvm none
+    qvm-prefs --force-root -s %{template_name} netvm none
     qvm-start --no-guid %{template_name}
-    qvm-sync-appmenus --force-root %{template_name}
+    call_as_user qvm-sync-appmenus --force-root %{template_name}
     qvm-shutdown --wait %{template_name}
-    qvm-prefs -s %{template_name} netvm default
+    qvm-prefs --force-root -s %{template_name} netvm default
     # restore default firewall settings, which was reset by setting netvm=none
     rm -f %{dest_dir}/firewall.xml
     chgrp -R qubes %{dest_dir}
     chmod g+rwX -R %{dest_dir}
 fi
-/usr/libexec/qubes-appmenus/create-apps-for-appvm.sh %{dest_dir}/apps.templates %{template_name} vm-templates
 exit 0
 
 %preun
