@@ -86,7 +86,7 @@ templateName() {
     if [ -n "${1}" ] || [ "X${TEMPLATE_OPTIONS}" == "X" ]; then
         local template_options=
     else
-        local template_options=$(printf '%s' ${TEMPLATE_OPTIONS[@]/#/+})
+        local template_options=$(printf '+%s' ${TEMPLATE_OPTIONS[@]})
     fi
 
     local template_name="$(templateFlavorPrefix ${template_flavor})${template_flavor}${template_options}"
