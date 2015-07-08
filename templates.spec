@@ -117,7 +117,7 @@ fi
 if [ "`stat -c %d:%i /`" != "`stat -c %d:%i /proc/1/root/.`" ]; then
     qvm-template-commit --offline-mode %{template_name}
     call_as_user /usr/libexec/qubes-appmenus/create-apps-for-appvm.sh \
-        %{dest_dir}/apps.templates %{template_name} vm-templates
+        %{dest_dir}/apps.templates %{template_name} vm-templates appvm-black
 else
     qvm-template-commit %{template_name}
     qvm-prefs --force-root -s %{template_name} netvm none
