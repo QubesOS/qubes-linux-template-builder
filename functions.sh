@@ -167,7 +167,7 @@ error() {
 setArrayAsGlobal() {
     local array="$1"
     local export_as="$2"
-    local code=$(declare -p "$array")
+    local code=$(declare -p "$array" 2> /dev/null || true)
     local replaced="${code/$array/$export_as}"
     eval ${replaced/declare -/declare -g}
 } 
@@ -407,7 +407,7 @@ getFileLocations() {
     local function="templateFile"
 
     unset GLOBAL_CACHE
-    declare -A -g GLOBAL_CACHE
+    declare -gA GLOBAL_CACHE
 
     callTemplateFunction "${filename}" "${suffix}" "${function}"
     setArrayAsGlobal GLOBAL_CACHE $return_global_var
