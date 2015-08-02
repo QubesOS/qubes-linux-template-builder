@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+    set -x
+fi
+
 # ------------------------------------------------------------------------------
 # Configurations and Conditionals
 # ------------------------------------------------------------------------------
@@ -10,11 +14,7 @@ export LC_ALL=POSIX
 . ./builder_setup >/dev/null
 . ./umount_kill.sh >/dev/null
 
-if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
-    set -x
-else
-    set -e
-fi
+set -e
 
 if [ $# -eq 0 ]; then
     echo "usage $0 <clean_image_file> <template_name>"
