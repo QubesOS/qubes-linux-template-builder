@@ -51,6 +51,7 @@ umount_kill() {
         # If enabled, turn off xtrace and remember its current setting.
         if test -o xtrace ; then
             true "$FUNCNAME: Disabling xtrace, because variable VERBOSE (${VERBOSE}) is lower than or equal 2..."
+            set +x
             XTRACE_WAS_SET=true
         fi
     fi
@@ -105,8 +106,8 @@ umount_kill() {
     done
 
     if [ "$XTRACE_WAS_SET" == "true" ] ; then
-       true "$FUNCNAME: Restoring xtrace..."
        set -x
+       true "$FUNCNAME: Restoring xtrace..."
     fi
 }
 
