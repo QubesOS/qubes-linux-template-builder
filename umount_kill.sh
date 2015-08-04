@@ -2,12 +2,12 @@
 # vim: set ts=4 sw=4 sts=4 et :
 
 #
-# Written by Jason Mehring (nrgaway@gmail.com) 
-# 
+# Written by Jason Mehring (nrgaway@gmail.com)
+#
 
-# Kills any processes within the mounted location and 
+# Kills any processes within the mounted location and
 # unmounts any mounts active within.
-# 
+#
 # To keep the actual mount mounted, add a '/' to end
 #
 # ${1}: directory to umount
@@ -16,13 +16,13 @@
 # To kill all processes and mounts within 'chroot-jessie' but keep
 # 'chroot-jessie' mounted:
 #
-# ./umount_kill.sh chroot-jessie/ 
+# ./umount_kill.sh chroot-jessie/
 #
 # To kill all processes and mounts within 'chroot-jessie' AND also
 # umount 'chroot-jessie' mount:
 #
 # ./umount_kill.sh chroot-jessie
-# 
+#
 
 . ./functions.sh
 
@@ -44,11 +44,16 @@ mountPoints() {
     echo "$(sudo grep "${mount_point}" /proc/mounts | cut -f2 -d" " | sort -r | grep "^${mount_point}")"
 }
 
-# ${1} = full path to mountpoint; 
+# ${1} = full path to mountpoint;
 # ${2} = if set will not umount; only kill processes in mount
 umount_kill() {
-    # Turn off xtrace; but remember its current setting
-    local xtrace=$(getXtrace) && set +x
+    if [ "${VERBOSE}" -le 2 ]; then
+        # If enabled, turn off xtrace and remember its current setting.
+        if test -o xtrace ; then
+            true "$FUNCNAME: Disabling xtrace, because variable VERBOSE (${VERBOSE}) is lower than or equal 2..."
+            XTRACE_WAS_SET=true
+        fi
+    fi
 
     local mount_point="$(mountPoint "${1}")"
     local kill_only="${2}"
@@ -99,8 +104,10 @@ umount_kill() {
         fi
     done
 
-    # Return xtrace to original state
-    setXtrace "${xtrace}"
+    if [ "$XTRACE_WAS_SET" == "true" ] ; then
+       true "$FUNCNAME: Restoring xtrace..."
+       set -x
+    fi
 }
 
 kill_processes_in_mount() {

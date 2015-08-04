@@ -12,21 +12,6 @@ DEBUG=${DEBUG:-0}
 # Global functions
 ################################################################################
 # ------------------------------------------------------------------------------
-# Set xtrace verbose mode (-x or)
-# ------------------------------------------------------------------------------
-XTRACE=
-function setVerboseMode() {
-    # Cache xtrace current status so it can be restored on exit
-    [[ ${-/x} != $- ]] && XTRACE=0 || XTRACE=1
-
-    if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" -ge 2 ]; then
-        set -x
-    else
-        set +x
-    fi
-}
-
-# ------------------------------------------------------------------------------
 # Define colors
 # ------------------------------------------------------------------------------
 colors() {
@@ -107,22 +92,6 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# Return xtrace's current mode
-# 0 is enables (-x); 1 is disables (+x)
-# ------------------------------------------------------------------------------
-getXtrace() {
-    [[ ${-/x} != $- ]] && echo 0 || echo 1
-}
-
-# ------------------------------------------------------------------------------
-# Return xtrace to desired state
-# 0 is enables (-x); 1 is disables (+x)
-# ------------------------------------------------------------------------------
-setXtrace() {
-    [[ "${1}" -eq 0 ]] && set -x || set +x
-}
-
-# ------------------------------------------------------------------------------
 # Display messages in color
 # ------------------------------------------------------------------------------
 # Only output text under certain conditions
@@ -170,7 +139,7 @@ setArrayAsGlobal() {
     local code=$(declare -p "$array" 2> /dev/null || true)
     local replaced="${code/$array/$export_as}"
     eval ${replaced/declare -/declare -g}
-} 
+}
 
 
 # ------------------------------------------------------------------------------
@@ -224,12 +193,12 @@ templateDir() {
     local template_flavor=${1-${TEMPLATE_FLAVOR}}
 
     # If TEMPLATE_FLAVOR_DIR is not already an array, make it one
-    if ! [[ "$(declare -p TEMPLATE_FLAVOR_DIR 2>/dev/null)" =~ ^declare\ -a.* ]] ; then 
+    if ! [[ "$(declare -p TEMPLATE_FLAVOR_DIR 2>/dev/null)" =~ ^declare\ -a.* ]] ; then
         TEMPLATE_FLAVOR_DIR=( ${TEMPLATE_FLAVOR_DIR} )
     fi
 
     for element in "${TEMPLATE_FLAVOR_DIR[@]}"
-    do 
+    do
         # (wheezy+whonix-gateway / wheezy+whonix-gateway+gnome[+++] / wheezy+gnome )
         if [ "${element%:*}" == "$(templateName ${template_flavor})" ]; then
             eval echo -e "${element#*:}"
@@ -282,7 +251,7 @@ templateFile() {
             exists "${SCRIPTSDIR}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
         else
             exists "${SCRIPTSDIR}/${path_parts[base]}${path_parts[dotext]}" || true
-        fi    
+        fi
         return
     fi
 
@@ -357,7 +326,7 @@ callTemplateFunction() {
     local calling_arg="$2"
     local functionExec="$3"
     local template_flavor="${TEMPLATE_FLAVOR}"
- 
+
     ${functionExec} "${calling_script}" \
                     "${calling_arg}" \
                     "${template_flavor}"
@@ -389,7 +358,7 @@ callTemplateFunction() {
 
 # ------------------------------------------------------------------------------
 # Will return all files that match pattern of suffix
-# Example: 
+# Example:
 #   filename = packages.list
 #   suffix = ${DIST} (wheezy)
 #
@@ -424,8 +393,8 @@ getFileLocations() {
 # Executes any additional optional configuration steps if the configuration
 # scripts exist
 #
-# Will find all scripts with 
-# Example: 
+# Will find all scripts with
+# Example:
 #   filename = 04_install_qubes.sh
 #   suffix = post
 #
@@ -447,7 +416,7 @@ buildStep() {
         if [ -e "${script}" ]; then
             # Test module expects raw  output back only used to asser test results
             if [[ -n ${TEST} ]]; then
-                echo "${script}" 
+                echo "${script}"
             else
                 output "${bold}${under}INFO: Currently running script: ${script}${reset}"
             fi
@@ -459,7 +428,7 @@ buildStep() {
 }
 
 # ------------------------------------------------------------------------------
-# Copy extra file tree to ${INSTALLDIR} 
+# Copy extra file tree to ${INSTALLDIR}
 # TODO:  Allow copy per step (04_install_qubes.sh-files)
 #
 # To set file permissions is a PITA since git won't save them and will
