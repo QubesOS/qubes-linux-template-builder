@@ -4,8 +4,8 @@ NAME=$1
 set -e
 
 if [ x$NAME = x ] ; then
-echo "usage $0 <template_name>"
-exit 1
+    echo "usage $0 <template_name>"
+    exit 1
 fi
 
 # handle appmenus whitelists from DispVM build
