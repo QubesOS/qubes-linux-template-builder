@@ -4,6 +4,8 @@ if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
     set -x
 fi
 
+set -e
+
 # ------------------------------------------------------------------------------
 # Configurations
 # ------------------------------------------------------------------------------
@@ -13,8 +15,6 @@ export LC_ALL=POSIX
 RETCODE=0
 
 : ${DIST=fc14}
-
-set -e
 
 . ./builder_setup >/dev/null
 . ./umount_kill.sh >/dev/null
