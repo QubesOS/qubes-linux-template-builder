@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
+    set -x
+fi
+
 # ------------------------------------------------------------------------------
 # Configurations
 # ------------------------------------------------------------------------------
@@ -10,11 +14,7 @@ RETCODE=0
 
 : ${DIST=fc14}
 
-if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
-    set -x
-else
-    set -e
-fi
+set -e
 
 . ./builder_setup >/dev/null
 . ./umount_kill.sh >/dev/null

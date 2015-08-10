@@ -24,6 +24,10 @@
 # ./umount_kill.sh chroot-jessie
 #
 
+if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
+    set -x
+fi
+
 . ./functions.sh
 
 mountPoint() {
