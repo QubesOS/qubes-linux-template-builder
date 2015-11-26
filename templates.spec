@@ -155,6 +155,7 @@ if [ "$1" = 0 ] ; then
     xdg-desktop-menu uninstall --mode system %{dest_dir}/apps/*.directory %{dest_dir}/apps/*.desktop
 
     rm -rf %{dest_dir}/apps %{dest_dir}/apps.templates
+    rm -rf %{dest_dir}/apps.icons %{dest_dir}/apps.tempicons
 fi
 
 %clean
