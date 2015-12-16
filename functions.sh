@@ -189,8 +189,9 @@ splitPath() {
     setArrayAsGlobal PARTS $return_global_var
 }
 
-templateDir() {
+templateDirs() {
     local template_flavor=${1-${TEMPLATE_FLAVOR}}
+    local match=0
 
     # If TEMPLATE_FLAVOR_DIR is not already an array, make it one
     if ! [[ "$(declare -p TEMPLATE_FLAVOR_DIR 2>/dev/null)" =~ ^declare\ -a.* ]] ; then
@@ -202,13 +203,18 @@ templateDir() {
         # (wheezy+whonix-gateway / wheezy+whonix-gateway+gnome[+++] / wheezy+gnome )
         if [ "${element%:*}" == "$(templateName ${template_flavor})" ]; then
             eval echo -e "${element#*:}"
-            return
+            match=1
+
         # Very short name compare (+proxy)
         elif [ "${element:0:1}" == "+" -a "${element%:*}" == "+${template_flavor}" ]; then
             eval echo -e "${element#*:}"
-            return
+            match=1
         fi
     done
+
+    if [ "${match}" -eq 1 ]; then
+        return
+    fi
 
     local template_flavor_prefix="$(templateFlavorPrefix ${template_flavor})"
     if [ -n "${template_flavor}" -a "${template_flavor}" == "+" ]; then
@@ -241,55 +247,57 @@ templateFile() {
     local file="$1"
     local suffix="$2"
     local template_flavor="$3"
-    local template_dir="$(templateDir "${template_flavor}")"
+    local template_dirs="$(templateDirs "${template_flavor}")"
 
     splitPath "${file}" path_parts
 
-    # No template flavor
-    if [ -z "${template_flavor}" ]; then
-        if [ "${suffix}" ]; then
-            exists "${SCRIPTSDIR}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
-        else
-            exists "${SCRIPTSDIR}/${path_parts[base]}${path_parts[dotext]}" || true
+    for template_dir in ${template_dirs[@]}; do
+        # No template flavor
+        if [ -z "${template_flavor}" ]; then
+            if [ "${suffix}" ]; then
+                exists "${SCRIPTSDIR}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
+            else
+                exists "${SCRIPTSDIR}/${path_parts[base]}${path_parts[dotext]}" || true
+            fi
+            return
         fi
-        return
-    fi
 
-    # Locate file in directory named after flavor
-    if [ "${suffix}" ]; then
-        # Append suffix to filename (before extension)
-        # `minimal` is the template_flavor being used in comment example
+        # Locate file in directory named after flavor
+        if [ "${suffix}" ]; then
+            # Append suffix to filename (before extension)
+            # `minimal` is the template_flavor being used in comment example
 
-        # (TEMPLATE_FLAVOR_DIR/minimal/packages_qubes_suffix.list)
-        exists "${template_dir}/${template_flavor}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
+            # (TEMPLATE_FLAVOR_DIR/minimal/packages_qubes_suffix.list)
+            exists "${template_dir}/${template_flavor}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
 
-        # (TEMPLATE_FLAVOR_DIR/minimal/packages_qubes_suffix.list)
-        exists "${template_dir}/${template_flavor}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
+            # (TEMPLATE_FLAVOR_DIR/minimal/packages_qubes_suffix.list)
+            exists "${template_dir}/${template_flavor}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
 
-        # (TEMPLATE_FLAVOR_DIR/packages_qubes_suffix.list)
-        exists "${template_dir}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
+            # (TEMPLATE_FLAVOR_DIR/packages_qubes_suffix.list)
+            exists "${template_dir}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
 
-        # (TEMPLATE_FLAVOR_DIR/packages_qubes_minimal_suffix.list)
-        exists "${template_dir}/${path_parts[base]}_${suffix}_${template_flavor}${path_parts[dotext]}" || true
+            # (TEMPLATE_FLAVOR_DIR/packages_qubes_minimal_suffix.list)
+            exists "${template_dir}/${path_parts[base]}_${suffix}_${template_flavor}${path_parts[dotext]}" || true
 
-        # (SCRIPTSDIR/packages_qubes_minimal_suffix.list)
-        exists "${SCRIPTSDIR}/${path_parts[base]}_${suffix}_${template_flavor}${path_parts[dotext]}" || true
-    else
-        # (TEMPLATE_FLAVOR_DIR/minimal/packages_qubes.list)
-        exists "${template_dir}/${template_flavor}/${path_parts[base]}${path_parts[dotext]}" || true
+            # (SCRIPTSDIR/packages_qubes_minimal_suffix.list)
+            exists "${SCRIPTSDIR}/${path_parts[base]}_${suffix}_${template_flavor}${path_parts[dotext]}" || true
+        else
+            # (TEMPLATE_FLAVOR_DIR/minimal/packages_qubes.list)
+            exists "${template_dir}/${template_flavor}/${path_parts[base]}${path_parts[dotext]}" || true
 
-        # (TEMPLATE_FLAVOR_DIR/minimal/packages_qubes_minimal.list)
-        exists "${template_dir}/${template_flavor}/${path_parts[base]}_${template_flavor}${path_parts[dotext]}" || true
+            # (TEMPLATE_FLAVOR_DIR/minimal/packages_qubes_minimal.list)
+            exists "${template_dir}/${template_flavor}/${path_parts[base]}_${template_flavor}${path_parts[dotext]}" || true
 
-        # (TEMPLATE_FLAVOR_DIR/packages_qubes.list)
-        exists "${template_dir}/${path_parts[base]}${path_parts[dotext]}" || true
+            # (TEMPLATE_FLAVOR_DIR/packages_qubes.list)
+            exists "${template_dir}/${path_parts[base]}${path_parts[dotext]}" || true
 
-        # (TEMPLATE_FLAVOR_DIR/packages_qubes_minimal.list)
-        exists "${template_dir}/${path_parts[base]}_${template_flavor}${path_parts[dotext]}" || true
+            # (TEMPLATE_FLAVOR_DIR/packages_qubes_minimal.list)
+            exists "${template_dir}/${path_parts[base]}_${template_flavor}${path_parts[dotext]}" || true
 
-        # (SCRIPTSDIR/packages_qubes_minimal.list)
-        exists "${SCRIPTSDIR}/${path_parts[base]}_${template_flavor}${path_parts[dotext]}" || true
-    fi
+            # (SCRIPTSDIR/packages_qubes_minimal.list)
+            exists "${SCRIPTSDIR}/${path_parts[base]}_${template_flavor}${path_parts[dotext]}" || true
+        fi
+    done
 }
 
 copyTreeExec() {
@@ -298,27 +306,30 @@ copyTreeExec() {
     local template_flavor="$3"
     local target_dir="$4"
 
-    local template_dir="$(templateDir ${template_flavor})"
-    local source_dir="$(readlink -m ${source_dir:-${template_dir}}/${dir})"
-    local target_dir="$(readlink -m ${target_dir:-${INSTALLDIR}})"
+    local template_dirs="$(templateDirs ${template_flavor})"
 
-    if ! [ -d "${source_dir}" ]; then
-        debug "No extra files to copy for ${dir}"
-	    return 0
-    fi
+    for template_dir in ${template_dirs[@]}; do
+        local source_dir="$(readlink -m ${source_dir:-${template_dir}}/${dir})"
+        local target_dir="$(readlink -m ${target_dir:-${INSTALLDIR}})"
 
-    debug "Copying ${source_dir}/* ${target_dir}"
-    cp -rp "${source_dir}/." "${target_dir}"
+        if ! [ -d "${source_dir}" ]; then
+            debug "No extra files to copy for ${dir}"
+            return 0
+        fi
 
-    if [ -f "${source_dir}/.facl" ]; then
-        debug "Restoring file permissions..."
-        pushd "${target_dir}"
-        {
-            setfacl --restore="${source_dir}/.facl" 2>/dev/null ||:
-            rm -f .facl
-        }
-        popd
-    fi
+        debug "Copying ${source_dir}/* ${target_dir}"
+        cp -rp "${source_dir}/." "${target_dir}"
+
+        if [ -f "${source_dir}/.facl" ]; then
+            debug "Restoring file permissions..."
+            pushd "${target_dir}"
+            {
+                setfacl --restore="${source_dir}/.facl" 2>/dev/null ||:
+                rm -f .facl
+            }
+            popd
+        fi
+    done
 }
 
 callTemplateFunction() {
