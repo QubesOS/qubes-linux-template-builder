@@ -419,6 +419,7 @@ getFileLocations() {
 buildStep() {
     local filename="$1"
     local suffix="$2"
+    unset build_step_files
 
     info "Locating buildStep files: ${filename##*/} suffix: ${suffix}"
     getFileLocations "build_step_files" "${filename}" "${suffix}"
