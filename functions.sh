@@ -209,6 +209,11 @@ templateDirs() {
         elif [ "${element:0:1}" == "+" -a "${element%:*}" == "+${template_flavor}" ]; then
             eval echo -e "${element#*:}"
             match=1
+        
+        # Generic template directory that matches all flavors, or even no flavors
+        elif [ "${element:0:1}" == "*" ]; then
+            eval echo -e "${element#*:}"
+            match=1
         fi
     done
 
