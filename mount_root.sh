@@ -18,7 +18,7 @@ mkdir -p mnt
 
 MNTDIR=$(pwd)/mnt
 
-LOOP=$(/sbin/losetup -f -s -o $OFFSET $ROOTIMG)
+LOOP=$(/sbin/losetup -f --show -o $OFFSET $ROOTIMG)
 
 if [ x$LOOP = x ] ; then
 echo "Cannot setup loopback device for the $ROOTIMG file -- perhaps a permissions problem?"
