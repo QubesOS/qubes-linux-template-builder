@@ -65,7 +65,7 @@ if [ ! "$build_already_defined_colors" = "true" ]; then
 fi
 
 if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
-    chroot() {
+    chroot_cmd() {
         # Display `chroot` or `systemd-nspawn` in blue ONLY if VERBOSE >= 2
         # or DEBUG == "1"
         local retval
@@ -82,7 +82,7 @@ if [ "${VERBOSE}" -ge 2 -o "${DEBUG}" == "1" ]; then
         return $retval
     }
 else
-    chroot() {
+    chroot_cmd() {
         if [ "${SYSTEMD_NSPAWN_ENABLE}"  == "1" ]; then
             systemd-nspawn $systemd_bind -D "${INSTALLDIR}" -M "${DIST}" ${1+"$@"}
         else
