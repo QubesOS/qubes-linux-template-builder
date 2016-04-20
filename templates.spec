@@ -33,11 +33,9 @@ Obsoletes:  %{name} > %{version}-%{release}
 Qubes template for %{template_name}
 
 %build
-pushd qubeized_images/%{template_name}
+cd qubeized_images/%{template_name}
 rm -f root.img.part.*
 tar --sparse --dereference -cf - root.img | split -d -b 1G - root.img.part.
-popd
-
 
 %install
 rm -rf $RPM_BUILD_ROOT

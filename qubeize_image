@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ "$VERBOSE" -ge 2 -o "$DEBUG" == "1" ]; then
     set -x
