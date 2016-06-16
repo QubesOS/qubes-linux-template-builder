@@ -65,6 +65,7 @@ fi
 
 %post
 echo "--> Processing the root.img... (this might take a while)"
+rm -f %{dest_dir}/root.img
 cat %{dest_dir}/root.img.part.* | tar --sparse -xf - -C %{dest_dir}
 rm -f %{dest_dir}/root.img.part.*
 chown root.qubes %{dest_dir}/root.img
@@ -78,14 +79,12 @@ tar --sparse -cf %{dest_dir}/clean-volatile.img.tar -C %{dest_dir} volatile.img
 chown root.qubes %{dest_dir}/clean-volatile.img.tar
 chmod 0660 %{dest_dir}/clean-volatile.img.tar
 
-if [ "$1" = 1 ] ; then
-    # installing for the first time
-    echo "--> Creating private.img..."
-    truncate -s 2G %{dest_dir}/private.img
-    mkfs.ext4 -m 0 -q -F %{dest_dir}/private.img
-    chown root.qubes %{dest_dir}/private.img
-    chmod 0660 %{dest_dir}/private.img
-fi
+echo "--> Creating private.img..."
+rm -f %{dest_dir}/private.img
+truncate -s 2G %{dest_dir}/private.img
+mkfs.ext4 -m 0 -q -F %{dest_dir}/private.img
+chown root.qubes %{dest_dir}/private.img
+chmod 0660 %{dest_dir}/private.img
 
 
 export XDG_DATA_DIRS=/usr/share/
