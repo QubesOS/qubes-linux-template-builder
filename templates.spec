@@ -64,6 +64,12 @@ fi
 
 
 %post
+
+if command -v qvm-template-postprocess >/dev/null 2>&1; then
+    qvm-template-postprocess --really post-install %{template_name} %{dest_dir}
+    exit $?
+fi
+
 echo "--> Processing the root.img... (this might take a while)"
 cat %{dest_dir}/root.img.part.* | tar --sparse -xf - -C %{dest_dir}
 rm -f %{dest_dir}/root.img.part.*
@@ -133,6 +139,12 @@ exit 0
 %preun
 if [ "$1" = 0 ] ; then
     # no more packages left
+
+    if command -v qvm-template-postprocess >/dev/null 2>&1; then
+        qvm-template-postprocess --really pre-remove %{template_name} %{dest_dir}
+        exit $?
+    fi
+
     # First remove DispVM template (even if not exists...)
     qvm-remove --force-root -q %{template_name}-dvm
 
