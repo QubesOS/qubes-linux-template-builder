@@ -3,6 +3,7 @@ $(error "You must set DIST variable, e.g. DIST=fc14")
 endif
 export DIST
 
+TEMPLATE_ENV_WHITELIST ?=
 TEMPLATE_BUILDER = 1
 -include $(addsuffix /Makefile.builder,$(BUILDER_PLUGINS_DIRS))
 
@@ -10,6 +11,13 @@ TEMPLATE_NAME := $(DIST)
 ifdef TEMPLATE_FLAVOR
 TEMPLATE_NAME := $(TEMPLATE_NAME)-$(TEMPLATE_FLAVOR)
 endif
+
+# expose those variables to template-building scripts
+TEMPLATE_ENV_WHITELIST += \
+	DIST DISTRIBUTION TEMPLATE_SCRIPTS TEMPLATE_NAME TEMPLATE_FLAVOR \
+	TEMPLATE_FLAVOR_DIR VERBOSE DEBUG PATH BUILDER_DIR \
+	TEMPLATE_ROOT_WITH_PARTITIONS USE_QUBES_REPO_VERSION \
+	USE_QUBES_REPO_TESTING BUILDER_TURBO_MODE REPO_PROXY
 
 # Make sure names are < 32 characters, process aliases
 fix_up := $(shell TEMPLATE_NAME=$(TEMPLATE_NAME) ./builder_fix_filenames)
@@ -44,8 +52,10 @@ rootimg-build:
 ifeq (,$(TEMPLATE_SCRIPTS))
 	$(error Building template $(DIST) not supported by any of configured plugins)
 endif
-	sudo -E ./prepare_image prepared_images/$(TEMPLATE_NAME).img
-	sudo -E ./qubeize_image prepared_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME)
+	sudo env -i $(foreach var,$(TEMPLATE_ENV_WHITELIST),$(var)="$($(var))") \
+		./prepare_image prepared_images/$(TEMPLATE_NAME).img
+	sudo env -i $(foreach var,$(TEMPLATE_ENV_WHITELIST),$(var)="$($(var))") \
+		./qubeize_image prepared_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME)
 
 update-repo-installer:	
 	[ -z "$$UPDATE_REPO" ] && UPDATE_REPO=../installer/yum/qubes-dom0;\
