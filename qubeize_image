@@ -50,6 +50,7 @@ function cleanup() {
     trap - ERR
     trap
     umount_kill "$PWD/mnt" || true
+    losetup -d ${IMG_LOOP}
     exit $errval
 }
 trap cleanup ERR
@@ -65,7 +66,14 @@ cp "$CLEANIMG" "$IMG" || exit 1
 
 echo "--> Mounting $IMG"
 mkdir -p mnt
-mount -o loop "$IMG" mnt || exit 1
+if [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
+    IMG_LOOP=$(losetup -P -f --show "$IMG")
+    IMG_DEV=${IMG_LOOP}p1
+else
+    IMG_LOOP=$(losetup -f --show "$IMG")
+    IMG_DEV=${IMG_LOOP}
+fi
+mount "$IMG_DEV" mnt || exit 1
 export INSTALLDIR=mnt
 
 # ------------------------------------------------------------------------------
@@ -100,14 +108,18 @@ echo "--> Linking /usr/local to /rw/usrlocal..."
 mv mnt/usr/local mnt/usr/local.orig
 ln -sf /rw/usrlocal mnt/usr/local
 
+echo "Reducing image size (calling cleanup_image)..."
+ls -als $IMG
+./cleanup_image "$INSTALLDIR"
+ls -als $IMG
+
 # ------------------------------------------------------------------------------
 # Finsh - unmount image
 # ------------------------------------------------------------------------------
 echo "--> Unmounting $IMG"
 umount_kill "$PWD/mnt" || true
+losetup -d ${IMG_LOOP}
 
 echo "Qubeized image stored at: $IMG"
 
-echo "Reducing image size (calling cleanup_image)..."
-./cleanup_image "$IMG"
 chown -R --reference=. qubeized_images/$NAME

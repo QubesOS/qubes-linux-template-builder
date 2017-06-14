@@ -1,30 +1,24 @@
 #!/bin/sh
 
-export IMG=$1
+export INSTALLDIR=$1
 
 . ./builder_setup
 
 set -e
 
 if ! [ $# -eq 1 ]; then
-	echo "usage $0 <img_file_name>"
+	echo "usage $0 <mount_point>"
 	exit 1
 fi
 
 
-if ! [ -f $IMG ]; then
-	echo $IMG does not exist 
+if ! [ -d $INSTALLDIR ]; then
+	echo $INSTALLDIR does not exist
 	exit 1
 fi	
-ls -als $IMG
-mount -o loop $IMG mnt || exit 1
-export INSTALLDIR=`pwd`/mnt/
 
 echo "--> Cleaning up image file..."
 $SCRIPTSDIR/09_cleanup.sh
 
 echo "--> Compacting image file..."
-fstrim mnt/
-umount mnt
-ls -als $IMG
-
+fstrim -v "$INSTALLDIR"

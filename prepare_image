@@ -45,15 +45,41 @@ echo "-> Preparing instalation of ${DIST} template..."
 # ------------------------------------------------------------------------------
 if [ -f "${IMG}" ]; then
     echo "-> Image file already exists, assuming *update*..."
+    if [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
+        IMG_LOOP=$(losetup -P -f --show "$IMG")
+        IMG_DEV=${IMG_LOOP}p1
+    else
+        IMG_LOOP=$(losetup -f --show "$IMG")
+        IMG_DEV=${IMG_LOOP}
+    fi
 else
     echo "-> Initializing empty image..."
     truncate -s 10G "${IMG}" || exit 1
 
+    if [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
+        echo "-> Creating partition table"
+        # have static UUIDs to make partition table reproducible
+        sfdisk "$IMG" <<EOF || exit 1
+label: gpt
+label-id: f4796a2a-e377-45bd-b539-d6d49e569055
+
+size=10000MiB, type=0FC63DAF-8483-4772-8E79-3D69D8477DE4, uuid=693244e6-3e07-47bf-ad79-acade4293fe7, name="Root filesystem"
+size=200MiB, type=C12A7328-F81F-11D2-BA4B-00A0C93EC93B, uuid=fa4d6529-56da-47c7-ae88-e2dfecb72621, name="EFI System"
+size=2MiB, type=21686148-6449-6E6F-744E-656564454649, uuid=1e6c9db4-1e91-46c4-846a-2030dcb13b8c, name="BIOS boot partition"
+EOF
+
+        IMG_LOOP=$(losetup -P -f --show "$IMG")
+        IMG_DEV=${IMG_LOOP}p1
+    else
+        IMG_LOOP=$(losetup -f --show "$IMG")
+        IMG_DEV=${IMG_LOOP}
+    fi
+
     echo "-> Creating filesystem..."
-    mkfs.ext4 -q -F "${IMG}" || exit 1
+    mkfs.ext4 -q -F "${IMG_DEV}" || exit 1
 fi
 
-mount -o loop "${IMG}" "${INSTALLDIR}" || exit 1
+mount "${IMG_DEV}" "${INSTALLDIR}" || exit 1
 trap "umount_kill $(readlink -m ${INSTALLDIR})" EXIT
 "${SCRIPTSDIR}/01_install_core.sh"
 
@@ -70,5 +96,6 @@ trap - EXIT
 
 echo "-> Unmounting prepared_image..."
 umount_kill "$(readlink -m ${INSTALLDIR})" || true
+losetup -d ${IMG_LOOP}
 
 exit ${RETCODE}
