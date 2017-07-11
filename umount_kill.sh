@@ -88,13 +88,13 @@ umount_kill() {
         if ! [ "${kill_only}" ]; then
 
             # Mount point found in mtab
-            if $(sudo /usr/bin/mountpoint -q "${dir}"); then
+            if $(sudo mountpoint -q "${dir}"); then
                 info "umount ${dir}"
                 sudo umount -n "${dir}" 2> /dev/null || \
                     sudo umount -n -l "${dir}" 2> /dev/null || \
                     error "umount ${dir} unsuccessful!"
 
-            # Umount entries not found within '/usr/bin/mountpoint'
+            # Umount entries not found within 'mountpoint'
             else
                 # Look for (deleted) mountpoints
                 info "not a regular mount point: ${dir}"
