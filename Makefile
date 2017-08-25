@@ -34,7 +34,7 @@ TIMESTAMP := $(shell date -u +%Y%m%d%H%M)
 help:
 	@echo "make rpms                  -- generate template rpm"
 	@echo "make update-repo-installer -- copy newly generated rpm to installer repo"
-	@echo "make clean                 -- copy newly generated rpm to installer repo"
+	@echo "make clean                 -- remove all files and directories built or added"
 
 template-name:
 	@echo $(TEMPLATE_NAME)
