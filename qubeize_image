@@ -61,8 +61,8 @@ trap cleanup ERR
 export IMG="qubeized_images/$NAME/root.img"
 mkdir -p "qubeized_images/$NAME"
 
-if [ "$TRAVIS" = "true" ]; then
-    echo "--> Moving $CLEANIMG to $IMG (save space on Travis-CI)..."
+if [ "0$DISCARD_PREPARED_IMAGE" -eq "1" ]; then
+    echo "--> Moving $CLEANIMG to $IMG..."
     mv "$CLEANIMG" "$IMG" || exit 1
 else
     echo "--> Copying $CLEANIMG to $IMG..."
