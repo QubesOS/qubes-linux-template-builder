@@ -33,6 +33,10 @@ cd qubeized_images/%{template_name}
 rm -f root.img.part.*
 tar --sparse --dereference -cf - root.img | split -d -b 1G - root.img.part.
 
+if [ "0$DISCARD_PREPARED_IMAGE" -eq 1 ]; then
+    rm -f root.img
+fi
+
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}
