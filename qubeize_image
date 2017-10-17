@@ -73,7 +73,7 @@ echo "--> Mounting $IMG"
 mkdir -p mnt
 if [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
     IMG_LOOP=$(losetup -P -f --show "$IMG")
-    IMG_DEV=${IMG_LOOP}p1
+    IMG_DEV=${IMG_LOOP}p3
 else
     IMG_LOOP=$(losetup -f --show "$IMG")
     IMG_DEV=${IMG_LOOP}
