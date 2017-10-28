@@ -58,6 +58,14 @@ endif
 	sudo env -i $(foreach var,$(TEMPLATE_ENV_WHITELIST),$(var)="$($(var))") \
 		./qubeize_image prepared_images/$(TEMPLATE_NAME).img $(TEMPLATE_NAME)
 
+update-repo-templates-itl: update-repo-templates.itl
+update-repo-templates-community: update-repo-templates.community
+
+update-repo-templates.%: repo = $(subst .,,$(suffix $@))
+update-repo-templates.%:
+	[ -z "$$UPDATE_REPO" ] && UPDATE_REPO=../linux-yum/current-release/templates-$(repo);\
+	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp_$(TEMPLATE_NAME))*.noarch.rpm $$UPDATE_REPO/rpm
+
 update-repo-installer:	
 	[ -z "$$UPDATE_REPO" ] && UPDATE_REPO=../installer/yum/qubes-dom0;\
 	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp_$(TEMPLATE_NAME))*.noarch.rpm $$UPDATE_REPO/rpm
