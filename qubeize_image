@@ -89,13 +89,10 @@ export INSTALLDIR=mnt
 # ------------------------------------------------------------------------------
 # Create App Menus
 # ------------------------------------------------------------------------------
-
-
 echo "--> Choosing appmenus whitelists..."
 echo "APPMENUS_DIR=${APPMENUS_DIR}"
 echo "SCRIPTSDIR=${SCRIPTSDIR}"
 
-# _appmenus_dir="${APPMENUS_DIR:-${SCRIPTSDIR}}"
 _appmenus_dir="${SCRIPTSDIR}"
 
 if [ "${TEMPLATE_FLAVOR}" = "whonix-gateway" ] || [ "${TEMPLATE_FLAVOR}" = "whonix-workstation" ]; then
