@@ -89,17 +89,36 @@ export INSTALLDIR=mnt
 # ------------------------------------------------------------------------------
 # Create App Menus
 # ------------------------------------------------------------------------------
+
+
 echo "--> Choosing appmenus whitelists..."
-_appmenus_dir="${APPMENUS_DIR:-${SCRIPTSDIR}}"
+echo "APPMENUS_DIR=${APPMENUS_DIR}"
+echo "SCRIPTSDIR=${SCRIPTSDIR}"
+
+# _appmenus_dir="${APPMENUS_DIR:-${SCRIPTSDIR}}"
+_appmenus_dir="${SCRIPTSDIR}"
+
+if [ "${TEMPLATE_FLAVOR}" = "whonix-gateway" ] || [ "${TEMPLATE_FLAVOR}" = "whonix-workstation" ]; then
+    _appmenus_dir="${APPMENUS_DIR}"
+fi
+
+echo "_appmenus_dir=${_appmenus_dir}"
+echo "DIST=${DIST}"
+echo "TEMPLATE_FLAVOR=${TEMPLATE_FLAVOR}"
+
 rm -f appmenus
 if [ -d "${_appmenus_dir}/appmenus_${DIST}_${TEMPLATE_FLAVOR}" ]; then
     ln -s "${_appmenus_dir}/appmenus_${DIST}_${TEMPLATE_FLAVOR}" appmenus
+    echo "case 1"
 elif [ -d "${_appmenus_dir}/appmenus_$DIST" ]; then
     ln -s "${_appmenus_dir}/appmenus_$DIST" appmenus
+    echo "case 2"
 elif [ -d "${_appmenus_dir}/appmenus" ]; then
     ln -s "${_appmenus_dir}/appmenus" appmenus
+    echo "case 3"
 else
     ln -s "appmenus_generic" appmenus
+    echo "case 4"
 fi
 
 # ------------------------------------------------------------------------------
