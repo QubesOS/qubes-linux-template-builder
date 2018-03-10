@@ -46,10 +46,10 @@ echo "-> Preparing instalation of ${DIST} template..."
 if [ -f "${IMG}" ]; then
     echo "-> Image file already exists, assuming *update*..."
     if [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
-        IMG_LOOP=$(losetup -P -f --show "$IMG")
+        IMG_LOOP=$(/sbin/losetup -P -f --show "$IMG")
         IMG_DEV=${IMG_LOOP}p3
     else
-        IMG_LOOP=$(losetup -f --show "$IMG")
+        IMG_LOOP=$(/sbin/losetup -f --show "$IMG")
         IMG_DEV=${IMG_LOOP}
     fi
 else
@@ -68,10 +68,10 @@ size=2MiB, type=21686148-6449-6E6F-744E-656564454649, uuid=1e6c9db4-1e91-46c4-84
 type=0FC63DAF-8483-4772-8E79-3D69D8477DE4, uuid=693244e6-3e07-47bf-ad79-acade4293fe7, name="Root filesystem"
 EOF
 
-        IMG_LOOP=$(losetup -P -f --show "$IMG")
+        IMG_LOOP=$(/sbin/losetup -P -f --show "$IMG")
         IMG_DEV=${IMG_LOOP}p3
     else
-        IMG_LOOP=$(losetup -f --show "$IMG")
+        IMG_LOOP=$(/sbin/losetup -f --show "$IMG")
         IMG_DEV=${IMG_LOOP}
     fi
 
@@ -96,6 +96,6 @@ trap - EXIT
 
 echo "-> Unmounting prepared_image..."
 umount_kill "$(readlink -m ${INSTALLDIR})" || true
-losetup -d ${IMG_LOOP}
+/sbin/losetup -d ${IMG_LOOP}
 
 exit ${RETCODE}

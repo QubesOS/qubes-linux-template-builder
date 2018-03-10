@@ -21,4 +21,4 @@ echo "--> Cleaning up image file..."
 $SCRIPTSDIR/09_cleanup.sh
 
 echo "--> Compacting image file..."
-fstrim -v "$INSTALLDIR"
+/sbin/fstrim -v "$INSTALLDIR"
