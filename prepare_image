@@ -28,6 +28,10 @@ if [ "${VERBOSE}" == "1" ]; then
     export YUM_OPTS="${YUM_OPTS} -q"
 fi
 
+if [ -z "$TEMPLATE_ROOT_SIZE" ]; then
+    TEMPLATE_ROOT_SIZE=10G
+fi
+
 # ------------------------------------------------------------------------------
 # Make sure INSTALLDIR exists
 # ------------------------------------------------------------------------------
@@ -54,7 +58,7 @@ if [ -f "${IMG}" ]; then
     fi
 else
     echo "-> Initializing empty image..."
-    truncate -s 10G "${IMG}" || exit 1
+    truncate -s "$TEMPLATE_ROOT_SIZE" "${IMG}" || exit 1
 
     if [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
         echo "-> Creating partition table"
