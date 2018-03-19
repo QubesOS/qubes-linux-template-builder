@@ -50,7 +50,7 @@ function cleanup() {
     trap - ERR
     trap
     umount_kill "$PWD/mnt" || true
-    losetup -d ${IMG_LOOP}
+    /sbin/losetup -d ${IMG_LOOP}
     exit $errval
 }
 trap cleanup ERR
@@ -72,10 +72,10 @@ fi
 echo "--> Mounting $IMG"
 mkdir -p mnt
 if [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
-    IMG_LOOP=$(losetup -P -f --show "$IMG")
+    IMG_LOOP=$(/sbin/losetup -P -f --show "$IMG")
     IMG_DEV=${IMG_LOOP}p3
 else
-    IMG_LOOP=$(losetup -f --show "$IMG")
+    IMG_LOOP=$(/sbin/losetup -f --show "$IMG")
     IMG_DEV=${IMG_LOOP}
 fi
 mount "$IMG_DEV" mnt || exit 1
@@ -123,7 +123,7 @@ ls -als $IMG
 # ------------------------------------------------------------------------------
 echo "--> Unmounting $IMG"
 umount_kill "$PWD/mnt" || true
-losetup -d ${IMG_LOOP}
+/sbin/losetup -d ${IMG_LOOP}
 
 echo "Qubeized image stored at: $IMG"
 
