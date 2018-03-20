@@ -58,8 +58,13 @@ touch $RPM_BUILD_ROOT/%{dest_dir}/icon.png
 export XDG_DATA_DIRS=/usr/share/
 if [ "$1" -gt 1 ] ; then
     # upgrading already installed template...
-    echo "--> Removing previous menu shortcuts..."
-    xdg-desktop-menu uninstall --mode system %{dest_dir}/apps/*.directory %{dest_dir}/apps/*.desktop
+    # avoid removing innocent files if *.desktop doesn't mach anything
+    # https://bugs.freedesktop.org/105635
+    if ls %{dest_dir}/apps/*.directory %{dest_dir}/apps/*.desktop >/dev/null 2>&1; then
+        echo "--> Removing previous menu shortcuts..."
+        xdg-desktop-menu uninstall --mode system \
+            %{dest_dir}/apps/*.directory %{dest_dir}/apps/*.desktop
+    fi
 fi
 
 
