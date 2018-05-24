@@ -26,3 +26,7 @@ rpmbuild --target noarch \
          --define "_topdir $PWD/rpmbuild" \
          --define "_tmppath $PWD/rpmbuild/tmp" \
          -bb templates.spec
+
+if [ "0$DISCARD_PREPARED_IMAGE" -eq "1" ]; then
+    rm -rf "qubeized_images/$NAME"
+fi
