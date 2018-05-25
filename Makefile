@@ -72,6 +72,9 @@ update-repo-installer:
 	[ -z "$$UPDATE_REPO" ] && UPDATE_REPO=../installer/yum/qubes-dom0;\
 	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp_$(TEMPLATE_NAME))*.noarch.rpm $$UPDATE_REPO/rpm
 
+sign:
+	setsid -w rpmsign $$RPMSIGN_OPTS --addsign rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp_$(TEMPLATE_NAME))*.noarch.rpm
+
 prepare-repo-template:
 	rm -rf pkgs-for-template/$(DIST)
 	mkdir -p pkgs-for-template/$(DIST)
