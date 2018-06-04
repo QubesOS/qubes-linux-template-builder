@@ -3,8 +3,9 @@
 # This includes the VM's root image, patched with all qubes rpms, etc
 #
 
-%{!?version: %define version %(cat version)}
-%{!?rel: %define rel %(cat build_timestamp_%{template_name})}
+%{!?template_name: %global template_name %{getenv:TEMPLATE_NAME}}
+%{!?version: %global version %(cat version)}
+%{!?rel: %global rel %(cat build_timestamp_%{template_name} || echo unavailable)}
 
 Name:		qubes-template-%{template_name}
 Version:	%{version}
@@ -17,6 +18,7 @@ Source:		.
 
 Requires:	xdg-utils
 Requires(post):	tar
+BuildArch:  noarch
 Provides:	qubes-template
 Obsoletes:  %{name} > %{version}-%{release}
 
