@@ -71,7 +71,7 @@ templateNameDist() {
     template_name="$(templateName)" && dist_name="${template_name}"
 
     # Automaticly correct name length if it's greater than 32 chars
-    dist_name="$(templateNameFixLength ${template_name})"
+    dist_name="$(templateNameFixLength ${dist_name})"
 
     # Remove and '+' characters from name since they are invalid for name
     dist_name="${dist_name//+/-}"
@@ -79,7 +79,7 @@ templateNameDist() {
 }
 
 templateName() {
-    local template_flavor=${1-${TEMPLATE_FLAVOR}}
+    local template_flavor=${1:-${TEMPLATE_FLAVOR}}
     retval=1 # Default is 1; mean no replace happened
 
     # Only apply options if $1 was not passed
