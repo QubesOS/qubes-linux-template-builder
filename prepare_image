@@ -80,7 +80,7 @@ EOF
     fi
 
     echo "-> Creating filesystem..."
-    mkfs.ext4 -q -F "${IMG_DEV}" || exit 1
+    /sbin/mkfs.ext4 -q -F "${IMG_DEV}" || exit 1
 fi
 
 mount "${IMG_DEV}" "${INSTALLDIR}" || exit 1
