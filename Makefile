@@ -35,6 +35,9 @@ export DISTRIBUTION
 VERSION := $(shell cat version)
 TIMESTAMP := $(shell date -u +%Y%m%d%H%M)
 
+.PHONY: help template-name prepare package rpms rootimg-build
+.PHONY: update-repo-templates-itl update-repo-templates-community
+
 help:
 	@echo "make rpms                  -- generate template rpm"
 	@echo "make update-repo-installer -- copy newly generated rpm to installer repo"
