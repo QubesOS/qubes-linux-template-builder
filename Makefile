@@ -23,7 +23,9 @@ TEMPLATE_ENV_WHITELIST += \
 	CENTOS_MIRROR EPEL_MIRROR QUBES_MIRROR
 
 # Make sure names are < 32 characters, process aliases
-fix_up := $(shell TEMPLATE_NAME=$(TEMPLATE_NAME) ./builder_fix_filenames)
+fix_up := $(shell TEMPLATE_NAME=$(TEMPLATE_NAME) \
+		TEMPLATE_LABEL="$(TEMPLATE_LABEL)" \
+		./builder_fix_filenames)
 TEMPLATE_NAME := $(word 1,$(fix_up))
 
 export TEMPLATE_NAME
