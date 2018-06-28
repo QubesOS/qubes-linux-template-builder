@@ -33,7 +33,7 @@ export TEMPLATE_SCRIPTS
 export DISTRIBUTION
 
 VERSION := $(shell cat version)
-TIMESTAMP := $(shell date -u +%Y%m%d%H%M)
+TEMPLATE_TIMESTAMP ?= $(shell date -u +%Y%m%d%H%M)
 
 .PHONY: help template-name prepare package rpms rootimg-build
 .PHONY: update-repo-templates-itl update-repo-templates-community
@@ -48,7 +48,7 @@ template-name:
 
 prepare:
 	@echo "Building template: $(TEMPLATE_NAME)"
-	@echo $(TIMESTAMP) > build_timestamp_$(TEMPLATE_NAME)
+	@echo $(TEMPLATE_TIMESTAMP) > build_timestamp_$(TEMPLATE_NAME)
 
 package:
 	./build_template_rpm $(TEMPLATE_NAME)
