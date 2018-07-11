@@ -111,7 +111,7 @@ mkdir mnt/home
 
 echo "--> Linking /usr/local to /rw/usrlocal..."
 mv mnt/usr/local mnt/usr/local.orig
-ln -sf /rw/usrlocal mnt/usr/local
+mkdir mnt/usr/local
 
 echo "Reducing image size (calling cleanup_image)..."
 ls -als $IMG
