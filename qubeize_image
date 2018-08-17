@@ -94,8 +94,12 @@ _appmenus_dir="${APPMENUS_DIR:-${SCRIPTSDIR}}"
 rm -f appmenus
 if [ -d "${_appmenus_dir}/appmenus_${DIST}_${TEMPLATE_FLAVOR}" ]; then
     ln -s "${_appmenus_dir}/appmenus_${DIST}_${TEMPLATE_FLAVOR}" appmenus
+elif [ -d "${_appmenus_dir}/appmenus_${DIST//[0-9]*}_${TEMPLATE_FLAVOR}" ]; then
+    ln -s "${_appmenus_dir}/appmenus_${DIST//[0-9]*}_${TEMPLATE_FLAVOR}" appmenus
 elif [ -d "${_appmenus_dir}/appmenus_$DIST" ]; then
     ln -s "${_appmenus_dir}/appmenus_$DIST" appmenus
+elif [ -d "${_appmenus_dir}/appmenus_${DIST//[0-9]*}" ]; then
+    ln -s "${_appmenus_dir}/appmenus_${DIST//[0-9]*}" appmenus
 elif [ -d "${_appmenus_dir}/appmenus" ]; then
     ln -s "${_appmenus_dir}/appmenus" appmenus
 else
