@@ -27,9 +27,11 @@ fix_up := $(shell TEMPLATE_NAME=$(TEMPLATE_NAME) \
 		TEMPLATE_LABEL="$(TEMPLATE_LABEL)" \
 		./builder_fix_filenames)
 TEMPLATE_NAME := $(word 1,$(fix_up))
+SCRIPTSDIR ?= $(TEMPLATE_SCRIPTS)
 
 export TEMPLATE_NAME
 export TEMPLATE_SCRIPTS
+export SCRIPTSDIR
 export DISTRIBUTION
 
 VERSION := $(shell cat version)
