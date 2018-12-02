@@ -78,6 +78,7 @@ if command -v qvm-template-postprocess >/dev/null 2>&1; then
 fi
 
 echo "--> Processing the root.img... (this might take a while)"
+rm -f %{dest_dir}/root.img
 cat %{dest_dir}/root.img.part.* | tar --sparse -xf - -C %{dest_dir}
 rm -f %{dest_dir}/root.img.part.*
 chown root.qubes %{dest_dir}/root.img
