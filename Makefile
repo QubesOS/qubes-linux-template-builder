@@ -53,6 +53,9 @@ prepare:
 package:
 	./build_template_rpm $(TEMPLATE_NAME)
 
+vm: prepare rootimg-build
+	./create_vm_from_qubeized_image.sh
+
 rpms: prepare rootimg-build package
 	./create_template_list.sh || :
 
