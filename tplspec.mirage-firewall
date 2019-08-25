@@ -1,0 +1,9 @@
+prop virt_mode pv
+prop memory 42
+prop vcpus 1
+prop kernelopts (hd0)/boot/grub/menu.lst
+prop kernel pvgrub
+prop provides_network True
+feat no-default-kernelopts 1
+feat gui 
+feat qrexec 1
