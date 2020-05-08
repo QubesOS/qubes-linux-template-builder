@@ -2,22 +2,36 @@
 NAME=$1
 
 set -e
+if [ "${VERBOSE:-0}" -ge 2 ] || [ "${DEBUG:-0}" -eq 1 ]; then
+    set -x
+fi
 
-if [ x$NAME = x ] ; then
+if [ -z "$NAME" ] ; then
     echo "usage $0 <template_name>"
     exit 1
 fi
 
 # handle appmenus whitelists from DispVM build
-if [ -d qubeized_images/$NAME/untrusted_appmenus ]; then
+if [ -d "qubeized_images/$NAME/untrusted_appmenus" ]; then
     srcdir="qubeized_images/$NAME/untrusted_appmenus"
     mkdir -p appmenus-$$
     rm -f appmenus
     ln -s appmenus-$$ appmenus
     for f in whitelisted-appmenus.list vm-whitelisted-appmenus.list netvm-whitelisted-appmenus.list; do
-        grep '^[a-zA-Z0-9.()_-]\+.desktop$' $srcdir/$f > appmenus/$f
+        grep '^[a-zA-Z0-9.()_-]\+.desktop$' "$srcdir/$f" > appmenus/$f
     done
     trap "rm -rf appmenus-$$ appmenus" EXIT
+fi
+
+# Default compression format for binary payloads
+# It applies for Fedora < 31
+COMPRESSION=w2.xzdio
+if [ "${DIST_DOM0#fc}" != "${DIST_DOM0}" ]; then
+    DIST_VER="${DIST_DOM0#fc}"
+fi
+
+if [ "${DIST_VER}" -ge 31 ]; then
+    COMPRESSION=w19.zstdio
 fi
 
 rpmbuild --target noarch \
@@ -25,6 +39,8 @@ rpmbuild --target noarch \
          --define "DIST $DIST" \
          --define "_topdir $PWD/rpmbuild" \
          --define "_tmppath $PWD/rpmbuild/tmp" \
+         --define "_source_payload $COMPRESSION" \
+         --define "_binary_payload $COMPRESSION" \
          -bb templates.spec
 
 if [ "0$DISCARD_PREPARED_IMAGE" -eq "1" ]; then
