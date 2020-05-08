@@ -26,12 +26,14 @@ fi
 # Default compression format for binary payloads
 # It applies for Fedora < 31
 COMPRESSION=w2.xzdio
-if [ "${DIST_DOM0#fc}" != "${DIST_DOM0}" ]; then
-    DIST_VER="${DIST_DOM0#fc}"
-fi
+if [ -n "$DIST_DOM0" ]; then
+    if [ "${DIST_DOM0#fc}" != "${DIST_DOM0}" ]; then
+        DIST_VER="${DIST_DOM0#fc}"
+    fi
 
-if [ "${DIST_VER}" -ge 31 ]; then
-    COMPRESSION=w19.zstdio
+    if [ "${DIST_VER}" -ge 31 ]; then
+        COMPRESSION=w19.zstdio
+    fi
 fi
 
 rpmbuild --target noarch \
