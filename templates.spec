@@ -105,7 +105,7 @@ fi
 export XDG_DATA_DIRS=/usr/share/
 
 echo "--> Instaling menu shortcuts..."
-ln -sf /usr/share/qubes/icons/template.png %{dest_dir}/icon.png
+cp /usr/share/qubes/icons/template.png %{dest_dir}/icon.png
 
 local_user=`getent group qubes | cut -d : -f 4 | cut -d , -f 1`
 if [ -n "$local_user" ]; then
