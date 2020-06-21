@@ -3,3 +3,5 @@ ifeq ($(PACKAGE_SET),vm)
 OUTPUT_DIR = rpm
 RPM_SPEC_FILES = templates.spec
 endif
+
+NO_ARCHIVE := 1
