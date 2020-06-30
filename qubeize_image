@@ -107,6 +107,19 @@ else
 fi
 
 # ------------------------------------------------------------------------------
+# Create Template Config File
+# ------------------------------------------------------------------------------
+
+echo "--> Creating template config file..."
+rm -f template.conf
+_conf_file="${CONFIG_FILE:-${SCRIPTSDIR}/template.conf}"
+if [ -f "$_conf_file" ]; then
+    ln -s "$_conf_file" template.conf
+else
+    ln -s template.generic.conf template.conf
+fi
+
+# ------------------------------------------------------------------------------
 # Link directories so they can be mounted
 # ------------------------------------------------------------------------------
 echo "--> Linking /home to /rw/home..."
