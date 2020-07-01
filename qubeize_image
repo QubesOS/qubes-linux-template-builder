@@ -112,11 +112,19 @@ fi
 
 echo "--> Creating template config file..."
 rm -f template.conf
-_conf_file="${CONFIG_FILE:-${SCRIPTSDIR}/template.conf}"
-if [ -f "$_conf_file" ]; then
-    ln -s "$_conf_file" template.conf
+_conf_dir="${CONFIG_DIR:-${SCRIPTSDIR}}"
+if [ -f "${_conf_dir}/template_${DIST}_${TEMPLATE_FLAVOR}.conf" ]; then
+    ln -s "${_conf_dir}/template_${DIST}_${TEMPLATE_FLAVOR}.conf" template.conf
+elif [ -f "${_conf_dir}/template_${DIST//[0-9]*}_${TEMPLATE_FLAVOR}.conf" ]; then
+    ln -s "${_conf_dir}/template_${DIST//[0-9]*}_${TEMPLATE_FLAVOR}.conf" template.conf
+elif [ -f "${_conf_dir}/template_$DIST.conf" ]; then
+    ln -s "${_conf_dir}/template_$DIST.conf" template.conf
+elif [ -f "${_conf_dir}/template_${DIST//[0-9]*}.conf" ]; then
+    ln -s "${_conf_dir}/template_${DIST//[0-9]*}.conf" template.conf
+elif [ -f "${_conf_dir}/template.conf" ]; then
+    ln -s "${_conf_dir}/template.conf" template.conf
 else
-    ln -s template.generic.conf template.conf
+    ln -s template_generic.conf template.conf
 fi
 
 # ------------------------------------------------------------------------------
