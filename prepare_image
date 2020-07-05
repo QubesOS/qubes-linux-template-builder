@@ -56,6 +56,7 @@ if [ -f "${IMG}" ]; then
         IMG_LOOP=$(/sbin/losetup -f --show "$IMG")
         IMG_DEV=${IMG_LOOP}
     fi
+    udevadm settle --exit-if-exists="$IMG_DEV"
 else
     echo "-> Initializing empty image..."
     truncate -s "$TEMPLATE_ROOT_SIZE" "${IMG}" || exit 1
@@ -78,6 +79,7 @@ EOF
         IMG_LOOP=$(/sbin/losetup -f --show "$IMG")
         IMG_DEV=${IMG_LOOP}
     fi
+    udevadm settle --exit-if-exists="$IMG_DEV"
 
     echo "-> Creating filesystem..."
     /sbin/mkfs.ext4 -q -F "${IMG_DEV}" || exit 1
