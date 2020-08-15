@@ -78,6 +78,7 @@ else
     IMG_LOOP=$(/sbin/losetup -f --show "$IMG")
     IMG_DEV=${IMG_LOOP}
 fi
+udevadm settle --exit-if-exists="$IMG_DEV"
 mount "$IMG_DEV" mnt || exit 1
 export INSTALLDIR=mnt
 
