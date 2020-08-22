@@ -53,6 +53,7 @@ mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps.tempicons
 mkdir -p $RPM_BUILD_ROOT/%{dest_dir}/apps
 cp appmenus/whitelisted-appmenus.list appmenus/vm-whitelisted-appmenus.list $RPM_BUILD_ROOT/%{dest_dir}/
 cp appmenus/netvm-whitelisted-appmenus.list $RPM_BUILD_ROOT/%{dest_dir}/
+cp template.conf $RPM_BUILD_ROOT/%{dest_dir}/
 
 %pre
 
@@ -191,3 +192,4 @@ rm -rf $RPM_BUILD_ROOT
 %attr (664,root,qubes) %{dest_dir}/whitelisted-appmenus.list
 %attr (664,root,qubes) %{dest_dir}/vm-whitelisted-appmenus.list
 %attr (664,root,qubes) %{dest_dir}/netvm-whitelisted-appmenus.list
+%attr (664,root,qubes) %{dest_dir}/template.conf
