@@ -23,6 +23,12 @@ if [ -d "qubeized_images/$NAME/untrusted_appmenus" ]; then
     trap "rm -rf appmenus-$$ appmenus" EXIT
 fi
 
+# handle template.conf from DispVM build
+if [ -r "qubeized_images/$NAME/template.conf" ]; then
+    rm -f template.conf
+    ln -s qubeized_images/$NAME/template.conf template.conf
+fi
+
 # Default compression format for binary payloads
 # It applies for Fedora < 31
 COMPRESSION=w2.xzdio
