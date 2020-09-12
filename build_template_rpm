@@ -11,6 +11,8 @@ if [ -z "$NAME" ] ; then
     exit 1
 fi
 
+trap "rm -rf appmenus-$$ appmenus template.conf" EXIT
+
 # handle appmenus whitelists from DispVM build
 if [ -d "qubeized_images/$NAME/untrusted_appmenus" ]; then
     srcdir="qubeized_images/$NAME/untrusted_appmenus"
@@ -20,7 +22,6 @@ if [ -d "qubeized_images/$NAME/untrusted_appmenus" ]; then
     for f in whitelisted-appmenus.list vm-whitelisted-appmenus.list netvm-whitelisted-appmenus.list; do
         grep '^[a-zA-Z0-9.()_-]\+.desktop$' "$srcdir/$f" > appmenus/$f
     done
-    trap "rm -rf appmenus-$$ appmenus" EXIT
 fi
 
 # handle template.conf from DispVM build
