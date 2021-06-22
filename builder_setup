@@ -9,7 +9,7 @@ if [ ! -d "$SCRIPTSDIR" ]; then
 fi
 
 if [ -z "$CACHEDIR" ]; then
-    CACHEDIR=cache_$DIST
+    CACHEDIR=$PWD/cache_$DIST
 fi
 
 export SCRIPTSDIR CACHEDIR
