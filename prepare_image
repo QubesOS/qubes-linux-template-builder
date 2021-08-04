@@ -64,7 +64,7 @@ else
     if [ "0$TEMPLATE_ROOT_WITH_PARTITIONS" -eq 1 ]; then
         echo "-> Creating partition table"
         # have static UUIDs to make partition table reproducible
-        sfdisk "$IMG" <<EOF || exit 1
+        /usr/sbin/sfdisk "$IMG" <<EOF || exit 1
 label: gpt
 label-id: f4796a2a-e377-45bd-b539-d6d49e569055
 
