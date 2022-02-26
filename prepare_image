@@ -32,6 +32,10 @@ if [ -z "$TEMPLATE_ROOT_SIZE" ]; then
     TEMPLATE_ROOT_SIZE=10G
 fi
 
+if [ -z "$TEMPLATE_ROOT_FSTYPE" ]; then
+    TEMPLATE_ROOT_FSTYPE=ext4
+fi
+
 # ------------------------------------------------------------------------------
 # Make sure INSTALLDIR exists
 # ------------------------------------------------------------------------------
@@ -82,10 +86,28 @@ EOF
     udevadm settle --exit-if-exists="$IMG_DEV"
 
     echo "-> Creating filesystem..."
-    /sbin/mkfs.ext4 -q -F "${IMG_DEV}" || exit 1
+    case "$TEMPLATE_ROOT_FSTYPE" in
+        ext4)
+            /sbin/mkfs.ext4 -q -F "${IMG_DEV}" || exit 1
+            ;;
+        btrfs)
+            /sbin/mkfs.btrfs -q -f "${IMG_DEV}" || exit 1
+            mount "${IMG_DEV}" "${INSTALLDIR}" || exit 1
+            btrfs subvolume create "${INSTALLDIR}/root" || exit 1
+            umount "${INSTALLDIR}" || exit 1
+            ;;
+        *)
+            echo "Unsupported filesystem $TEMPLATE_ROOT_FSTYPE" >&2
+            exit 1
+            ;;
+    esac
 fi
 
-mount "${IMG_DEV}" "${INSTALLDIR}" || exit 1
+if [ "$TEMPLATE_ROOT_FSTYPE" = "btrfs" ]; then
+    mount -o subvol=/root "${IMG_DEV}" "${INSTALLDIR}" || exit 1
+else
+    mount "${IMG_DEV}" "${INSTALLDIR}" || exit 1
+fi
 trap "umount_kill $(readlink -m ${INSTALLDIR})" EXIT
 "${SCRIPTSDIR}/01_install_core.sh"
 
