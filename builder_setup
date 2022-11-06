@@ -8,8 +8,12 @@ if [ ! -d "$SCRIPTSDIR" ]; then
     exit 1
 fi
 
+# Support for builderv2
+TEMPLATE_CONTENT_DIR="${SCRIPTSDIR}"
+IS_LEGACY_BUILDER=1
+
 if [ -z "$CACHEDIR" ]; then
     CACHEDIR=$PWD/cache_$DIST
 fi
 
-export SCRIPTSDIR CACHEDIR
+export SCRIPTSDIR CACHEDIR TEMPLATE_CONTENT_DIR IS_LEGACY_BUILDER
