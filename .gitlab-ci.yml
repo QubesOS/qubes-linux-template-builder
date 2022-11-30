@@ -1,0 +1,27 @@
+include:
+  - project: 'QubesOS/qubes-continuous-integration'
+    file: '/r4.1/gitlab-base.yml'
+  - project: 'QubesOS/qubes-continuous-integration'
+    file: '/r4.1/gitlab-vm-fedora-build-template.yml'
+  - project: 'QubesOS/qubes-continuous-integration'
+    file: '/r4.1/gitlab-vm-debian-build-template.yml'
+  - project: 'QubesOS/qubes-continuous-integration'
+    file: '/r4.1/gitlab-vm-centos-build-template.yml'
+
+default:
+  tags:
+    - vm
+    - long-living-job
+
+after_script:
+  - ls -l ~/qubes-builder/qubes-src/linux-template-builder/rpm/noarch
+
+variables:
+  COMPONENTS: linux-template-builder
+  USE_DIST_BUILD_TOOL: 0
+
+prep:sources:
+  extends: .components_prepare
+  variables:
+    COMPONENTS: "builder-rpm builder-debian"
+
