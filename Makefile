@@ -12,6 +12,9 @@ ifdef TEMPLATE_FLAVOR
 TEMPLATE_NAME := $(TEMPLATE_NAME)-$(TEMPLATE_FLAVOR)
 endif
 
+# Support for builderv2
+IS_LEGACY_BUILDER=1
+
 # expose those variables to template-building scripts
 TEMPLATE_ENV_WHITELIST += \
 	DIST DISTRIBUTION TEMPLATE_SCRIPTS TEMPLATE_NAME TEMPLATE_FLAVOR \
@@ -22,7 +25,7 @@ TEMPLATE_ENV_WHITELIST += \
 	BUILDER_TURBO_MODE REPO_PROXY FEDORA_MIRROR \
 	CENTOS_MIRROR EPEL_MIRROR QUBES_MIRROR \
 	GENTOO_MIRROR ARCHLINUX_MIRROR \
-	DIST_DOM0 RELEASE
+	DIST_DOM0 RELEASE IS_LEGACY_BUILDER
 
 # Make sure names are < 32 characters, process aliases
 fix_up := $(shell TEMPLATE_NAME=$(TEMPLATE_NAME) \
@@ -33,6 +36,7 @@ TEMPLATE_NAME := $(word 1,$(fix_up))
 export TEMPLATE_NAME
 export TEMPLATE_SCRIPTS
 export DISTRIBUTION
+export IS_LEGACY_BUILDER
 
 VERSION := $(shell cat version)
 TEMPLATE_TIMESTAMP ?= $(shell date -u +%Y%m%d%H%M)
@@ -75,7 +79,7 @@ update-repo-templates.%:
 	[ -z "$$UPDATE_REPO" ] && UPDATE_REPO=../linux-yum/current-release/templates-$(repo);\
 	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp_$(TEMPLATE_NAME))*.noarch.rpm $$UPDATE_REPO/rpm
 
-update-repo-installer:	
+update-repo-installer:
 	[ -z "$$UPDATE_REPO" ] && UPDATE_REPO=../installer/yum/qubes-dom0;\
 	ln -f rpm/noarch/qubes-template-$(TEMPLATE_NAME)-$(VERSION)-$(shell cat build_timestamp_$(TEMPLATE_NAME))*.noarch.rpm $$UPDATE_REPO/rpm
 

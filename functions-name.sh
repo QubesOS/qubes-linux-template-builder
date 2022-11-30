@@ -9,6 +9,10 @@ DEBUG=${DEBUG:-0}
 containsFlavor() {
     flavor="${1}"
     retval=1
+    local template_options
+
+    # shellcheck disable=SC2153
+    read -r -a template_options <<<"${TEMPLATE_OPTIONS[@]}"
 
     # Check the template flavor first
     if [ "${flavor}" == "${TEMPLATE_FLAVOR}" ]; then
@@ -16,7 +20,7 @@ containsFlavor() {
     fi
 
     # Check the template flavors next
-    elementIn "${flavor}" ${TEMPLATE_OPTIONS[@]} && {
+    elementIn "${flavor}" "${template_options[@]}" && {
         retval=0
     }
 
@@ -25,37 +29,36 @@ containsFlavor() {
 
 templateFlavorPrefix() {
     local template_flavor=${1-${TEMPLATE_FLAVOR}}
+    local template_flavor_prefix
+    # shellcheck disable=SC2153
+    read -r -a template_flavor_prefix <<<"${TEMPLATE_FLAVOR_PREFIX[@]}"
 
-    # If TEMPLATE_FLAVOR_PREFIX is not already an array, make it one
-    if ! [[ "$(declare -p TEMPLATE_FLAVOR_PREFIX 2>/dev/null)" =~ ^declare\ -a.* ]] ; then 
-        TEMPLATE_FLAVOR_PREFIX=( ${TEMPLATE_FLAVOR_PREFIX} )
-    fi
-
-    for element in "${TEMPLATE_FLAVOR_PREFIX[@]}"
-    do 
+    for element in "${template_flavor_prefix[@]}"
+    do
         if [ "${element%:*}" == "${DIST}+${template_flavor}" ]; then
-            echo ${element#*:}
+            echo "${element#*:}"
             return
         fi
     done
-    
+
     # If template_flavor only contains a '+'; send back $DIST
     if [ "${template_flavor}" == "+" ]; then
         echo "${DIST}"
-    else    
+    else
         echo "${DIST}${template_flavor:++}"
     fi
 }
 
 templateNameFixLength() {
     local template_name="${1}"
-    local temp_name=(${template_name//+/ })
+    local temp_name
+    read -r -a temp_name <<<"${template_name//+/ }"
     local index=$(( ${#temp_name[@]}-1 ))
 
     while [ ${#template_name} -ge 32 ]; do
-        template_name=$(printf '%s' ${temp_name[0]})
+        template_name=$(printf '%s' "${temp_name[0]}")
         if [ $index -gt 0 ]; then
-            template_name+=$(printf '+%s' ${temp_name[@]:1:index})
+            template_name+=$(printf '+%s' "${temp_name[@]:1:index}")
         fi
         (( index-- ))
         if [ $index -lt 1 ]; then
@@ -71,32 +74,36 @@ templateNameDist() {
     template_name="$(templateName)" && dist_name="${template_name}"
 
     # Automaticly correct name length if it's greater than 32 chars
-    dist_name="$(templateNameFixLength ${dist_name})"
+    dist_name="$(templateNameFixLength "${dist_name}")"
 
     # Remove and '+' characters from name since they are invalid for name
     dist_name="${dist_name//+/-}"
-    echo ${dist_name}
+    echo "${dist_name}"
 }
 
 templateName() {
     local template_flavor=${1:-${TEMPLATE_FLAVOR}}
+    local template_name
+    local template_options
+    local template_label
+    local template_options_concatenated
     retval=1 # Default is 1; mean no replace happened
 
+    read -r -a template_options <<< "${TEMPLATE_OPTIONS[@]}"
+
     # Only apply options if $1 was not passed
-    if [ -n "${1}" ] || [ "X${TEMPLATE_OPTIONS}" == "X" ]; then
-        local template_options=
+    if [ -n "${1}" ] || [ -z "${TEMPLATE_OPTIONS[*]}" ]; then
+        template_options_concatenated=
     else
-        local template_options=$(printf '+%s' ${TEMPLATE_OPTIONS[@]})
+        template_options_concatenated=$(printf '+%s' "${template_options[@]}")
     fi
 
-    local template_name="$(templateFlavorPrefix ${template_flavor})${template_flavor}${template_options}"
+    template_name="$(templateFlavorPrefix "${template_flavor}")${template_flavor}${template_options_concatenated}"
 
-    # If TEMPLATE_LABEL is not already an array, make it one
-    if ! [[ "$(declare -p TEMPLATE_LABEL 2>/dev/null)" =~ ^declare\ -a.* ]] ; then 
-        TEMPLATE_LABEL=( ${TEMPLATE_LABEL} )
-    fi
+    # shellcheck disable=SC2153
+    read -r -a template_label <<<"${TEMPLATE_LABEL[@]}"
 
-    for element in "${TEMPLATE_LABEL[@]}"; do
+    for element in "${template_label[@]}"; do
         if [ "${element%:*}" == "${template_name}" ]; then
             template_name="${element#*:}"
             retval=0
@@ -104,6 +111,7 @@ templateName() {
         fi
     done
 
-    echo "$(templateNameFixLength ${template_name})"
+    # shellcheck disable=SC2005
+    echo "$(templateNameFixLength "${template_name}")"
     return $retval
 }
