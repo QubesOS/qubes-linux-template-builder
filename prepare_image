@@ -38,6 +38,9 @@ fi
 export INSTALLDIR="$(readlink -m mnt)"
 mkdir -p "${INSTALLDIR}"
 
+# Support for builderv2
+export INSTALL_DIR="${INSTALLDIR}"
+
 # ------------------------------------------------------------------------------
 # Prepare for mount
 # ------------------------------------------------------------------------------

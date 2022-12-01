@@ -82,6 +82,9 @@ udevadm settle --exit-if-exists="$IMG_DEV"
 mount "$IMG_DEV" mnt || exit 1
 export INSTALLDIR=mnt
 
+# Support for builderv2
+export INSTALL_DIR="${INSTALLDIR}"
+
 # ------------------------------------------------------------------------------
 # Run qubeize script
 # ------------------------------------------------------------------------------

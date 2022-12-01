@@ -24,4 +24,3 @@ prep:sources:
   extends: .components_prepare
   variables:
     COMPONENTS: "builder-rpm builder-debian"
-
