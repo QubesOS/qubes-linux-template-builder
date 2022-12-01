@@ -45,6 +45,11 @@ output() {
     fi
 }
 
+outputc() {
+    shift
+    output "$*" || :
+}
+
 info() {
     output "INFO: $*" || :
 }
