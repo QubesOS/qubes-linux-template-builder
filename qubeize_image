@@ -82,6 +82,10 @@ udevadm settle --exit-if-exists="$IMG_DEV"
 mount "$IMG_DEV" mnt || exit 1
 export INSTALLDIR=mnt
 
+# prepare for template.conf, so the qubeize script may generate it dynamically
+export TEMPLATE_CONF="${PWD}/template.conf"
+rm -f "$TEMPLATE_CONF"
+
 # Support for builderv2
 export INSTALL_DIR="${INSTALLDIR}"
 
@@ -115,20 +119,21 @@ fi
 # ------------------------------------------------------------------------------
 
 echo "--> Creating template config file..."
-rm -f template.conf
-_conf_dir="${CONFIG_DIR:-${SCRIPTSDIR}}"
-if [ -f "${_conf_dir}/template_${DIST}_${TEMPLATE_FLAVOR}.conf" ]; then
-    ln -s "${_conf_dir}/template_${DIST}_${TEMPLATE_FLAVOR}.conf" template.conf
-elif [ -f "${_conf_dir}/template_${DIST//[0-9]*}_${TEMPLATE_FLAVOR}.conf" ]; then
-    ln -s "${_conf_dir}/template_${DIST//[0-9]*}_${TEMPLATE_FLAVOR}.conf" template.conf
-elif [ -f "${_conf_dir}/template_$DIST.conf" ]; then
-    ln -s "${_conf_dir}/template_$DIST.conf" template.conf
-elif [ -f "${_conf_dir}/template_${DIST//[0-9]*}.conf" ]; then
-    ln -s "${_conf_dir}/template_${DIST//[0-9]*}.conf" template.conf
-elif [ -f "${_conf_dir}/template.conf" ]; then
-    ln -s "${_conf_dir}/template.conf" template.conf
-else
-    ln -s template_generic.conf template.conf
+if ! [ -e "$TEMPLATE_CONF" ]; then
+    _conf_dir="${CONFIG_DIR:-${SCRIPTSDIR}}"
+    if [ -f "${_conf_dir}/template_${DIST}_${TEMPLATE_FLAVOR}.conf" ]; then
+        cp "${_conf_dir}/template_${DIST}_${TEMPLATE_FLAVOR}.conf" "$TEMPLATE_CONF"
+    elif [ -f "${_conf_dir}/template_${DIST//[0-9]*}_${TEMPLATE_FLAVOR}.conf" ]; then
+        cp "${_conf_dir}/template_${DIST//[0-9]*}_${TEMPLATE_FLAVOR}.conf" "$TEMPLATE_CONF"
+    elif [ -f "${_conf_dir}/template_$DIST.conf" ]; then
+        cp "${_conf_dir}/template_$DIST.conf" "$TEMPLATE_CONF"
+    elif [ -f "${_conf_dir}/template_${DIST//[0-9]*}.conf" ]; then
+        cp "${_conf_dir}/template_${DIST//[0-9]*}.conf" "$TEMPLATE_CONF"
+    elif [ -f "${_conf_dir}/template.conf" ]; then
+        cp "${_conf_dir}/template.conf" "$TEMPLATE_CONF"
+    else
+        cp template_generic.conf "$TEMPLATE_CONF"
+    fi
 fi
 
 # ------------------------------------------------------------------------------
