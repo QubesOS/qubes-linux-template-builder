@@ -40,6 +40,8 @@ mkdir -p "${INSTALLDIR}"
 
 # Support for builderv2
 export INSTALL_DIR="${INSTALLDIR}"
+# shellcheck disable=SC2153
+export CACHE_DIR="${CACHEDIR}"
 
 # ------------------------------------------------------------------------------
 # Prepare for mount
