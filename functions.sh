@@ -262,7 +262,7 @@ templateFile() {
 
     for template_dir in "${template_dirs[@]}"; do
         # No template flavor
-        if [ -z "${template_flavor}" ]; then
+        if [ -z "${template_flavor}" ] || [ "${template_flavor}" = "+" ]; then
             if [ -n "${suffix}" ]; then
                 # shellcheck disable=SC2154
                 exists "${TEMPLATE_CONTENT_DIR}/${path_parts[base]}_${suffix}${path_parts[dotext]}" || true
