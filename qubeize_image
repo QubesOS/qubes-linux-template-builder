@@ -79,7 +79,11 @@ else
     IMG_DEV=${IMG_LOOP}
 fi
 udevadm settle --exit-if-exists="$IMG_DEV"
-mount "$IMG_DEV" mnt || exit 1
+if [ "$TEMPLATE_ROOT_FSTYPE" = "btrfs" ]; then
+    mount -o subvol=/root "${IMG_DEV}" mnt || exit 1
+else
+    mount "${IMG_DEV}" mnt || exit 1
+fi
 export INSTALLDIR=mnt
 
 # prepare for template.conf, so the qubeize script may generate it dynamically
@@ -95,6 +99,11 @@ export CACHE_DIR="${CACHEDIR}"
 # Run qubeize script
 # ------------------------------------------------------------------------------
 "$SCRIPTSDIR/04_install_qubes.sh"
+
+if [ "$TEMPLATE_ROOT_FSTYPE" = "btrfs" ]; then
+    # patch fstab
+    sed -i -e 's:dmroot.*ext4.*:dmroot / btrfs defaults,discard,noatime,subvol=/root 1 1:' mnt/etc/fstab
+fi
 
 # ------------------------------------------------------------------------------
 # Create App Menus
